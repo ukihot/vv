@@ -54,6 +54,7 @@ library
         Domain.User.ValueObjects.UserId
         Domain.User.ValueObjects.UserName
         Domain.User.ValueObjects.Version
+        Domain.User.ValueObjects.UserState
         -- Application層
         Application.User.Boundary.Input.ActivateUserUseCase
         Application.User.Boundary.Output.ActivateUserPort
