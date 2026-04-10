@@ -75,7 +75,10 @@ executable vv
     hs-source-dirs:   app
     build-depends:
         base,
-        vv
+        vv,
+        mtl,
+        containers,
+        text
     default-language: GHC2021
 
 test-suite vv-test
