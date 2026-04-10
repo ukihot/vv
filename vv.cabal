@@ -1,97 +1,267 @@
 cabal-version:      3.4
 name:               vv
 version:            0.1.0.0
-license:            BSD-3-Clause
+synopsis:           IFRS-based double-entry financial accounting system
+description:
+    A modern plain-text financial accounting system with IFRS support,
+    built on Event Sourcing / CQRS + DDD architecture.
+
+license:            GPL-3.0-or-later
 license-file:       LICENSE
-author:             ukihot
-maintainer:         tokunaga.y@tyco.co.jp
-category:           System
+author:             Yu Tokunaga
+maintainer:         your@email.com
+copyright:          2026 (c) Yu Tokunaga
+category:           Finance, Accounting
 build-type:         Simple
-extra-doc-files:    CHANGELOG.md
+tested-with:        GHC == 9.8.2
 
-common warnings
-    ghc-options:
-        -Wall
-        -Wno-orphans
-        -Wno-missing-home-modules
-        -Wx-partial
-
--- 共通の拡張機能
-common extensions
+-- ────────────────────────────────────────────────────────────────────────────
+-- Common settings
+-- ────────────────────────────────────────────────────────────────────────────
+common common-options
+    default-language:   GHC2021
     default-extensions:
-        -- 基本
-        OverloadedStrings
         LambdaCase
         MultiWayIf
-        -- 型システム・DDD用 (GADT / 状態管理)
-        GADTs
-        DataKinds
-        KindSignatures
-        -- デライビング (コード生成の自動化)
+        OverloadedStrings
+        OverloadedRecordDot
+        RecordWildCards
         DerivingStrategies
-        GeneralizedNewtypeDeriving
-        StandaloneDeriving
-        -- クリーンアーキテクチャ・DI用 (型クラス制約)
-        MultiParamTypeClasses
-        FlexibleInstances
-        FlexibleContexts
-        UndecidableInstances
-        --テストコード等の型変数固定に便利
-        ScopedTypeVariables
+        DeriveAnyClass
+        DataKinds
+        TypeFamilies
+        GADTs
+        ViewPatterns
+        PatternSynonyms
+        StrictData
+    ghc-options:
+        -Wall
+        -Wcompat
+        -Widentities
+        -Wincomplete-record-updates
+        -Wincomplete-uni-patterns
+        -Wmissing-deriving-strategies
+        -Wredundant-constraints
+        -Wunused-packages
+        -fhide-source-paths
 
+-- ────────────────────────────────────────────────────────────────────────────
+-- Library
+-- ────────────────────────────────────────────────────────────────────────────
 library
-    import:           warnings, extensions
-    exposed-modules:
-        -- Domain層
-        Domain.User.Errors
-        Domain.User.Events
-        Domain.User.Repository
-        Domain.User.Entities.Root
-        Domain.User.Entities.Internal.Profile
-        Domain.User.Services.Factory
-        Domain.User.Services.Uniqueness
-        Domain.User.ValueObjects.Email
-        Domain.User.ValueObjects.UserId
-        Domain.User.ValueObjects.UserName
-        Domain.User.ValueObjects.Version
-        -- Application層
-        Application.User.Boundary.Input.ActivateUserUseCase
-        Application.User.Boundary.Output.ActivateUserPort
-        Application.User.Interactors.ActivateUserInteractor
-        Application.User.DTOs.Request.ActivateUserRequest
-        Application.User.DTOs.Response.ActivateUserResponse
-        Application.User.Queries.UserQueryPort
+    import:           common-options
     hs-source-dirs:   src
     build-depends:
-        base ^>=4.20.0.0,
+        base >= 4.17 && < 5,
+        sqlite-simple,
+        direct-sqlite,
         text,
-        mtl,
-        containers
-    default-language: GHC2021
-
-executable vv
-    import:           warnings, extensions
-    main-is:          Main.hs
-    hs-source-dirs:   app
-    build-depends:
-        base,
-        vv,
-        mtl,
+        bytestring,
+        time,
         containers,
-        text
-    default-language: GHC2021
+        aeson,
+        uuid,
+        safe-money,
+        Decimal,
+        effectful-core,
+        mtl,
+        exceptions
 
+    exposed-modules:
+        Domain.IAM.User
+        Domain.IAM.Role
+        Domain.IAM.Permission
+        Domain.Org.Organization
+        Domain.Org.BusinessUnit
+        Domain.Org.CostCenter
+        Domain.Accounting.JournalEntry
+        Domain.Accounting.ChartOfAccounts
+        Domain.Accounting.FiscalPeriod
+        Domain.Accounting.ExchangeRate
+        Domain.Master.Counterparty
+        Domain.Master.Employee
+        Domain.Master.Product
+        Domain.Ops.Budget
+        Domain.Ops.BankAccount
+        Domain.Ops.BankStatement
+        Domain.Ops.ApprovalWorkflow
+        Domain.Ops.TaxConfiguration
+        Domain.IFRS.Lease
+        Domain.IFRS.Revenue
+        Domain.IFRS.FinancialInstrument
+        Domain.IFRS.Segment
+        Domain.Audit.AuditTrail
+        Domain.Audit.ClosingProcess
+
+    other-modules:
+        Domain.Shared
+        Domain.IAM.User.Entities.Profile
+        Domain.IAM.User.Errors
+        Domain.IAM.User.Events
+        Domain.IAM.User.Repository
+        Domain.IAM.User.Services.Factory
+        Domain.IAM.User.Services.Uniqueness
+        Domain.IAM.User.ValueObjects.Email
+        Domain.IAM.User.ValueObjects.UserId
+        Domain.IAM.User.ValueObjects.UserName
+        Domain.IAM.User.ValueObjects.UserState
+        Domain.IAM.User.ValueObjects.Version
+        App.Ports.Command
+        App.Ports.Commands
+        App.Ports.Query
+        App.Ports.Output
+        App.DTO.Response
+        App.DTO.Request
+        App.UseCase.IAM
+        Infra.Persistence.SQLite.EventStore
+        Infra.Persistence.SQLite.Schema
+        Infra.Persistence.SQLite.Projection
+        Infra.Repositories.IAM
+        Infra.Repositories.Accounting
+        Infra.Repositories.Ops
+        Infra.Repositories.Audit
+        Infra.Queries.SQLite.BalanceSheet
+        Infra.Queries.SQLite.TrialBalance
+        Infra.Queries.SQLite.GeneralLedger
+        Infra.Drivers.Time
+        Infra.Drivers.FileSystem
+
+library vv-internal
+    import:           common-options
+    hs-source-dirs:   src
+    build-depends:
+        base >= 4.17 && < 5,
+        sqlite-simple,
+        direct-sqlite,
+        text,
+        bytestring,
+        time,
+        containers,
+        aeson,
+        uuid,
+        safe-money,
+        Decimal,
+        effectful-core,
+        mtl,
+        exceptions
+
+    exposed-modules:
+        Domain.Shared
+        Domain.IAM.User
+        Domain.IAM.Role
+        Domain.IAM.Permission
+        Domain.IAM.User.Entities.Profile
+        Domain.IAM.User.Errors
+        Domain.IAM.User.Events
+        Domain.IAM.User.Repository
+        Domain.IAM.User.Services.Factory
+        Domain.IAM.User.Services.Uniqueness
+        Domain.IAM.User.ValueObjects.Email
+        Domain.IAM.User.ValueObjects.UserId
+        Domain.IAM.User.ValueObjects.UserName
+        Domain.IAM.User.ValueObjects.UserState
+        Domain.IAM.User.ValueObjects.Version
+        Domain.Org.Organization
+        Domain.Org.BusinessUnit
+        Domain.Org.CostCenter
+        Domain.Accounting.JournalEntry
+        Domain.Accounting.ChartOfAccounts
+        Domain.Accounting.FiscalPeriod
+        Domain.Accounting.ExchangeRate
+        Domain.Master.Counterparty
+        Domain.Master.Employee
+        Domain.Master.Product
+        Domain.Ops.Budget
+        Domain.Ops.BankAccount
+        Domain.Ops.BankStatement
+        Domain.Ops.ApprovalWorkflow
+        Domain.Ops.TaxConfiguration
+        Domain.IFRS.Lease
+        Domain.IFRS.Revenue
+        Domain.IFRS.FinancialInstrument
+        Domain.IFRS.Segment
+        Domain.Audit.AuditTrail
+        Domain.Audit.ClosingProcess
+        App.Ports.Command
+        App.Ports.Commands
+        App.Ports.Query
+        App.Ports.Output
+        App.DTO.Response
+        App.DTO.Request
+        App.UseCase.IAM
+        Infra.Persistence.SQLite.EventStore
+        Infra.Persistence.SQLite.Schema
+        Infra.Persistence.SQLite.Projection
+        Infra.Repositories.IAM
+        Infra.Repositories.Accounting
+        Infra.Repositories.Ops
+        Infra.Repositories.Audit
+        Infra.Queries.SQLite.BalanceSheet
+        Infra.Queries.SQLite.TrialBalance
+        Infra.Queries.SQLite.GeneralLedger
+        Infra.Drivers.Time
+        Infra.Drivers.FileSystem
+
+-- ────────────────────────────────────────────────────────────────────────────
+-- Executable
+-- ────────────────────────────────────────────────────────────────────────────
+executable vv
+    import:           common-options
+    hs-source-dirs:   app
+    main-is:          Main.hs
+    other-modules:
+        Adapter.TUI.Brick.App
+        Adapter.TUI.Brick.Runtime
+    build-depends:
+        base,
+        vv:vv-internal,
+        optparse-applicative >= 0.18 && < 1,
+        brick >= 2.3 && < 3,
+        vty >= 6.1 && < 7,
+        prettyprinter >= 1.7 && < 2,
+        prettyprinter-ansi-terminal >= 1.1 && < 2,
+        cassava >= 0.5 && < 1,
+        text,
+        effectful,
+        mtl,
+        containers
+    ghc-options:
+        -threaded
+        -rtsopts
+        -with-rtsopts=-N
+
+-- ────────────────────────────────────────────────────────────────────────────
+-- Test suite
+-- ────────────────────────────────────────────────────────────────────────────
 test-suite vv-test
-    import:           warnings, extensions
+    import:           common-options
     type:             exitcode-stdio-1.0
-    main-is:          Spec.hs
     hs-source-dirs:   test
-    build-tool-depends: hspec-discover:hspec-discover
+    main-is:          Main.hs
+    build-depends:
+        base,
+        vv:vv-internal,
+        tasty >= 1.5 && < 2,
+        tasty-hedgehog >= 1.4 && < 2,
+        tasty-hunit >= 0.10 && < 1,
+        hedgehog >= 1.4 && < 2,
+        text,
+        time,
+        Decimal,
+        safe-money,
+        containers
+
+-- ────────────────────────────────────────────────────────────────────────────
+-- Benchmark
+-- ────────────────────────────────────────────────────────────────────────────
+benchmark vv-bench
+    import:           common-options
+    type:             exitcode-stdio-1.0
+    hs-source-dirs:   bench
+    main-is:          Main.hs
     build-depends:
         base,
         vv,
-        hspec,
-        text,
-        mtl,
-        containers
-    default-language: GHC2021
+        tasty-bench >= 0.3 && < 1,
+        deepseq >= 1.4 && < 2,
+        time
