@@ -1,0 +1,94 @@
+cabal-version:      3.4
+name:               vv
+version:            0.1.0.0
+license:            BSD-3-Clause
+license-file:       LICENSE
+author:             ukihot
+maintainer:         tokunaga.y@tyco.co.jp
+category:           System
+build-type:         Simple
+extra-doc-files:    CHANGELOG.md
+
+common warnings
+    ghc-options:
+        -Wall
+        -Wno-orphans
+        -Wno-missing-home-modules
+        -Wx-partial
+
+-- 共通の拡張機能
+common extensions
+    default-extensions:
+        -- 基本
+        OverloadedStrings
+        LambdaCase
+        MultiWayIf
+        -- 型システム・DDD用 (GADT / 状態管理)
+        GADTs
+        DataKinds
+        KindSignatures
+        -- デライビング (コード生成の自動化)
+        DerivingStrategies
+        GeneralizedNewtypeDeriving
+        StandaloneDeriving
+        -- クリーンアーキテクチャ・DI用 (型クラス制約)
+        MultiParamTypeClasses
+        FlexibleInstances
+        FlexibleContexts
+        UndecidableInstances
+        --テストコード等の型変数固定に便利
+        ScopedTypeVariables
+
+library
+    import:           warnings, extensions
+    exposed-modules:
+        -- Domain層
+        Domain.User.Errors
+        Domain.User.Events
+        Domain.User.Repository
+        Domain.User.Entities.Root
+        Domain.User.Entities.Internal.Profile
+        Domain.User.Services.Factory
+        Domain.User.Services.Uniqueness
+        Domain.User.ValueObjects.Email
+        Domain.User.ValueObjects.UserId
+        Domain.User.ValueObjects.UserName
+        Domain.User.ValueObjects.Version
+        -- Application層
+        Application.User.Boundary.Input.ActivateUserUseCase
+        Application.User.Boundary.Output.ActivateUserPort
+        Application.User.Interactors.ActivateUserInteractor
+        Application.User.DTOs.Request.ActivateUserRequest
+        Application.User.DTOs.Response.ActivateUserResponse
+        Application.User.Queries.UserQueryPort
+    hs-source-dirs:   src
+    build-depends:
+        base ^>=4.20.0.0,
+        text,
+        mtl,
+        containers
+    default-language: GHC2021
+
+executable vv
+    import:           warnings, extensions
+    main-is:          Main.hs
+    hs-source-dirs:   app
+    build-depends:
+        base,
+        vv
+    default-language: GHC2021
+
+test-suite vv-test
+    import:           warnings, extensions
+    type:             exitcode-stdio-1.0
+    main-is:          Spec.hs
+    hs-source-dirs:   test
+    build-tool-depends: hspec-discover:hspec-discover
+    build-depends:
+        base,
+        vv,
+        hspec,
+        text,
+        mtl,
+        containers
+    default-language: GHC2021

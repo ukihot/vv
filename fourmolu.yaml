@@ -1,0 +1,6 @@
+column-limit: 100         # 1行の長さ
+indentation: 4            # 4スペース派
+comma-style: leading      # コンマを先頭に
+import-export-style: diff # 差分がわかりやすいインポート形式
+indent-wheres: true       # where句をインデント
+record-brace-space: true  # レコードの波括弧にスペースを入れる

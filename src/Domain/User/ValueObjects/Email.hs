@@ -1,0 +1,12 @@
+module Domain.User.ValueObjects.Email (Email, mkEmail, unEmail) where
+
+import Data.Text (Text)
+import qualified Data.Text as T
+import Domain.User.Errors (DomainError (InvalidEmail))
+
+newtype Email = Email {unEmail :: Text} deriving (Show, Eq)
+
+mkEmail :: Text -> Either DomainError Email
+mkEmail t
+  | "@" `T.isInfixOf` t = Right $ Email t
+  | otherwise = Left InvalidEmail
