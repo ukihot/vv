@@ -5,7 +5,6 @@ import Application.User.Boundary.Output.ActivateUserPort (ActivateUserPort (..))
 import Application.User.DTOs.Request.ActivateUserRequest (ActivateUserRequest (..))
 import Control.Monad.Except (ExceptT (..), runExceptT)
 import Domain.User.Entities.Root (activateUser)
-import Domain.User.Errors (DomainError (..))
 import Domain.User.Repository (UserRepository (..))
 import Domain.User.ValueObjects.UserId (mkUserId)
 

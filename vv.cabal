@@ -74,12 +74,24 @@ executable vv
     import:           warnings, extensions
     main-is:          Main.hs
     hs-source-dirs:   app
+    other-modules:
+        Adapter.TUI.Brick.App
+        Adapter.TUI.Brick.Runtime
+    ghc-options:      -threaded
     build-depends:
         base,
         vv,
         mtl,
         containers,
-        text
+        text,
+        brick >=2.0,
+        vty
+    if os(windows)
+        build-depends:
+            vty-windows
+    else
+        build-depends:
+            vty-unix
     default-language: GHC2021
 
 test-suite vv-test
