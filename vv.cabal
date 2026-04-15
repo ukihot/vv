@@ -311,7 +311,9 @@ benchmark vv-bench
     main-is:          Main.hs
     build-depends:
         base,
-        vv,
+        vv:vv-internal,
         tasty-bench >= 0.3 && < 1,
         deepseq >= 1.4 && < 2,
-        time
+        time,
+        text,
+        containers
