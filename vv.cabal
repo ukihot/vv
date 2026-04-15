@@ -72,15 +72,10 @@ library
         Domain.IAM.Role
         Domain.IAM.Permission
         Domain.Org.Organization
-        Domain.Org.BusinessUnit
-        Domain.Org.CostCenter
         Domain.Accounting.JournalEntry
         Domain.Accounting.ChartOfAccounts
         Domain.Accounting.FiscalPeriod
         Domain.Accounting.ExchangeRate
-        Domain.Master.Counterparty
-        Domain.Master.Employee
-        Domain.Master.Product
         Domain.Ops.Budget
         Domain.Ops.BankAccount
         Domain.Ops.BankStatement
@@ -204,15 +199,10 @@ library vv-internal
         Domain.IAM.User.ValueObjects.UserState
         Domain.IAM.User.ValueObjects.Version
         Domain.Org.Organization
-        Domain.Org.BusinessUnit
-        Domain.Org.CostCenter
         Domain.Accounting.JournalEntry
         Domain.Accounting.ChartOfAccounts
         Domain.Accounting.FiscalPeriod
         Domain.Accounting.ExchangeRate
-        Domain.Master.Counterparty
-        Domain.Master.Employee
-        Domain.Master.Product
         Domain.Ops.Budget
         Domain.Ops.BankAccount
         Domain.Ops.BankStatement
