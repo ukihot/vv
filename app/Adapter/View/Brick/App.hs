@@ -4,63 +4,76 @@
 {- | Brick View
 Presenterの状態変更を非同期/リアクティブに検知してUIに反映する。
 Controllerに生データを渡す。
+
+画面構成:
+  - パンくずリスト
+  - タブバー（ドメイン集約単位）
+  - ナビゲーションメニュー（タブ内の画面一覧）
+  - メインコンテンツ
+  - ログパネル
+  - 戻るボタン
 -}
 module Adapter.View.Brick.App (runBrickApp) where
 
 import Adapter.Controller.IAM (handleActivateUser)
 import Adapter.Env (Env, mkEnv, runAppM)
+import Adapter.View.Brick.Navigation
+    ( getBreadcrumbs
+    , initialNavigation
+    , popScreen
+    , pushScreen
+    , switchTab
+    , toggleNavigation
+    )
+import Adapter.View.Brick.Screens (renderScreen)
+import Adapter.View.Brick.Types
+    ( DomainTab (..)
+    , Name (..)
+    , NavigationState (..)
+    , Screen (..)
+    , UiState (..)
+    )
+import Adapter.View.Brick.Widgets
+    ( renderBackButton
+    , renderBreadcrumbs
+    , renderLogPanel
+    , renderNavigationMenu
+    , renderTabBar
+    )
 import Brick
     ( App (..)
     , AttrMap
+    , AttrName
     , BrickEvent (VtyEvent)
     , EventM
-    , Padding (Pad)
+    , Padding (Max, Pad)
     , Widget
     , attrMap
     , attrName
     , defaultMain
+    , fg
+    , hBox
+    , hLimit
     , halt
+    , on
     , padAll
-    , padBottom
-    , padTop
+    , padLeft
+    , padRight
     , showFirstCursor
-    )
-import Brick.Widgets.Border qualified as Border
-import Brick.Widgets.Core
-    ( str
-    , txt
     , vBox
-    , withAttr
+    , vLimit
     )
 import Brick.Widgets.Edit
     ( Editor
     , editorText
     , getEditContents
-    , renderEditor
     )
-import Control.Concurrent.STM (TVar, atomically, modifyTVar', newTVarIO, readTVar, writeTVar)
+import Control.Concurrent.STM (TVar, atomically, modifyTVar', newTVarIO)
 import Control.Monad.IO.Class (liftIO)
-import Control.Monad.State (get, put)
+import Control.Monad.State qualified
 import Data.Text (Text)
 import Data.Text qualified as T
 import Graphics.Vty qualified as V
-import System.IO.Unsafe (unsafePerformIO)
-
--- ─────────────────────────────────────────────────────────────────────────────
--- UI State
--- ─────────────────────────────────────────────────────────────────────────────
-
-data Name = UserIdField
-    deriving stock (Eq, Ord, Show)
-
-data UiState = UiState
-    { -- 依存環境（Controller/Presenterへのアクセス）
-      uiEnv :: Env,
-      -- ログ（Presenterが更新）
-      uiLogs :: TVar [Text],
-      -- エディタ
-      uiEditor :: Editor Text Name
-    }
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- Entry Point
@@ -69,7 +82,7 @@ data UiState = UiState
 runBrickApp :: IO ()
 runBrickApp = do
     -- 共有状態（ログ）を初期化
-    logsVar <- newTVarIO ["Ready. Enter a user id and press Enter."]
+    logsVar <- newTVarIO ["Ready. Press 'n' to open navigation."]
 
     -- 依存環境を構築
     env <- mkEnv logsVar
@@ -78,7 +91,8 @@ runBrickApp = do
             UiState
                 { uiEnv = env,
                   uiLogs = logsVar,
-                  uiEditor = emptyEditor
+                  uiNavigation = initialNavigation,
+                  uiUserIdEditor = emptyEditor
                 }
 
     _ <- defaultMain brickApp initialState
@@ -89,30 +103,61 @@ runBrickApp = do
 -- ─────────────────────────────────────────────────────────────────────────────
 
 handleEvent :: BrickEvent Name e -> EventM Name UiState ()
-handleEvent ev =
+handleEvent ev = do
+    st <- Control.Monad.State.get
     case ev of
         VtyEvent vtyEv ->
             case vtyEv of
+                -- 終了
                 V.EvKey (V.KChar 'q') [] -> halt
-                V.EvKey V.KEnter [] -> submitUserId
-                _ -> return ()
-        _ -> return ()
+                -- ナビゲーション表示/非表示
+                V.EvKey (V.KChar 'n') [] -> do
+                    let nav' = toggleNavigation (uiNavigation st)
+                    Control.Monad.State.put st {uiNavigation = nav'}
+                -- 戻る
+                V.EvKey V.KEsc [] -> do
+                    let nav' = popScreen (uiNavigation st)
+                    Control.Monad.State.put st {uiNavigation = nav'}
+                -- タブ切り替え
+                V.EvKey (V.KChar '\t') [] -> do
+                    let currentTab = navCurrentTab (uiNavigation st)
+                        nextTab = cycleTab currentTab
+                        nav' = switchTab nextTab (uiNavigation st)
+                    Control.Monad.State.put st {uiNavigation = nav'}
+                -- 画面固有のイベント処理
+                _ -> handleScreenEvent vtyEv st
+        _ -> pure ()
 
-submitUserId :: EventM Name UiState ()
-submitUserId = do
-    st <- get
-    let userId = T.strip (T.unlines (getEditContents (uiEditor st)))
+-- タブを循環
+cycleTab :: DomainTab -> DomainTab
+cycleTab TabIAM = TabAccounting
+cycleTab TabAccounting = TabIFRS
+cycleTab TabIFRS = TabOps
+cycleTab TabOps = TabAudit
+cycleTab TabAudit = TabOrg
+cycleTab TabOrg = TabIAM
 
-    if T.null userId
-        then do
-            -- バリデーションエラー（UI層で処理）
-            liftIO $ atomically $ modifyTVar' (uiLogs st) (<> ["[ERROR] User ID is required."])
-        else do
-            -- Controllerに生データを渡す
-            liftIO $ runAppM (uiEnv st) (handleActivateUser userId)
+-- 画面固有のイベント処理
+handleScreenEvent :: V.Event -> UiState -> EventM Name UiState ()
+handleScreenEvent vtyEv st = do
+    let currentScreen = navCurrentScreen (uiNavigation st)
+    case currentScreen of
+        ScreenUserActivate -> handleUserActivateEvent vtyEv st
+        _ -> pure ()
 
-    -- エディタをクリア
-    put st {uiEditor = emptyEditor}
+-- UserActivate画面のイベント処理
+handleUserActivateEvent :: V.Event -> UiState -> EventM Name UiState ()
+handleUserActivateEvent vtyEv st = case vtyEv of
+    V.EvKey V.KEnter [] -> do
+        let userId = T.strip (T.unlines (getEditContents (uiUserIdEditor st)))
+        if T.null userId
+            then do
+                liftIO $ atomically $ modifyTVar' (uiLogs st) (<> ["[ERROR] User ID is required."])
+                Control.Monad.State.put st {uiUserIdEditor = emptyEditor}
+            else do
+                liftIO $ runAppM (uiEnv st) (handleActivateUser userId)
+                Control.Monad.State.put st {uiUserIdEditor = emptyEditor}
+    _ -> pure ()
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- Brick App Definition
@@ -134,38 +179,58 @@ brickApp =
 
 drawUi :: UiState -> [Widget Name]
 drawUi st =
-    [ padAll 1 $
-        vBox
-            [ Border.borderWithLabel (str "VV User Activation") $
-                padAll 1 $
-                    vBox
-                        [ str "User ID",
-                          renderEditor (txt . T.unlines) True (uiEditor st),
-                          padTop (Pad 1) $
-                            withAttr (attrName "hint") $
-                                str "Enter: activate  q: quit"
-                        ],
-              padTop (Pad 1) $
-                Border.borderWithLabel (str "Log") $
-                    padAll 1 $
-                        -- Presenterが更新したログを非同期に表示
-                        vBox (map (padBottom (Pad 1) . txt) (takeLast 8 (readLogsSync st)))
-            ]
-    ]
+    let nav = uiNavigation st
+        breadcrumbs = getBreadcrumbs nav
+        canGoBack = not (null (navScreenStack nav))
+     in [ padAll 1 $
+            vBox
+                [ -- パンくずリスト
+                  renderBreadcrumbs breadcrumbs,
+                  -- タブバー
+                  renderTabBar (navCurrentTab nav),
+                  -- メインコンテンツ
+                  if navShowNavigation nav
+                    then renderWithNavigation st
+                    else renderMainContent st,
+                  -- ログパネル
+                  renderLogPanel st,
+                  -- 戻るボタン
+                  renderBackButton canGoBack
+                ]
+        ]
 
--- Presenterの状態を同期的に読み取る（Brick描画時）
-readLogsSync :: UiState -> [Text]
-readLogsSync st = unsafePerformIO $ atomically $ readTVar (uiLogs st)
+-- ナビゲーションメニュー付きレイアウト
+renderWithNavigation :: UiState -> Widget Name
+renderWithNavigation st =
+    hBox
+        [ hLimit 40 $ renderNavigationMenu (navCurrentTab (uiNavigation st)),
+          padLeft (Pad 1) $ renderMainContent st
+        ]
+
+-- メインコンテンツ
+renderMainContent :: UiState -> Widget Name
+renderMainContent st =
+    let currentScreen = navCurrentScreen (uiNavigation st)
+     in renderScreen currentScreen st
 
 emptyEditor :: Editor Text Name
 emptyEditor = editorText UserIdField (Just 1) ""
 
-takeLast :: Int -> [a] -> [a]
-takeLast n xs = drop (length xs - min n (length xs)) xs
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Attributes
+-- ─────────────────────────────────────────────────────────────────────────────
 
 theMap :: AttrMap
 theMap =
     attrMap
         V.defAttr
-        [ (attrName "hint", V.withStyle V.defAttr V.italic)
+        [ (attrName "hint", fg V.brightBlack),
+          (attrName "title", fg V.brightCyan),
+          (attrName "breadcrumbs", fg V.brightYellow),
+          (attrName "tabActive", V.white `on` V.blue),
+          (attrName "tabInactive", fg V.brightBlack),
+          (attrName "navItem", fg V.brightWhite),
+          (attrName "navDescription", fg V.brightBlack),
+          (attrName "backButton", fg V.brightGreen),
+          (attrName "backButtonDisabled", fg V.brightBlack)
         ]

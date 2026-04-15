@@ -34,7 +34,7 @@ sort-imports: true
 simplify-parentheses: true
 
 # Unicode 記号の使用を禁止
-unicode-syntax: never
+# unicode-syntax: never
 
 # newtype/derivingの扱い
 respectful: true

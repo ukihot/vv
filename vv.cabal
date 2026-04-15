@@ -243,7 +243,16 @@ executable vv
         Adapter.Env
         Adapter.Controller.IAM
         Adapter.Presenter.IAM
+        Adapter.View.Components.Form
+        Adapter.View.Components.Table
+        Adapter.View.Components.Button
+        Adapter.View.Components.Layout
+        Adapter.View.Components.Modal
         Adapter.View.Brick.App
+        Adapter.View.Brick.Types
+        Adapter.View.Brick.Navigation
+        Adapter.View.Brick.Widgets
+        Adapter.View.Brick.Screens
     build-depends:
         base,
         vv:vv-internal,
