@@ -1,0 +1,13 @@
+module Domain.Accounting.ChartOfAccounts.ValueObjects.AccountClass
+    ( AccountClass (..)
+    )
+where
+
+data AccountClass
+    = AssetAccount
+    | LiabilityAccount
+    | EquityAccount
+    | RevenueAccount
+    | ExpenseAccount
+    | OciAccount
+    deriving (Show, Eq, Ord, Enum, Bounded)

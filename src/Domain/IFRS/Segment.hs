@@ -1,49 +1,25 @@
-{- | セグメント情報 (IFRS 8準拠)
-管理会計変換原則 §6.2 に基づき、
+{- | セグメント情報集約ルートエンティティ (IFRS 8準拠)
+管理会計変換原則に基づき、
 制度表示区分に拘束されないセグメント別損益を管理する。
 -}
 module Domain.IFRS.Segment
-    ( -- * セグメント識別子
-      SegmentId (..)
-    , mkSegmentId
+    ( -- * 集約
+      Segment (..)
 
-      -- * セグメント
-    , Segment (..)
-    , SegmentResult (..)
+      -- * エンティティ
+    , module Domain.IFRS.Segment.Entities.SegmentResult
 
-      -- * エラー
-    , SegmentError (..)
+      -- * 値オブジェクト
+    , module Domain.IFRS.Segment.ValueObjects.SegmentId
     )
 where
 
 import Data.Text (Text)
-import Data.Text qualified as T
-import Domain.Shared (FiscalYearMonth, Money (..))
-import GHC.TypeLits (Symbol)
-
-newtype SegmentId = SegmentId {unSegmentId :: Text}
-    deriving (Show, Eq, Ord)
-
-mkSegmentId :: Text -> Either SegmentError SegmentId
-mkSegmentId t
-    | T.null t = Left InvalidSegmentId
-    | otherwise = Right (SegmentId t)
+import Domain.IFRS.Segment.Entities.SegmentResult
+import Domain.IFRS.Segment.ValueObjects.SegmentId
 
 data Segment = Segment
     { segmentId :: SegmentId,
       segmentName :: Text
     }
-    deriving (Show, Eq)
-
--- | セグメント別損益結果
-data SegmentResult (currency :: Symbol) = SegmentResult
-    { srSegmentId :: SegmentId,
-      srPeriod :: FiscalYearMonth,
-      srRevenue :: Money currency,
-      srCost :: Money currency
-    }
-    deriving (Show, Eq)
-
-data SegmentError
-    = InvalidSegmentId
     deriving (Show, Eq)
