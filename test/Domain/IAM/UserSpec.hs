@@ -1,8 +1,7 @@
-module Main (main) where
+module Domain.IAM.UserSpec (tests) where
 
 import Domain.IAM.User
-  ( User,
-    activateUser,
+  ( activateUser,
     deactivateUser,
     getUserId,
     getUserProfile,
@@ -13,42 +12,39 @@ import Domain.IAM.User
 import Domain.IAM.User.Entities.Profile (UserProfile (..))
 import Domain.IAM.User.Events (UserEventPayload (..))
 import Domain.IAM.User.Services.Factory (registerUser)
-import Domain.IAM.User.ValueObjects.UserState (UserState (Pending))
-import Domain.IAM.User.ValueObjects.Email (Email, mkEmail)
-import Domain.IAM.User.ValueObjects.UserId (UserId, mkUserId)
-import Domain.IAM.User.ValueObjects.UserName (UserName, mkUserName)
 import Domain.IAM.User.ValueObjects.Version (Version (..), initialVersion)
-import Data.Text (Text)
-import Data.Text qualified as Text
-import Hedgehog (Gen, Property, forAll, property, (===))
-import Hedgehog.Gen qualified as Gen
-import Hedgehog.Range qualified as Range
-import Test.Tasty (TestTree, defaultMain, testGroup)
-import Test.Tasty.HUnit
-  ( Assertion,
-    assertEqual,
-    assertFailure,
-    testCase,
+import Hedgehog (Property, forAll, property, (===))
+import Support.Assert (assertRight)
+import Support.IAM.Fixtures
+  ( genEmail,
+    genUserId,
+    genUserName,
+    samplePendingUser,
+    shouldMakeEmail,
+    shouldMakeUserId,
+    shouldMakeUserName,
   )
+import Test.Tasty (TestTree, testGroup)
+import Test.Tasty.HUnit (Assertion, assertEqual, assertFailure, testCase)
 import Test.Tasty.Hedgehog (testProperty)
-
-main :: IO ()
-main = defaultMain tests
 
 tests :: TestTree
 tests =
   testGroup
-    "Domain.IAM.User"
+    "User"
     [ testGroup
-        "unit"
-        [ testCase "registerUser seeds a pending user with initial version" case_registerUserSeedsPendingUser,
-          testCase "activateUser preserves identity and profile while incrementing version" case_activateUserPreservesIdentity,
+        "Factory"
+        [ testCase "registerUser seeds a pending user with initial version" case_registerUserSeedsPendingUser
+        ],
+      testGroup
+        "Transitions"
+        [ testCase "activateUser preserves identity and profile while incrementing version" case_activateUserPreservesIdentity,
           testCase "suspend and unsuspend form a reversible active workflow" case_suspendAndUnsuspendWorkflow,
           testCase "deactivateUser accepts active and suspended users" case_deactivateAcceptsActiveAndSuspended,
           testCase "deactivateUser rejects pending users" case_deactivateRejectsPending
         ],
       testGroup
-        "properties"
+        "Properties"
         [ testProperty "registerUser echoes input into aggregate and event" prop_registerUserEchoesInputs,
           testProperty "full lifecycle keeps user id/profile and bumps version at each step" prop_lifecyclePreservesInvariant
         ]
@@ -151,43 +147,3 @@ prop_lifecyclePreservesInvariant = property $ do
       suspendedEvent === UserSuspended uid
       unsuspendedEvent === UserUnsuspended uid
       deactivatedEvent === UserDeactivated uid
-
-samplePendingUser :: IO (User 'Pending)
-samplePendingUser = do
-  uid <- shouldMakeUserId "user-001"
-  name <- shouldMakeUserName "Alice"
-  email <- shouldMakeEmail "alice@example.com"
-  pure (fst (registerUser uid name email))
-
-genUserId :: Gen UserId
-genUserId = do
-  raw <- Gen.text (Range.linear 1 32) Gen.alphaNum
-  either (fail . show) pure (mkUserId raw)
-
-genUserName :: Gen UserName
-genUserName = do
-  raw <- Gen.text (Range.linear 1 32) Gen.alphaNum
-  either (fail . show) pure (mkUserName raw)
-
-genEmail :: Gen Email
-genEmail = do
-  localPart <- Gen.text (Range.linear 1 16) Gen.alphaNum
-  domain <- Gen.text (Range.linear 1 12) Gen.alphaNum
-  tld <- Gen.element ["com", "net", "org", "io"]
-  either (fail . show) pure (mkEmail (localPart <> "@" <> domain <> "." <> tld))
-
-shouldMakeUserId :: String -> IO UserId
-shouldMakeUserId raw = either (assertFailure . ("invalid test user id: " <>) . show) pure (mkUserId (fromStringText raw))
-
-shouldMakeUserName :: String -> IO UserName
-shouldMakeUserName raw = either (assertFailure . ("invalid test user name: " <>) . show) pure (mkUserName (fromStringText raw))
-
-shouldMakeEmail :: String -> IO Email
-shouldMakeEmail raw = either (assertFailure . ("invalid test email: " <>) . show) pure (mkEmail (fromStringText raw))
-
-assertRight :: String -> Either String a -> IO a
-assertRight _ (Right value) = pure value
-assertRight label (Left err) = assertFailure (label <> " failed: " <> err)
-
-fromStringText :: String -> Text
-fromStringText = Text.pack

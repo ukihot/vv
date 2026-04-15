@@ -95,6 +95,27 @@ library
 
     other-modules:
         Domain.Shared
+        Domain.IAM.Permission.Entities.Profile
+        Domain.IAM.Permission.Errors
+        Domain.IAM.Permission.Events
+        Domain.IAM.Permission.Repository
+        Domain.IAM.Permission.Services.Factory
+        Domain.IAM.Permission.Services.Uniqueness
+        Domain.IAM.Permission.ValueObjects.PermissionCode
+        Domain.IAM.Permission.ValueObjects.PermissionId
+        Domain.IAM.Permission.ValueObjects.PermissionName
+        Domain.IAM.Permission.ValueObjects.PermissionState
+        Domain.IAM.Permission.ValueObjects.Version
+        Domain.IAM.Role.Entities.Profile
+        Domain.IAM.Role.Errors
+        Domain.IAM.Role.Events
+        Domain.IAM.Role.Repository
+        Domain.IAM.Role.Services.Factory
+        Domain.IAM.Role.Services.Uniqueness
+        Domain.IAM.Role.ValueObjects.RoleId
+        Domain.IAM.Role.ValueObjects.RoleName
+        Domain.IAM.Role.ValueObjects.RoleState
+        Domain.IAM.Role.ValueObjects.Version
         Domain.IAM.User.Entities.Profile
         Domain.IAM.User.Errors
         Domain.IAM.User.Events
@@ -147,6 +168,27 @@ library vv-internal
 
     exposed-modules:
         Domain.Shared
+        Domain.IAM.Permission.Entities.Profile
+        Domain.IAM.Permission.Errors
+        Domain.IAM.Permission.Events
+        Domain.IAM.Permission.Repository
+        Domain.IAM.Permission.Services.Factory
+        Domain.IAM.Permission.Services.Uniqueness
+        Domain.IAM.Permission.ValueObjects.PermissionCode
+        Domain.IAM.Permission.ValueObjects.PermissionId
+        Domain.IAM.Permission.ValueObjects.PermissionName
+        Domain.IAM.Permission.ValueObjects.PermissionState
+        Domain.IAM.Permission.ValueObjects.Version
+        Domain.IAM.Role.Entities.Profile
+        Domain.IAM.Role.Errors
+        Domain.IAM.Role.Events
+        Domain.IAM.Role.Repository
+        Domain.IAM.Role.Services.Factory
+        Domain.IAM.Role.Services.Uniqueness
+        Domain.IAM.Role.ValueObjects.RoleId
+        Domain.IAM.Role.ValueObjects.RoleName
+        Domain.IAM.Role.ValueObjects.RoleState
+        Domain.IAM.Role.ValueObjects.Version
         Domain.IAM.User
         Domain.IAM.Role
         Domain.IAM.Permission
@@ -237,7 +279,15 @@ test-suite vv-test
     import:           common-options
     type:             exitcode-stdio-1.0
     hs-source-dirs:   test
-    main-is:          Main.hs
+    main-is:          Spec.hs
+    other-modules:
+        Domain.IAM.Spec
+        Domain.IAM.UserSpec
+        Domain.IAM.RoleSpec
+        Domain.IAM.PermissionSpec
+        Support.Assert
+        Support.IAM.Fixtures
+        Support.Text
     build-depends:
         base,
         vv:vv-internal,
