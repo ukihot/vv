@@ -5,5 +5,5 @@ import System.IO (hSetEncoding, stdout, utf8)
 
 main :: IO ()
 main = do
-  hSetEncoding stdout utf8
-  runBrickApp
+    hSetEncoding stdout utf8
+    runBrickApp

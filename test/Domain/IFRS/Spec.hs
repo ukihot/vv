@@ -7,9 +7,9 @@ import Test.Tasty (TestTree, testGroup)
 
 tests :: TestTree
 tests =
-  testGroup
-    "Domain.IFRS"
-    [ RevenueSpec.tests,
-      FISpec.tests,
-      LeaseSpec.tests
-    ]
+    testGroup
+        "Domain.IFRS"
+        [ RevenueSpec.tests,
+          FISpec.tests,
+          LeaseSpec.tests
+        ]

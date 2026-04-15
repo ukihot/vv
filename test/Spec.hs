@@ -7,10 +7,10 @@ import Test.Tasty (defaultMain, testGroup)
 
 main :: IO ()
 main =
-  defaultMain $
-    testGroup
-      "vv"
-      [ IAM.tests,
-        Accounting.tests,
-        IFRS.tests
-      ]
+    defaultMain $
+        testGroup
+            "vv"
+            [ IAM.tests,
+              Accounting.tests,
+              IFRS.tests
+            ]

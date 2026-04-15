@@ -7,9 +7,9 @@ import Test.Tasty (TestTree, testGroup)
 
 tests :: TestTree
 tests =
-  testGroup
-    "Domain.IAM"
-    [ UserSpec.tests,
-      RoleSpec.tests,
-      PermissionSpec.tests
-    ]
+    testGroup
+        "Domain.IAM"
+        [ UserSpec.tests,
+          RoleSpec.tests,
+          PermissionSpec.tests
+        ]

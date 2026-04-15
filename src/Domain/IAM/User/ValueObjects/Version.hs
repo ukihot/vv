@@ -1,20 +1,11 @@
+{- | Domain.Shared.Version の再エクスポート。
+IAM 集約は共通 Version 型を使用する (#11: 型の粒度統一)
+-}
 module Domain.IAM.User.ValueObjects.Version
-  ( Version (..),
-    initialVersion,
-    nextVersion,
-  )
+    ( Version (..)
+    , initialVersion
+    , nextVersion
+    )
 where
 
--- #1, #11: ゼロコストの newtype で型を分離
--- #51, #52: 比較が必要なため Eq, Ord を派生
-newtype Version = Version {unVersion :: Int}
-  deriving (Show, Eq, Ord)
-
--- | 最初のイベントのための初期値
-initialVersion :: Version
-initialVersion = Version 0
-
--- | バージョンを一つ進める
--- Event Sourcing において、新しい事実を積むたびにインクリメントされる
-nextVersion :: Version -> Version
-nextVersion (Version v) = Version (v + 1)
+import Domain.Shared (Version (..), initialVersion, nextVersion)

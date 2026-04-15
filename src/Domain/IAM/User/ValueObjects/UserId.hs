@@ -8,5 +8,5 @@ newtype UserId = UserId {unUserId :: Text} deriving (Show, Eq, Ord)
 
 mkUserId :: Text -> Either DomainError UserId
 mkUserId t
-  | T.null t = Left InvalidUserId
-  | otherwise = Right $ UserId t
+    | T.null t = Left InvalidUserId
+    | otherwise = Right $ UserId t

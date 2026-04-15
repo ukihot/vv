@@ -1,6 +1,6 @@
 module Domain.IAM.Role.Services.Factory
-  ( createRole,
-  )
+    ( createRole
+    )
 where
 
 import Domain.IAM.Role (Role (RoleD))
@@ -13,6 +13,6 @@ import Domain.IAM.Role.ValueObjects.Version (initialVersion)
 
 createRole :: RoleId -> RoleName -> (Role 'Draft, RoleEventPayload)
 createRole roleId roleName =
-  let profile = RoleProfile roleName []
-      role = RoleD roleId profile initialVersion
-   in (role, RoleCreated roleId roleName)
+    let profile = RoleProfile roleName []
+        role = RoleD roleId profile initialVersion
+     in (role, RoleCreated roleId roleName)

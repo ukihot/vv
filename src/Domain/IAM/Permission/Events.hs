@@ -6,7 +6,7 @@ import Domain.IAM.Permission.ValueObjects.PermissionName (PermissionName)
 import Domain.IAM.User.ValueObjects.UserId (UserId)
 
 data PermissionEventPayload
-  = PermissionDefined PermissionId PermissionName PermissionCode
-  | PermissionActivated UserId PermissionId
-  | PermissionRetired UserId PermissionId
-  deriving stock (Show, Eq)
+    = PermissionDefined PermissionId PermissionName PermissionCode
+    | PermissionActivated UserId PermissionId
+    | PermissionRetired UserId PermissionId
+    deriving stock (Show, Eq)

@@ -1,12 +1,12 @@
 module Domain.IAM.Permission
-  ( Permission (..),
-    PermissionState (..),
-    getPermissionId,
-    getPermissionProfile,
-    getPermissionVersion,
-    activatePermission,
-    retirePermission,
-  )
+    ( Permission (..)
+    , PermissionState (..)
+    , getPermissionId
+    , getPermissionProfile
+    , getPermissionVersion
+    , activatePermission
+    , retirePermission
+    )
 where
 
 import Domain.IAM.Permission.Entities.Profile (PermissionProfile)
@@ -17,9 +17,9 @@ import Domain.IAM.Permission.ValueObjects.Version (Version, nextVersion)
 import Domain.IAM.User.ValueObjects.UserId (UserId)
 
 data Permission (s :: PermissionState) where
-  PermissionD :: PermissionId -> PermissionProfile -> Version -> Permission 'Draft
-  PermissionA :: PermissionId -> PermissionProfile -> Version -> Permission 'Active
-  PermissionR :: PermissionId -> PermissionProfile -> Version -> Permission 'Retired
+    PermissionD :: PermissionId -> PermissionProfile -> Version -> Permission 'Draft
+    PermissionA :: PermissionId -> PermissionProfile -> Version -> Permission 'Active
+    PermissionR :: PermissionId -> PermissionProfile -> Version -> Permission 'Retired
 
 deriving stock instance Show (Permission s)
 
@@ -41,17 +41,17 @@ getPermissionVersion (PermissionA _ _ version) = version
 getPermissionVersion (PermissionR _ _ version) = version
 
 activatePermission ::
-  UserId ->
-  Permission 'Draft ->
-  (Permission 'Active, PermissionEventPayload)
+    UserId ->
+    Permission 'Draft ->
+    (Permission 'Active, PermissionEventPayload)
 activatePermission actorId (PermissionD permissionId profile version) =
-  let nextV = nextVersion version
-   in (PermissionA permissionId profile nextV, PermissionActivated actorId permissionId)
+    let nextV = nextVersion version
+     in (PermissionA permissionId profile nextV, PermissionActivated actorId permissionId)
 
 retirePermission ::
-  UserId ->
-  Permission 'Active ->
-  (Permission 'Retired, PermissionEventPayload)
+    UserId ->
+    Permission 'Active ->
+    (Permission 'Retired, PermissionEventPayload)
 retirePermission actorId (PermissionA permissionId profile version) =
-  let nextV = nextVersion version
-   in (PermissionR permissionId profile nextV, PermissionRetired actorId permissionId)
+    let nextV = nextVersion version
+     in (PermissionR permissionId profile nextV, PermissionRetired actorId permissionId)

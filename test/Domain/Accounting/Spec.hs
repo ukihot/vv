@@ -8,10 +8,10 @@ import Test.Tasty (TestTree, testGroup)
 
 tests :: TestTree
 tests =
-  testGroup
-    "Domain.Accounting"
-    [ CoASpec.tests,
-      FPSpec.tests,
-      JESpec.tests,
-      ERSpec.tests
-    ]
+    testGroup
+        "Domain.Accounting"
+        [ CoASpec.tests,
+          FPSpec.tests,
+          JESpec.tests,
+          ERSpec.tests
+        ]

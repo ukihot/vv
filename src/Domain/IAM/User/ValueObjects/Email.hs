@@ -8,5 +8,5 @@ newtype Email = Email {unEmail :: Text} deriving (Show, Eq)
 
 mkEmail :: Text -> Either DomainError Email
 mkEmail t
-  | "@" `T.isInfixOf` t = Right $ Email t
-  | otherwise = Left InvalidEmail
+    | "@" `T.isInfixOf` t = Right $ Email t
+    | otherwise = Left InvalidEmail

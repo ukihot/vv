@@ -5,9 +5,9 @@ import Data.Text qualified as T
 import Domain.IAM.Role.Errors (DomainError (InvalidRoleId))
 
 newtype RoleId = RoleId {unRoleId :: Text}
-  deriving stock (Show, Eq, Ord)
+    deriving stock (Show, Eq, Ord)
 
 mkRoleId :: Text -> Either DomainError RoleId
 mkRoleId raw
-  | T.null raw = Left InvalidRoleId
-  | otherwise = Right (RoleId raw)
+    | T.null raw = Left InvalidRoleId
+    | otherwise = Right (RoleId raw)

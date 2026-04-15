@@ -6,10 +6,10 @@ import Domain.IAM.Permission.ValueObjects.PermissionCode (PermissionCode)
 type DuplicateChecker m = PermissionCode -> m Bool
 
 validateUniquePermissionCode ::
-  (Monad m) =>
-  DuplicateChecker m ->
-  PermissionCode ->
-  m (Either DomainError ())
+    Monad m =>
+    DuplicateChecker m ->
+    PermissionCode ->
+    m (Either DomainError ())
 validateUniquePermissionCode check permissionCode = do
-  exists <- check permissionCode
-  pure $ if exists then Left DuplicatePermissionCode else Right ()
+    exists <- check permissionCode
+    pure $ if exists then Left DuplicatePermissionCode else Right ()

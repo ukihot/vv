@@ -1,6 +1,6 @@
 module App.UseCase.IAM
-  ( executeActivateUser,
-  )
+    ( executeActivateUser
+    )
 where
 
 import App.DTO.Request (ActivateUserRequest (..))
@@ -10,19 +10,19 @@ import Domain.IAM.User.Repository (UserRepository (..))
 import Domain.IAM.User.ValueObjects.UserId (mkUserId)
 
 executeActivateUser ::
-  (UserRepository m, ActivateUserPort m) =>
-  ActivateUserRequest ->
-  m ()
+    (UserRepository m, ActivateUserPort m) =>
+    ActivateUserRequest ->
+    m ()
 executeActivateUser (ActivateUserRequest rawId) =
-  case mkUserId rawId of
-    Left err -> presentFailure err
-    Right userId -> do
-      loaded <- loadUser userId
-      case loaded of
+    case mkUserId rawId of
         Left err -> presentFailure err
-        Right pendingUser -> do
-          let (activeUser, _) = activateUser pendingUser
-          saved <- saveUser activeUser
-          case saved of
-            Left err -> presentFailure err
-            Right () -> presentSuccess activeUser
+        Right userId -> do
+            loaded <- loadUser userId
+            case loaded of
+                Left err -> presentFailure err
+                Right pendingUser -> do
+                    let (activeUser, _) = activateUser pendingUser
+                    saved <- saveUser activeUser
+                    case saved of
+                        Left err -> presentFailure err
+                        Right () -> presentSuccess activeUser

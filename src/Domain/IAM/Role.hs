@@ -1,14 +1,14 @@
 module Domain.IAM.Role
-  ( Role (..),
-    RoleState (..),
-    getRoleId,
-    getRoleProfile,
-    getRoleVersion,
-    activateRole,
-    deactivateRole,
-    assignPermissionToRole,
-    revokePermissionFromRole,
-  )
+    ( Role (..)
+    , RoleState (..)
+    , getRoleId
+    , getRoleProfile
+    , getRoleVersion
+    , activateRole
+    , deactivateRole
+    , assignPermissionToRole
+    , revokePermissionFromRole
+    )
 where
 
 import Domain.IAM.Permission.ValueObjects.PermissionId (PermissionId)
@@ -20,9 +20,9 @@ import Domain.IAM.Role.ValueObjects.Version (Version, nextVersion)
 import Domain.IAM.User.ValueObjects.UserId (UserId)
 
 data Role (s :: RoleState) where
-  RoleD :: RoleId -> RoleProfile -> Version -> Role 'Draft
-  RoleA :: RoleId -> RoleProfile -> Version -> Role 'Active
-  RoleI :: RoleId -> RoleProfile -> Version -> Role 'Inactive
+    RoleD :: RoleId -> RoleProfile -> Version -> Role 'Draft
+    RoleA :: RoleId -> RoleProfile -> Version -> Role 'Active
+    RoleI :: RoleId -> RoleProfile -> Version -> Role 'Inactive
 
 deriving stock instance Show (Role s)
 
@@ -45,30 +45,30 @@ getRoleVersion (RoleI _ _ version) = version
 
 activateRole :: UserId -> Role 'Draft -> (Role 'Active, RoleEventPayload)
 activateRole actorId (RoleD roleId profile version) =
-  let nextV = nextVersion version
-   in (RoleA roleId profile nextV, RoleActivated actorId roleId)
+    let nextV = nextVersion version
+     in (RoleA roleId profile nextV, RoleActivated actorId roleId)
 
 deactivateRole :: UserId -> Role 'Active -> (Role 'Inactive, RoleEventPayload)
 deactivateRole actorId (RoleA roleId profile version) =
-  let nextV = nextVersion version
-   in (RoleI roleId profile nextV, RoleDeactivated actorId roleId)
+    let nextV = nextVersion version
+     in (RoleI roleId profile nextV, RoleDeactivated actorId roleId)
 
 assignPermissionToRole ::
-  UserId ->
-  PermissionId ->
-  Role 'Active ->
-  (Role 'Active, RoleEventPayload)
+    UserId ->
+    PermissionId ->
+    Role 'Active ->
+    (Role 'Active, RoleEventPayload)
 assignPermissionToRole actorId permissionId (RoleA roleId profile version) =
-  let nextProfile = addPermission permissionId profile
-      nextV = nextVersion version
-   in (RoleA roleId nextProfile nextV, PermissionAssignedToRole actorId roleId permissionId)
+    let nextProfile = addPermission permissionId profile
+        nextV = nextVersion version
+     in (RoleA roleId nextProfile nextV, PermissionAssignedToRole actorId roleId permissionId)
 
 revokePermissionFromRole ::
-  UserId ->
-  PermissionId ->
-  Role 'Active ->
-  (Role 'Active, RoleEventPayload)
+    UserId ->
+    PermissionId ->
+    Role 'Active ->
+    (Role 'Active, RoleEventPayload)
 revokePermissionFromRole actorId permissionId (RoleA roleId profile version) =
-  let nextProfile = removePermission permissionId profile
-      nextV = nextVersion version
-   in (RoleA roleId nextProfile nextV, PermissionRevokedFromRole actorId roleId permissionId)
+    let nextProfile = removePermission permissionId profile
+        nextV = nextVersion version
+     in (RoleA roleId nextProfile nextV, PermissionRevokedFromRole actorId roleId permissionId)

@@ -1,10 +1,10 @@
 module App.DTO.Request
-  ( ActivateUserRequest (..),
-  )
+    ( ActivateUserRequest (..)
+    )
 where
 
 import Data.Text (Text)
 
 newtype ActivateUserRequest = ActivateUserRequest
-  { rawUserId :: Text
-  }
+    { rawUserId :: Text
+    }

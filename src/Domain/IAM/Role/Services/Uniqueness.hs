@@ -5,7 +5,7 @@ import Domain.IAM.Role.ValueObjects.RoleName (RoleName)
 
 type DuplicateChecker m = RoleName -> m Bool
 
-validateUniqueRoleName :: (Monad m) => DuplicateChecker m -> RoleName -> m (Either DomainError ())
+validateUniqueRoleName :: Monad m => DuplicateChecker m -> RoleName -> m (Either DomainError ())
 validateUniqueRoleName check roleName = do
-  exists <- check roleName
-  pure $ if exists then Left DuplicateRoleName else Right ()
+    exists <- check roleName
+    pure $ if exists then Left DuplicateRoleName else Right ()

@@ -8,5 +8,5 @@ newtype UserName = UserName {unUserName :: Text} deriving (Show, Eq)
 
 mkUserName :: Text -> Either DomainError UserName
 mkUserName t
-  | T.null t || T.length t > 100 = Left InvalidUserName
-  | otherwise = Right $ UserName t
+    | T.null t || T.length t > 100 = Left InvalidUserName
+    | otherwise = Right $ UserName t

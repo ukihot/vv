@@ -6,9 +6,9 @@ import Domain.IAM.Role.ValueObjects.RoleName (RoleName)
 import Domain.IAM.User.ValueObjects.UserId (UserId)
 
 data RoleEventPayload
-  = RoleCreated RoleId RoleName
-  | RoleActivated UserId RoleId
-  | RoleDeactivated UserId RoleId
-  | PermissionAssignedToRole UserId RoleId PermissionId
-  | PermissionRevokedFromRole UserId RoleId PermissionId
-  deriving stock (Show, Eq)
+    = RoleCreated RoleId RoleName
+    | RoleActivated UserId RoleId
+    | RoleDeactivated UserId RoleId
+    | PermissionAssignedToRole UserId RoleId PermissionId
+    | PermissionRevokedFromRole UserId RoleId PermissionId
+    deriving stock (Show, Eq)
