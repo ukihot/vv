@@ -1,6 +1,6 @@
-module Domain.Audit.ClosingProcess.Errors
-    ( ClosingProcessError (..)
-    )
+module Domain.Audit.ClosingProcess.Errors (
+    ClosingProcessError (..),
+)
 where
 
 data ClosingProcessError

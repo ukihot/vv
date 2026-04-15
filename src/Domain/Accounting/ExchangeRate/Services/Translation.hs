@@ -1,7 +1,7 @@
-module Domain.Accounting.ExchangeRate.Services.Translation
-    ( translateMoney
-    , translateMoneyApprox
-    )
+module Domain.Accounting.ExchangeRate.Services.Translation (
+    translateMoney,
+    translateMoneyApprox,
+)
 where
 
 import Domain.Accounting.ExchangeRate (ExchangeRate (..))

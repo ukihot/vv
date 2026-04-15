@@ -1,7 +1,7 @@
-module Domain.Ops.BankAccount.ValueObjects.AccountNumber
-    ( AccountNumber (..)
-    , mkAccountNumber
-    )
+module Domain.Ops.BankAccount.ValueObjects.AccountNumber (
+    AccountNumber (..),
+    mkAccountNumber,
+)
 where
 
 import Data.Text (Text)

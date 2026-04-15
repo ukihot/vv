@@ -3,35 +3,35 @@
 {- | テーブルコンポーネント
 データグリッド、一覧表示、ソート、ページネーション等。
 -}
-module Adapter.View.Components.Table
-    ( -- * Table Rendering
-      renderTable
-    , renderTableHeader
-    , renderTableRow
-    , renderTableCell
+module Adapter.View.Components.Table (
+    -- * Table Rendering
+    renderTable,
+    renderTableHeader,
+    renderTableRow,
+    renderTableCell,
 
-      -- * Pagination
-    , renderPagination
+    -- * Pagination
+    renderPagination,
 
-      -- * Empty State
-    , renderEmptyTable
-    )
+    -- * Empty State
+    renderEmptyTable,
+)
 where
 
-import Brick
-    ( Padding (Pad)
-    , Widget
-    , attrName
-    , hBox
-    , padBottom
-    , padLeft
-    , padRight
-    , padTop
-    , str
-    , txt
-    , vBox
-    , withAttr
-    )
+import Brick (
+    Padding (Pad),
+    Widget,
+    attrName,
+    hBox,
+    padBottom,
+    padLeft,
+    padRight,
+    padTop,
+    str,
+    txt,
+    vBox,
+    withAttr,
+ )
 import Brick.Widgets.Border qualified as Border
 import Data.Text (Text)
 import Data.Text qualified as T
@@ -50,9 +50,9 @@ renderTable ::
 renderTable headers rows =
     Border.border $
         vBox
-            [ renderTableHeader headers,
-              Border.hBorder,
-              vBox (map renderTableRow rows)
+            [ renderTableHeader headers
+            , Border.hBorder
+            , vBox (map renderTableRow rows)
             ]
 
 -- | テーブルヘッダー
@@ -94,11 +94,11 @@ renderPagination ::
 renderPagination currentPage totalPages =
     withAttr (attrName "pagination") $
         hBox
-            [ txt "◀ Prev",
-              padLeft (Pad 2) $
+            [ txt "◀ Prev"
+            , padLeft (Pad 2) $
                 padRight (Pad 2) $
-                    txt (T.pack (show currentPage) <> " / " <> T.pack (show totalPages)),
-              txt "Next ▶"
+                    txt (T.pack (show currentPage) <> " / " <> T.pack (show totalPages))
+            , txt "Next ▶"
             ]
 
 -- ─────────────────────────────────────────────────────────────────────────────

@@ -1,6 +1,6 @@
-module Domain.Audit.ClosingProcess.Repository
-    ( ClosingProcessRepository (..)
-    )
+module Domain.Audit.ClosingProcess.Repository (
+    ClosingProcessRepository (..),
+)
 where
 
 import Domain.Audit.ClosingProcess (ClosingProcess, SomeClosingProcess)

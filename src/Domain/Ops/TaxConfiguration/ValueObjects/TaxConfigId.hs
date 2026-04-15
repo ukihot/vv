@@ -1,7 +1,7 @@
-module Domain.Ops.TaxConfiguration.ValueObjects.TaxConfigId
-    ( TaxConfigId (..)
-    , mkTaxConfigId
-    )
+module Domain.Ops.TaxConfiguration.ValueObjects.TaxConfigId (
+    TaxConfigId (..),
+    mkTaxConfigId,
+)
 where
 
 import Data.Text (Text)

@@ -1,6 +1,6 @@
-module Domain.Ops.TaxConfiguration.Errors
-    ( TaxConfigError (..)
-    )
+module Domain.Ops.TaxConfiguration.Errors (
+    TaxConfigError (..),
+)
 where
 
 data TaxConfigError

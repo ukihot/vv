@@ -2,20 +2,20 @@
 月次決算の締め状態を型レベルで表現し、
 ロック後の直接変更をコンパイル時に排除する。
 -}
-module Domain.Accounting.FiscalPeriod
-    ( -- * 集約
-      FiscalPeriod (..)
-    , PeriodState (..)
-    , SomeFiscalPeriod (..)
+module Domain.Accounting.FiscalPeriod (
+    -- * 集約
+    FiscalPeriod (..),
+    PeriodState (..),
+    SomeFiscalPeriod (..),
 
-      -- * 値オブジェクト
-    , module Domain.Accounting.FiscalPeriod.ValueObjects.FiscalPeriodId
+    -- * 値オブジェクト
+    module Domain.Accounting.FiscalPeriod.ValueObjects.FiscalPeriodId,
 
-      -- * 状態遷移
-    , openPeriod
-    , lockPeriod
-    , reopenPeriod
-    )
+    -- * 状態遷移
+    openPeriod,
+    lockPeriod,
+    reopenPeriod,
+)
 where
 
 import Domain.Accounting.FiscalPeriod.Events (FiscalPeriodEvent (..))
@@ -46,18 +46,18 @@ deriving instance Show SomeFiscalPeriod
 
 openPeriod :: FiscalPeriodId -> FiscalYearMonth -> (FiscalPeriod 'Open, FiscalPeriodEvent)
 openPeriod pid ym =
-    ( FPOpen pid ym initialVersion,
-      PeriodOpened pid ym
+    ( FPOpen pid ym initialVersion
+    , PeriodOpened pid ym
     )
 
 lockPeriod :: FiscalPeriod 'Open -> (FiscalPeriod 'Locked, FiscalPeriodEvent)
 lockPeriod (FPOpen pid ym v) =
-    ( FPLocked pid ym (nextVersion v),
-      PeriodLocked pid ym
+    ( FPLocked pid ym (nextVersion v)
+    , PeriodLocked pid ym
     )
 
 reopenPeriod :: FiscalPeriod 'Locked -> (FiscalPeriod 'Open, FiscalPeriodEvent)
 reopenPeriod (FPLocked pid ym v) =
-    ( FPOpen pid ym (nextVersion v),
-      PeriodReopened pid ym
+    ( FPOpen pid ym (nextVersion v)
+    , PeriodReopened pid ym
     )

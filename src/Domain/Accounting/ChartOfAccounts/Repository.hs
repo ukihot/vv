@@ -1,6 +1,6 @@
-module Domain.Accounting.ChartOfAccounts.Repository
-    ( ChartOfAccountsRepository (..)
-    )
+module Domain.Accounting.ChartOfAccounts.Repository (
+    ChartOfAccountsRepository (..),
+)
 where
 
 import Domain.Accounting.ChartOfAccounts (Account)

@@ -1,7 +1,7 @@
-module Domain.Ops.ApprovalWorkflow.ValueObjects.ApprovalWorkflowId
-    ( ApprovalWorkflowId (..)
-    , mkApprovalWorkflowId
-    )
+module Domain.Ops.ApprovalWorkflow.ValueObjects.ApprovalWorkflowId (
+    ApprovalWorkflowId (..),
+    mkApprovalWorkflowId,
+)
 where
 
 import Data.Text (Text)

@@ -1,6 +1,6 @@
-module Domain.IFRS.Provision.Events
-    ( ProvisionEventPayload (..)
-    )
+module Domain.IFRS.Provision.Events (
+    ProvisionEventPayload (..),
+)
 where
 
 import Data.Text (Text)

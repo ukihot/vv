@@ -1,34 +1,34 @@
 module Domain.IAM.UserSpec (tests) where
 
-import Domain.IAM.User
-    ( activateUser
-    , deactivateUser
-    , getUserId
-    , getUserProfile
-    , getUserVersion
-    , suspendUser
-    , unsuspendUser
-    )
+import Domain.IAM.User (
+    activateUser,
+    deactivateUser,
+    getUserId,
+    getUserProfile,
+    getUserVersion,
+    suspendUser,
+    unsuspendUser,
+ )
 import Domain.IAM.User.Entities.Profile (UserProfile (..))
 import Domain.IAM.User.Errors (DomainError (..))
-import Domain.IAM.User.Events
-    ( UserEventPayload (..)
-    , UserEventPayloadV1 (..)
-    , UserEventPayloadV2 (..)
-    )
+import Domain.IAM.User.Events (
+    UserEventPayload (..),
+    UserEventPayloadV1 (..),
+    UserEventPayloadV2 (..),
+ )
 import Domain.IAM.User.Services.Factory (registerUser)
 import Domain.IAM.User.ValueObjects.Version (Version (..), initialVersion)
 import Hedgehog (Property, forAll, property, (===))
 import Support.Assert (assertRight)
-import Support.IAM.Fixtures
-    ( genEmail
-    , genUserId
-    , genUserName
-    , samplePendingUser
-    , shouldMakeEmail
-    , shouldMakeUserId
-    , shouldMakeUserName
-    )
+import Support.IAM.Fixtures (
+    genEmail,
+    genUserId,
+    genUserName,
+    samplePendingUser,
+    shouldMakeEmail,
+    shouldMakeUserId,
+    shouldMakeUserName,
+ )
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.HUnit (Assertion, assertEqual, assertFailure, testCase)
 import Test.Tasty.Hedgehog (testProperty)
@@ -40,22 +40,22 @@ tests =
         [ testGroup
             "Factory"
             [ testCase "registerUser seeds a pending user with initial version" case_registerUserSeedsPendingUser
-            ],
-          testGroup
+            ]
+        , testGroup
             "Transitions"
             [ testCase
                 "activateUser preserves identity and profile while incrementing version"
-                case_activateUserPreservesIdentity,
-              testCase "suspend and unsuspend form a reversible active workflow" case_suspendAndUnsuspendWorkflow,
-              testCase
+                case_activateUserPreservesIdentity
+            , testCase "suspend and unsuspend form a reversible active workflow" case_suspendAndUnsuspendWorkflow
+            , testCase
                 "deactivateUser accepts active and suspended users"
-                case_deactivateAcceptsActiveAndSuspended,
-              testCase "deactivateUser rejects pending users" case_deactivateRejectsPending
-            ],
-          testGroup
+                case_deactivateAcceptsActiveAndSuspended
+            , testCase "deactivateUser rejects pending users" case_deactivateRejectsPending
+            ]
+        , testGroup
             "Properties"
-            [ testProperty "registerUser echoes input into aggregate and event" prop_registerUserEchoesInputs,
-              testProperty
+            [ testProperty "registerUser echoes input into aggregate and event" prop_registerUserEchoesInputs
+            , testProperty
                 "full lifecycle keeps user id/profile and bumps version at each step"
                 prop_lifecyclePreservesInvariant
             ]

@@ -1,6 +1,6 @@
-module Domain.Ops.Budget.Events
-    ( BudgetEventPayload (..)
-    )
+module Domain.Ops.Budget.Events (
+    BudgetEventPayload (..),
+)
 where
 
 import Domain.Ops.Budget.ValueObjects.BudgetId (BudgetId)

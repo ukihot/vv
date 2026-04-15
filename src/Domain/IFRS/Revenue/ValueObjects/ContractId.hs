@@ -1,7 +1,7 @@
-module Domain.IFRS.Revenue.ValueObjects.ContractId
-    ( ContractId (..)
-    , mkContractId
-    )
+module Domain.IFRS.Revenue.ValueObjects.ContractId (
+    ContractId (..),
+    mkContractId,
+)
 where
 
 import Data.Text (Text)

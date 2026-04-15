@@ -3,39 +3,39 @@
 #5: 遷移関数の型シグネチャが仕様書になる。
 #22: rehydrate でイベント列から状態を再構築する。
 -}
-module Domain.IAM.User
-    ( -- * 集約
-      User (..)
-    , UserState (..)
+module Domain.IAM.User (
+    -- * 集約
+    User (..),
+    UserState (..),
 
-      -- * ゲッター
-    , getUserId
-    , getUserProfile
-    , getUserVersion
+    -- * ゲッター
+    getUserId,
+    getUserProfile,
+    getUserVersion,
 
-      -- * 状態遷移
-    , activateUser
-    , suspendUser
-    , unsuspendUser
-    , deactivateUser
+    -- * 状態遷移
+    activateUser,
+    suspendUser,
+    unsuspendUser,
+    deactivateUser,
 
-      -- * 存在型 (#20: 型消去は Application 層のみ)
-    , SomeUser (..)
+    -- * 存在型 (#20: 型消去は Application 層のみ)
+    SomeUser (..),
 
-      -- * Event Sourcing (#22)
-    , applyEvent
-    , rehydrate
-    )
+    -- * Event Sourcing (#22)
+    applyEvent,
+    rehydrate,
+)
 where
 
 import Control.Monad (foldM)
 import Domain.IAM.User.Entities.Profile (UserProfile (..))
 import Domain.IAM.User.Errors (DomainError (..))
-import Domain.IAM.User.Events
-    ( UserEventPayload (..)
-    , UserEventPayloadV1 (..)
-    , UserEventPayloadV2 (..)
-    )
+import Domain.IAM.User.Events (
+    UserEventPayload (..),
+    UserEventPayloadV1 (..),
+    UserEventPayloadV2 (..),
+ )
 import Domain.IAM.User.ValueObjects.UserId (UserId)
 import Domain.IAM.User.ValueObjects.UserState (UserState (..))
 import Domain.IAM.User.ValueObjects.Version (Version (..), initialVersion, nextVersion)

@@ -1,6 +1,6 @@
-module Domain.Ops.BankAccount.Repository
-    ( BankAccountRepository (..)
-    )
+module Domain.Ops.BankAccount.Repository (
+    BankAccountRepository (..),
+)
 where
 
 import Domain.Ops.BankAccount (BankAccount)

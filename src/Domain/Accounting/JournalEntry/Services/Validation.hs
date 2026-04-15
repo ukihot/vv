@@ -1,6 +1,6 @@
-module Domain.Accounting.JournalEntry.Services.Validation
-    ( validateBalance
-    )
+module Domain.Accounting.JournalEntry.Services.Validation (
+    validateBalance,
+)
 where
 
 import Data.List (foldl')

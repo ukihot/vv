@@ -1,6 +1,6 @@
-module Domain.Audit.ClosingProcess.ValueObjects.ClosingState
-    ( ClosingState (..)
-    )
+module Domain.Audit.ClosingProcess.ValueObjects.ClosingState (
+    ClosingState (..),
+)
 where
 
 data ClosingState

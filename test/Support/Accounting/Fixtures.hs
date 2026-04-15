@@ -1,74 +1,74 @@
 -- | Accounting / IFRS テスト用フィクスチャ
-module Support.Accounting.Fixtures
-    ( -- * 勘定科目
-      sampleCashAccount
-    , sampleArAccount
-    , sampleRevenueAccount
+module Support.Accounting.Fixtures (
+    -- * 勘定科目
+    sampleCashAccount,
+    sampleArAccount,
+    sampleRevenueAccount,
 
-      -- * 会計期間
-    , sampleFiscalYearMonth
-    , sampleFiscalPeriodId
+    -- * 会計期間
+    sampleFiscalYearMonth,
+    sampleFiscalPeriodId,
 
-      -- * 為替レート
-    , sampleUsdJpyClosingRate
-    , sampleUsdJpyHistoricalRate
+    -- * 為替レート
+    sampleUsdJpyClosingRate,
+    sampleUsdJpyHistoricalRate,
 
-      -- * 仕訳
-    , sampleJournalEntryId
-    , sampleDebitLine
-    , sampleCreditLine
+    -- * 仕訳
+    sampleJournalEntryId,
+    sampleDebitLine,
+    sampleCreditLine,
 
-      -- * IFRS 15
-    , sampleContractId
-    , samplePoId
+    -- * IFRS 15
+    sampleContractId,
+    samplePoId,
 
-      -- * IFRS 9
-    , sampleFinancialAssetId
-    , sampleEclParams
+    -- * IFRS 9
+    sampleFinancialAssetId,
+    sampleEclParams,
 
-      -- * IFRS 16
-    , sampleLeaseId
+    -- * IFRS 16
+    sampleLeaseId,
 
-      -- * ヘルパー
-    , shouldRight
-    )
+    -- * ヘルパー
+    shouldRight,
+)
 where
 
 import Data.Time (fromGregorian)
-import Domain.Accounting.ChartOfAccounts
-    ( Account (..)
-    , AccountClass (..)
-    , AccountNature (..)
-    , CurrentNonCurrent (..)
-    , StatementSection (..)
-    , mkAccountCode
-    , mkAccountName
-    )
-import Domain.Accounting.ExchangeRate
-    ( ExchangeRate (..)
-    , RateKind (..)
-    , mkExchangeRate
-    )
+import Domain.Accounting.ChartOfAccounts (
+    Account (..),
+    AccountClass (..),
+    AccountNature (..),
+    CurrentNonCurrent (..),
+    StatementSection (..),
+    mkAccountCode,
+    mkAccountName,
+ )
+import Domain.Accounting.ExchangeRate (
+    ExchangeRate (..),
+    RateKind (..),
+    mkExchangeRate,
+ )
 import Domain.Accounting.FiscalPeriod (FiscalPeriodId (..), mkFiscalPeriodId)
-import Domain.Accounting.JournalEntry
-    ( DrCr (..)
-    , JournalEntryId (..)
-    , JournalLine (..)
-    , mkJournalEntryId
-    )
-import Domain.IFRS.FinancialInstrument
-    ( EclParameters (..)
-    , EconomicScenario (..)
-    , FinancialAssetId (..)
-    , ScenarioWeight (..)
-    , mkFinancialAssetId
-    )
+import Domain.Accounting.JournalEntry (
+    DrCr (..),
+    JournalEntryId (..),
+    JournalLine (..),
+    mkJournalEntryId,
+ )
+import Domain.IFRS.FinancialInstrument (
+    EclParameters (..),
+    EconomicScenario (..),
+    FinancialAssetId (..),
+    ScenarioWeight (..),
+    mkFinancialAssetId,
+ )
 import Domain.IFRS.Lease (LeaseId (..), mkLeaseId)
-import Domain.IFRS.Revenue
-    ( ContractId (..)
-    , PerformanceObligationId (..)
-    , mkContractId
-    )
+import Domain.IFRS.Revenue (
+    ContractId (..),
+    PerformanceObligationId (..),
+    mkContractId,
+ )
 import Domain.Shared (FiscalYearMonth (..), mkMoney)
 import Test.Tasty.HUnit (assertFailure)
 
@@ -90,12 +90,12 @@ sampleCashAccount = do
     name <- shouldRight "cash name" (mkAccountName "現金及び預金")
     pure
         Account
-            { accountCode = code,
-              accountName = name,
-              accountClass = AssetAccount,
-              accountNature = DebitNormal,
-              accountSection = SoFP_CurrentAsset,
-              accountCNC = Current
+            { accountCode = code
+            , accountName = name
+            , accountClass = AssetAccount
+            , accountNature = DebitNormal
+            , accountSection = SoFP_CurrentAsset
+            , accountCNC = Current
             }
 
 sampleArAccount :: IO Account
@@ -104,12 +104,12 @@ sampleArAccount = do
     name <- shouldRight "ar name" (mkAccountName "売掛金")
     pure
         Account
-            { accountCode = code,
-              accountName = name,
-              accountClass = AssetAccount,
-              accountNature = DebitNormal,
-              accountSection = SoFP_CurrentAsset,
-              accountCNC = Current
+            { accountCode = code
+            , accountName = name
+            , accountClass = AssetAccount
+            , accountNature = DebitNormal
+            , accountSection = SoFP_CurrentAsset
+            , accountCNC = Current
             }
 
 sampleRevenueAccount :: IO Account
@@ -118,12 +118,12 @@ sampleRevenueAccount = do
     name <- shouldRight "rev name" (mkAccountName "売上高")
     pure
         Account
-            { accountCode = code,
-              accountName = name,
-              accountClass = RevenueAccount,
-              accountNature = CreditNormal,
-              accountSection = PL_Revenue,
-              accountCNC = NotApplicable
+            { accountCode = code
+            , accountName = name
+            , accountClass = RevenueAccount
+            , accountNature = CreditNormal
+            , accountSection = PL_Revenue
+            , accountCNC = NotApplicable
             }
 
 -- ─────────────────────────────────────────────────────────────────────────────
@@ -162,9 +162,9 @@ sampleDebitLine = do
     code <- shouldRight "dr code" (mkAccountCode "1100")
     pure
         JournalLine
-            { lineAccount = code,
-              lineDrCr = Dr,
-              lineAmount = mkMoney 100000
+            { lineAccount = code
+            , lineDrCr = Dr
+            , lineAmount = mkMoney 100000
             }
 
 sampleCreditLine :: IO (JournalLine "JPY")
@@ -172,9 +172,9 @@ sampleCreditLine = do
     code <- shouldRight "cr code" (mkAccountCode "4000")
     pure
         JournalLine
-            { lineAccount = code,
-              lineDrCr = Cr,
-              lineAmount = mkMoney 100000
+            { lineAccount = code
+            , lineDrCr = Cr
+            , lineAmount = mkMoney 100000
             }
 
 -- ─────────────────────────────────────────────────────────────────────────────
@@ -197,14 +197,14 @@ sampleFinancialAssetId = shouldRight "fa id" (mkFinancialAssetId "FA-2026-001")
 sampleEclParams :: EclParameters
 sampleEclParams =
     EclParameters
-        { pd12Month = 0.01, -- 1%
-          pdLifetime = 0.05, -- 5%
-          lgd = 0.45, -- 45%
-          discountFactor = 0.95,
-          scenarioWeights =
-            [ (BaseScenario, ScenarioWeight 0.6),
-              (OptimisticScenario, ScenarioWeight 0.2),
-              (PessimisticScenario, ScenarioWeight 0.2)
+        { pd12Month = 0.01 -- 1%
+        , pdLifetime = 0.05 -- 5%
+        , lgd = 0.45 -- 45%
+        , discountFactor = 0.95
+        , scenarioWeights =
+            [ (BaseScenario, ScenarioWeight 0.6)
+            , (OptimisticScenario, ScenarioWeight 0.2)
+            , (PessimisticScenario, ScenarioWeight 0.2)
             ]
         }
 

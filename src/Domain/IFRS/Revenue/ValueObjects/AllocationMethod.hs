@@ -1,6 +1,6 @@
-module Domain.IFRS.Revenue.ValueObjects.AllocationMethod
-    ( AllocationMethod (..)
-    )
+module Domain.IFRS.Revenue.ValueObjects.AllocationMethod (
+    AllocationMethod (..),
+)
 where
 
 data AllocationMethod

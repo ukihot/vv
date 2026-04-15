@@ -1,6 +1,6 @@
-module Domain.IAM.Role.Services.Factory
-    ( createRole
-    )
+module Domain.IAM.Role.Services.Factory (
+    createRole,
+)
 where
 
 import Domain.IAM.Role (Role (RoleD))

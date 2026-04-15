@@ -1,7 +1,7 @@
-module Domain.Org.Organization.ValueObjects.TaxId
-    ( TaxId (..)
-    , mkTaxId
-    )
+module Domain.Org.Organization.ValueObjects.TaxId (
+    TaxId (..),
+    mkTaxId,
+)
 where
 
 import Data.Text (Text)

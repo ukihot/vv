@@ -1,6 +1,6 @@
-module Domain.IFRS.FinancialInstrument.Errors
-    ( FinancialInstrumentError (..)
-    )
+module Domain.IFRS.FinancialInstrument.Errors (
+    FinancialInstrumentError (..),
+)
 where
 
 data FinancialInstrumentError

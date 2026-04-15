@@ -3,29 +3,29 @@
 {- | ボタンコンポーネント
 プライマリボタン、セカンダリボタン、危険ボタン等。
 -}
-module Adapter.View.Components.Button
-    ( -- * Button Types
-      renderPrimaryButton
-    , renderSecondaryButton
-    , renderDangerButton
-    , renderLinkButton
+module Adapter.View.Components.Button (
+    -- * Button Types
+    renderPrimaryButton,
+    renderSecondaryButton,
+    renderDangerButton,
+    renderLinkButton,
 
-      -- * Button States
-    , renderDisabledButton
-    , renderLoadingButton
-    )
+    -- * Button States
+    renderDisabledButton,
+    renderLoadingButton,
+)
 where
 
-import Brick
-    ( Padding (Pad)
-    , Widget
-    , attrName
-    , padLeft
-    , padRight
-    , str
-    , txt
-    , withAttr
-    )
+import Brick (
+    Padding (Pad),
+    Widget,
+    attrName,
+    padLeft,
+    padRight,
+    str,
+    txt,
+    withAttr,
+ )
 import Data.Text (Text)
 
 -- ─────────────────────────────────────────────────────────────────────────────

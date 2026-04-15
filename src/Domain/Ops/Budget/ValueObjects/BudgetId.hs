@@ -1,7 +1,7 @@
-module Domain.Ops.Budget.ValueObjects.BudgetId
-    ( BudgetId (..)
-    , mkBudgetId
-    )
+module Domain.Ops.Budget.ValueObjects.BudgetId (
+    BudgetId (..),
+    mkBudgetId,
+)
 where
 
 import Data.Text (Text)

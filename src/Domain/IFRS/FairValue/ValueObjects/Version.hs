@@ -1,8 +1,8 @@
-module Domain.IFRS.FairValue.ValueObjects.Version
-    ( Version (..)
-    , initialVersion
-    , nextVersion
-    )
+module Domain.IFRS.FairValue.ValueObjects.Version (
+    Version (..),
+    initialVersion,
+    nextVersion,
+)
 where
 
 newtype Version = Version {unVersion :: Int}

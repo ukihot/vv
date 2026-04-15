@@ -1,14 +1,14 @@
-module Domain.IAM.Role
-    ( Role (..)
-    , RoleState (..)
-    , getRoleId
-    , getRoleProfile
-    , getRoleVersion
-    , activateRole
-    , deactivateRole
-    , assignPermissionToRole
-    , revokePermissionFromRole
-    )
+module Domain.IAM.Role (
+    Role (..),
+    RoleState (..),
+    getRoleId,
+    getRoleProfile,
+    getRoleVersion,
+    activateRole,
+    deactivateRole,
+    assignPermissionToRole,
+    revokePermissionFromRole,
+)
 where
 
 import Domain.IAM.Permission.ValueObjects.PermissionId (PermissionId)

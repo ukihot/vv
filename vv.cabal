@@ -21,6 +21,7 @@ tested-with:        GHC == 9.8.2
 common common-options
     default-language:   GHC2021
     default-extensions:
+        ImportQualifiedPost
         LambdaCase
         MultiWayIf
         OverloadedStrings
@@ -44,6 +45,22 @@ common common-options
         -Wredundant-constraints
         -Wunused-packages
         -fhide-source-paths
+    -- Haddock options to support language extensions
+    haddock-options:
+        --optghc=-XImportQualifiedPost
+        --optghc=-XLambdaCase
+        --optghc=-XMultiWayIf
+        --optghc=-XOverloadedStrings
+        --optghc=-XOverloadedRecordDot
+        --optghc=-XRecordWildCards
+        --optghc=-XDerivingStrategies
+        --optghc=-XDeriveAnyClass
+        --optghc=-XDataKinds
+        --optghc=-XTypeFamilies
+        --optghc=-XGADTs
+        --optghc=-XViewPatterns
+        --optghc=-XPatternSynonyms
+        --optghc=-XStrictData
 
 -- ────────────────────────────────────────────────────────────────────────────
 -- Library
@@ -65,6 +82,7 @@ library
         Decimal,
         effectful-core,
         mtl,
+        transformers,
         exceptions
 
     exposed-modules:
@@ -158,6 +176,7 @@ library vv-internal
         Decimal,
         effectful-core,
         mtl,
+        transformers,
         exceptions
 
     exposed-modules:

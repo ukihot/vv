@@ -1,7 +1,7 @@
-module Domain.Ops.BankAccount.ValueObjects.BankCode
-    ( BankCode (..)
-    , mkBankCode
-    )
+module Domain.Ops.BankAccount.ValueObjects.BankCode (
+    BankCode (..),
+    mkBankCode,
+)
 where
 
 import Data.Text (Text)

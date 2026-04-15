@@ -1,6 +1,6 @@
-module Domain.Ops.TaxConfiguration.ValueObjects.TaxType
-    ( TaxType (..)
-    )
+module Domain.Ops.TaxConfiguration.ValueObjects.TaxType (
+    TaxType (..),
+)
 where
 
 data TaxType

@@ -1,7 +1,7 @@
-module Domain.Accounting.ChartOfAccounts.ValueObjects.AccountName
-    ( AccountName (..)
-    , mkAccountName
-    )
+module Domain.Accounting.ChartOfAccounts.ValueObjects.AccountName (
+    AccountName (..),
+    mkAccountName,
+)
 where
 
 import Data.Text (Text)

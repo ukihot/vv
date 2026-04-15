@@ -1,8 +1,8 @@
-module Domain.IFRS.Lease.ValueObjects.Version
-    ( Version (..)
-    , initialVersion
-    , nextVersion
-    )
+module Domain.IFRS.Lease.ValueObjects.Version (
+    Version (..),
+    initialVersion,
+    nextVersion,
+)
 where
 
 newtype Version = Version {unVersion :: Int}

@@ -1,6 +1,6 @@
-module Domain.Ops.Budget.Errors
-    ( BudgetError (..)
-    )
+module Domain.Ops.Budget.Errors (
+    BudgetError (..),
+)
 where
 
 data BudgetError

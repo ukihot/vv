@@ -1,6 +1,6 @@
-module Domain.Accounting.JournalEntry.Events
-    ( JournalEntryEventPayload (..)
-    )
+module Domain.Accounting.JournalEntry.Events (
+    JournalEntryEventPayload (..),
+)
 where
 
 import Data.Time (Day)

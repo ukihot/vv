@@ -1,6 +1,6 @@
-module Domain.Ops.ApprovalWorkflow.ValueObjects.ApprovalState
-    ( ApprovalState (..)
-    )
+module Domain.Ops.ApprovalWorkflow.ValueObjects.ApprovalState (
+    ApprovalState (..),
+)
 where
 
 data ApprovalState

@@ -1,7 +1,7 @@
-module Domain.IFRS.DeferredTax.ValueObjects.DeferredTaxItemId
-    ( DeferredTaxItemId (..)
-    , mkDeferredTaxItemId
-    )
+module Domain.IFRS.DeferredTax.ValueObjects.DeferredTaxItemId (
+    DeferredTaxItemId (..),
+    mkDeferredTaxItemId,
+)
 where
 
 import Data.Text (Text)

@@ -1,6 +1,6 @@
-module Domain.Audit.AuditTrail.Errors
-    ( AuditTrailError (..)
-    )
+module Domain.Audit.AuditTrail.Errors (
+    AuditTrailError (..),
+)
 where
 
 data AuditTrailError

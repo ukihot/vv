@@ -1,6 +1,6 @@
-module Domain.Org.Organization.Errors
-    ( OrganizationError (..)
-    )
+module Domain.Org.Organization.Errors (
+    OrganizationError (..),
+)
 where
 
 data OrganizationError

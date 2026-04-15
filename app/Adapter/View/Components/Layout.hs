@@ -3,39 +3,39 @@
 {- | レイアウトコンポーネント
 カード、パネル、セクション等のレイアウト要素。
 -}
-module Adapter.View.Components.Layout
-    ( -- * Containers
-      renderCard
-    , renderPanel
-    , renderSection
+module Adapter.View.Components.Layout (
+    -- * Containers
+    renderCard,
+    renderPanel,
+    renderSection,
 
-      -- * Spacing
-    , renderSpacer
-    , renderDivider
+    -- * Spacing
+    renderSpacer,
+    renderDivider,
 
-      -- * Grid
-    , renderTwoColumn
-    , renderThreeColumn
-    )
+    -- * Grid
+    renderTwoColumn,
+    renderThreeColumn,
+)
 where
 
-import Brick
-    ( Padding (Pad)
-    , Widget
-    , attrName
-    , hBox
-    , hLimit
-    , padAll
-    , padBottom
-    , padLeft
-    , padRight
-    , padTop
-    , str
-    , txt
-    , vBox
-    , vLimit
-    , withAttr
-    )
+import Brick (
+    Padding (Pad),
+    Widget,
+    attrName,
+    hBox,
+    hLimit,
+    padAll,
+    padBottom,
+    padLeft,
+    padRight,
+    padTop,
+    str,
+    txt,
+    vBox,
+    vLimit,
+    withAttr,
+ )
 import Brick.Widgets.Border qualified as Border
 import Data.Text (Text)
 
@@ -64,8 +64,8 @@ renderPanel ::
     Widget n
 renderPanel title content =
     vBox
-        [ withAttr (attrName "panelTitle") $ txt title,
-          padLeft (Pad 2) content
+        [ withAttr (attrName "panelTitle") $ txt title
+        , padLeft (Pad 2) content
         ]
 
 -- | セクション（見出し付きコンテンツ）
@@ -75,8 +75,8 @@ renderSection ::
     Widget n
 renderSection title content =
     vBox
-        [ withAttr (attrName "sectionTitle") $ txt ("■ " <> title),
-          padTop (Pad 1) $
+        [ withAttr (attrName "sectionTitle") $ txt ("■ " <> title)
+        , padTop (Pad 1) $
             padLeft (Pad 2) content
         ]
 
@@ -105,8 +105,8 @@ renderTwoColumn ::
     Widget n
 renderTwoColumn left right =
     hBox
-        [ hLimit 40 left,
-          padLeft (Pad 2) right
+        [ hLimit 40 left
+        , padLeft (Pad 2) right
         ]
 
 -- | 3カラムレイアウト
@@ -117,7 +117,7 @@ renderThreeColumn ::
     Widget n
 renderThreeColumn left center right =
     hBox
-        [ hLimit 30 left,
-          padLeft (Pad 1) $ hLimit 40 center,
-          padLeft (Pad 1) right
+        [ hLimit 30 left
+        , padLeft (Pad 1) $ hLimit 40 center
+        , padLeft (Pad 1) right
         ]

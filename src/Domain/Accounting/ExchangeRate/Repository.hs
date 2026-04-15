@@ -1,6 +1,6 @@
-module Domain.Accounting.ExchangeRate.Repository
-    ( ExchangeRateRepository (..)
-    )
+module Domain.Accounting.ExchangeRate.Repository (
+    ExchangeRateRepository (..),
+)
 where
 
 import Data.Time (Day)

@@ -1,6 +1,6 @@
-module Domain.Audit.AuditTrail.Repository
-    ( AuditTrailRepository (..)
-    )
+module Domain.Audit.AuditTrail.Repository (
+    AuditTrailRepository (..),
+)
 where
 
 import Data.Text (Text)

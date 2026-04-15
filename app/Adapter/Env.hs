@@ -5,12 +5,12 @@
 ReaderT Envパターンによる明示的な依存注入。
 型クラスDIを廃止し、依存を値として扱う。
 -}
-module Adapter.Env
-    ( Env (..)
-    , AppM
-    , runAppM
-    , mkEnv
-    )
+module Adapter.Env (
+    Env (..),
+    AppM,
+    runAppM,
+    mkEnv,
+)
 where
 
 import Control.Concurrent.STM (TVar, atomically, modifyTVar', newTVarIO, readTVar)
@@ -36,13 +36,13 @@ import Unsafe.Coerce (unsafeCoerce)
 
 data Env = Env
     { -- Repository Port (Write側)
-      envLoadUser :: forall s. UserId -> IO (Either DomainError (User s)),
-      envSaveUser :: forall s. User s -> IO (Either DomainError ()),
-      -- Output Port (Presenter側)
-      envPresentSuccess :: User 'Active -> IO (),
-      envPresentFailure :: DomainError -> IO (),
-      envPresentProgress :: Text -> IO (),
-      -- 共有状態
+      envLoadUser :: forall s. UserId -> IO (Either DomainError (User s))
+    , envSaveUser :: forall s. User s -> IO (Either DomainError ())
+    , -- Output Port (Presenter側)
+      envPresentSuccess :: User 'Active -> IO ()
+    , envPresentFailure :: DomainError -> IO ()
+    , envPresentProgress :: Text -> IO ()
+    , -- 共有状態
       envLogs :: TVar [Text]
     }
 
@@ -83,18 +83,18 @@ mkEnv logsVar = do
                     Just (StoredPending user) -> pure $ Right (unsafeCoerce user)
                     Just (StoredActive _) -> pure $ Left AlreadyActivated
                     Just (StoredSuspended _) -> pure $ Left IllegalTransition
-                    Just (StoredInactive _) -> pure $ Left UserIsInactive,
-              envSaveUser = \user -> do
+                    Just (StoredInactive _) -> pure $ Left UserIsInactive
+            , envSaveUser = \user -> do
                 -- TODO: 本番ではSQLite EventStoreに書き込み
                 atomically $ modifyTVar' usersRef (M.insert (unUserId (getUserId user)) (toStoredUser user))
-                pure $ Right (),
-              envPresentSuccess = \user -> do
-                atomically $ modifyTVar' logsVar (<> ["[OK] User activated: " <> unUserId (getUserId user)]),
-              envPresentFailure = \err -> do
-                atomically $ modifyTVar' logsVar (<> ["[ERROR] " <> formatError err]),
-              envPresentProgress = \msg -> do
-                atomically $ modifyTVar' logsVar (<> ["[INFO] " <> msg]),
-              envLogs = logsVar
+                pure $ Right ()
+            , envPresentSuccess = \user -> do
+                atomically $ modifyTVar' logsVar (<> ["[OK] User activated: " <> unUserId (getUserId user)])
+            , envPresentFailure = \err -> do
+                atomically $ modifyTVar' logsVar (<> ["[ERROR] " <> formatError err])
+            , envPresentProgress = \msg -> do
+                atomically $ modifyTVar' logsVar (<> ["[INFO] " <> msg])
+            , envLogs = logsVar
             }
 
 -- ─────────────────────────────────────────────────────────────────────────────

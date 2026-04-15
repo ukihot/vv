@@ -1,6 +1,6 @@
-module Domain.IFRS.FixedAsset.Events
-    ( FixedAssetEventPayload (..)
-    )
+module Domain.IFRS.FixedAsset.Events (
+    FixedAssetEventPayload (..),
+)
 where
 
 import Data.Time (Day)

@@ -1,6 +1,6 @@
-module Domain.IFRS.DeferredTax.Events
-    ( DeferredTaxEventPayload (..)
-    )
+module Domain.IFRS.DeferredTax.Events (
+    DeferredTaxEventPayload (..),
+)
 where
 
 import Data.Text (Text)
@@ -12,7 +12,12 @@ import GHC.TypeLits (Symbol)
 
 data DeferredTaxEventPayload (currency :: Symbol)
     = -- | 一時差異認識 → AuditTrail集約
-      TemporaryDifferenceIdentified DeferredTaxItemId FiscalYearMonth TemporaryDifferenceType (Money currency) Day
+      TemporaryDifferenceIdentified
+        DeferredTaxItemId
+        FiscalYearMonth
+        TemporaryDifferenceType
+        (Money currency)
+        Day
     | -- | 繰延税金資産認識 → AuditTrail集約（回収可能性判断）
       DeferredTaxAssetRecognized DeferredTaxItemId (Money currency) Text Day
     | -- | 繰延税金負債認識

@@ -4,11 +4,11 @@
 App.Ports.Output の具体実装。
 UseCaseからの通知を受け取り、表示用の状態を更新する。
 -}
-module Adapter.Presenter.IAM
-    ( presentActivateUserSuccess
-    , presentActivateUserFailure
-    , presentActivateUserProgress
-    )
+module Adapter.Presenter.IAM (
+    presentActivateUserSuccess,
+    presentActivateUserFailure,
+    presentActivateUserProgress,
+)
 where
 
 import Adapter.Env (AppM, Env (..))

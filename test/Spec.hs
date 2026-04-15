@@ -10,7 +10,7 @@ main =
     defaultMain $
         testGroup
             "vv"
-            [ IAM.tests,
-              Accounting.tests,
-              IFRS.tests
+            [ IAM.tests
+            , Accounting.tests
+            , IFRS.tests
             ]

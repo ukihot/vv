@@ -1,25 +1,25 @@
 {- | 組織集約ルートエンティティ
 会社・事業所などの組織情報を管理する。
 -}
-module Domain.Org.Organization
-    ( -- * 集約
-      Organization (..)
-    , OrganizationState (..)
-    , SomeOrganization (..)
+module Domain.Org.Organization (
+    -- * 集約
+    Organization (..),
+    OrganizationState (..),
+    SomeOrganization (..),
 
-      -- * エンティティ
-    , module Domain.Org.Organization.Entities.Address
+    -- * エンティティ
+    module Domain.Org.Organization.Entities.Address,
 
-      -- * 値オブジェクト
-    , module Domain.Org.Organization.ValueObjects.OrganizationId
-    , module Domain.Org.Organization.ValueObjects.OrganizationName
-    , module Domain.Org.Organization.ValueObjects.TaxId
+    -- * 値オブジェクト
+    module Domain.Org.Organization.ValueObjects.OrganizationId,
+    module Domain.Org.Organization.ValueObjects.OrganizationName,
+    module Domain.Org.Organization.ValueObjects.TaxId,
 
-      -- * 状態遷移
-    , createOrganization
-    , activateOrganization
-    , deactivateOrganization
-    )
+    -- * 状態遷移
+    createOrganization,
+    activateOrganization,
+    deactivateOrganization,
+)
 where
 
 import Data.Text (Text)
@@ -77,8 +77,8 @@ createOrganization ::
     OrganizationName ->
     (Organization 'Setup, OrganizationEventPayload)
 createOrganization orgId orgName =
-    ( OrgSetup orgId orgName Nothing Nothing initialVersion,
-      OrganizationCreated orgId orgName
+    ( OrgSetup orgId orgName Nothing Nothing initialVersion
+    , OrganizationCreated orgId orgName
     )
 
 activateOrganization ::
@@ -88,14 +88,14 @@ activateOrganization ::
     Organization 'Setup ->
     (Organization 'Active, OrganizationEventPayload)
 activateOrganization taxId address functionalCurrency (OrgSetup orgId orgName _ _ v) =
-    ( OrgActive orgId orgName taxId address functionalCurrency (nextVersion v),
-      OrganizationActivated orgId
+    ( OrgActive orgId orgName taxId address functionalCurrency (nextVersion v)
+    , OrganizationActivated orgId
     )
 
 deactivateOrganization ::
     Organization 'Active ->
     (Organization 'Inactive, OrganizationEventPayload)
 deactivateOrganization (OrgActive orgId orgName taxId address functionalCurrency v) =
-    ( OrgInactive orgId orgName taxId address functionalCurrency (nextVersion v),
-      OrganizationDeactivated orgId
+    ( OrgInactive orgId orgName taxId address functionalCurrency (nextVersion v)
+    , OrganizationDeactivated orgId
     )

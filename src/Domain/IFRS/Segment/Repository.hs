@@ -1,6 +1,6 @@
-module Domain.IFRS.Segment.Repository
-    ( SegmentRepository (..)
-    )
+module Domain.IFRS.Segment.Repository (
+    SegmentRepository (..),
+)
 where
 
 import Domain.IFRS.Segment (Segment)

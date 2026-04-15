@@ -1,7 +1,7 @@
-module Domain.IFRS.FinancialInstrument.Services.EclCalculation
-    ( computeEcl
-    , classifyStage
-    )
+module Domain.IFRS.FinancialInstrument.Services.EclCalculation (
+    computeEcl,
+    classifyStage,
+)
 where
 
 import Domain.IFRS.FinancialInstrument.Entities.EclParameters (EclParameters (..))

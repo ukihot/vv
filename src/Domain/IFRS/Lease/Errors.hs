@@ -1,6 +1,6 @@
-module Domain.IFRS.Lease.Errors
-    ( LeaseError (..)
-    )
+module Domain.IFRS.Lease.Errors (
+    LeaseError (..),
+)
 where
 
 data LeaseError

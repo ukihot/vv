@@ -1,6 +1,6 @@
-module Domain.Accounting.ChartOfAccounts.Errors
-    ( ChartError (..)
-    )
+module Domain.Accounting.ChartOfAccounts.Errors (
+    ChartError (..),
+)
 where
 
 data ChartError

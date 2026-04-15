@@ -1,15 +1,15 @@
 {- | 監査証跡集約ルートエンティティ
 すべての重要な操作を記録し、監査可能性を保証する。
 -}
-module Domain.Audit.AuditTrail
-    ( -- * 集約
-      AuditTrail (..)
-    , recordAuditTrail
+module Domain.Audit.AuditTrail (
+    -- * 集約
+    AuditTrail (..),
+    recordAuditTrail,
 
-      -- * 値オブジェクト
-    , module Domain.Audit.AuditTrail.ValueObjects.AuditTrailId
-    , module Domain.Audit.AuditTrail.ValueObjects.AuditAction
-    )
+    -- * 値オブジェクト
+    module Domain.Audit.AuditTrail.ValueObjects.AuditTrailId,
+    module Domain.Audit.AuditTrail.ValueObjects.AuditAction,
+)
 where
 
 import Data.Text (Text)
@@ -24,24 +24,24 @@ import Domain.IAM.User.ValueObjects.UserId (UserId)
 -- ─────────────────────────────────────────────────────────────────────────────
 
 data AuditTrail = AuditTrail
-    { auditTrailId :: AuditTrailId,
-      -- | 操作対象エンティティID
-      auditEntityId :: Text,
-      -- | 操作対象エンティティ種別
-      auditEntityType :: Text,
-      -- | 操作種別
-      auditAction :: AuditAction,
-      -- | 操作実行者
-      auditActorId :: UserId,
-      -- | 操作日時
-      auditTimestamp :: UTCTime,
-      -- | 変更前の値（JSON等）
-      auditBeforeValue :: Maybe Text,
-      -- | 変更後の値（JSON等）
-      auditAfterValue :: Maybe Text,
-      -- | 備考
-      auditNote :: Maybe Text,
-      auditVersion :: Version
+    { auditTrailId :: AuditTrailId
+    , auditEntityId :: Text
+    -- ^ 操作対象エンティティID
+    , auditEntityType :: Text
+    -- ^ 操作対象エンティティ種別
+    , auditAction :: AuditAction
+    -- ^ 操作種別
+    , auditActorId :: UserId
+    -- ^ 操作実行者
+    , auditTimestamp :: UTCTime
+    -- ^ 操作日時
+    , auditBeforeValue :: Maybe Text
+    -- ^ 変更前の値（JSON等）
+    , auditAfterValue :: Maybe Text
+    -- ^ 変更後の値（JSON等）
+    , auditNote :: Maybe Text
+    -- ^ 備考
+    , auditVersion :: Version
     }
     deriving (Show, Eq)
 
@@ -62,14 +62,14 @@ recordAuditTrail ::
     AuditTrail
 recordAuditTrail atId entityId entityType action actorId timestamp beforeVal afterVal note =
     AuditTrail
-        { auditTrailId = atId,
-          auditEntityId = entityId,
-          auditEntityType = entityType,
-          auditAction = action,
-          auditActorId = actorId,
-          auditTimestamp = timestamp,
-          auditBeforeValue = beforeVal,
-          auditAfterValue = afterVal,
-          auditNote = note,
-          auditVersion = initialVersion
+        { auditTrailId = atId
+        , auditEntityId = entityId
+        , auditEntityType = entityType
+        , auditAction = action
+        , auditActorId = actorId
+        , auditTimestamp = timestamp
+        , auditBeforeValue = beforeVal
+        , auditAfterValue = afterVal
+        , auditNote = note
+        , auditVersion = initialVersion
         }

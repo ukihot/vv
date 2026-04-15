@@ -17,52 +17,52 @@ import Data.Text qualified as T
 import Data.Time (fromGregorian)
 import Domain.Accounting.ChartOfAccounts (mkAccountCode)
 import Domain.Accounting.ExchangeRate (ExchangeRate (..), RateKind (..), translateMoney)
-import Domain.Accounting.JournalEntry
-    ( DrCr (..)
-    , JournalError (..)
-    , JournalLine (..)
-    , validateBalance
-    )
-import Domain.IAM.User
-    ( SomeUser (..)
-    , applyEvent
-    , rehydrate
-    )
+import Domain.Accounting.JournalEntry (
+    DrCr (..),
+    JournalError (..),
+    JournalLine (..),
+    validateBalance,
+ )
+import Domain.IAM.User (
+    SomeUser (..),
+    applyEvent,
+    rehydrate,
+ )
 import Domain.IAM.User.Entities.Profile (UserProfile (..))
 import Domain.IAM.User.Errors (DomainError (..))
-import Domain.IAM.User.Events
-    ( UserEventPayload (..)
-    , UserEventPayloadV1 (..)
-    , UserEventPayloadV2 (..)
-    )
+import Domain.IAM.User.Events (
+    UserEventPayload (..),
+    UserEventPayloadV1 (..),
+    UserEventPayloadV2 (..),
+ )
 import Domain.IAM.User.ValueObjects.Email (Email, mkEmail)
 import Domain.IAM.User.ValueObjects.UserId (UserId, mkUserId)
 import Domain.IAM.User.ValueObjects.UserName (UserName, mkUserName)
-import Domain.IFRS.FinancialInstrument
-    ( EclJudgmentLog (..)
-    , EclParameters (..)
-    , EclStage (..)
-    , EconomicScenario (..)
-    , FinancialAsset (..)
-    , FinancialAssetId (..)
-    , FinancialInstrumentError (..)
-    , ScenarioWeight (..)
-    , SomeFinancialAsset (..)
-    , classifyStage
-    , computeEcl
-    , promoteToStage2
-    , recordFinancialAsset
-    , updateEclStage
-    )
-import Domain.IFRS.Revenue
-    ( AllocationMethod (..)
-    , PerformanceObligation (..)
-    , PerformanceObligationId (..)
-    , ProgressMethod (..)
-    , RevenueError (..)
-    , SatisfactionPattern (..)
-    , allocateTransactionPrice
-    )
+import Domain.IFRS.FinancialInstrument (
+    EclJudgmentLog (..),
+    EclParameters (..),
+    EclStage (..),
+    EconomicScenario (..),
+    FinancialAsset (..),
+    FinancialAssetId (..),
+    FinancialInstrumentError (..),
+    ScenarioWeight (..),
+    SomeFinancialAsset (..),
+    classifyStage,
+    computeEcl,
+    promoteToStage2,
+    recordFinancialAsset,
+    updateEclStage,
+ )
+import Domain.IFRS.Revenue (
+    AllocationMethod (..),
+    PerformanceObligation (..),
+    PerformanceObligationId (..),
+    ProgressMethod (..),
+    RevenueError (..),
+    SatisfactionPattern (..),
+    allocateTransactionPrice,
+ )
 import Domain.Shared (Money (..), Version (..), mkMoney, zeroMoney)
 import Test.Tasty.Bench
 
@@ -127,14 +127,14 @@ instance NFData (PerformanceObligation c) where
 eclParams :: EclParameters
 eclParams =
     EclParameters
-        { pd12Month = 0.01,
-          pdLifetime = 0.05,
-          lgd = 0.45,
-          discountFactor = 0.95,
-          scenarioWeights =
-            [ (BaseScenario, ScenarioWeight 0.6),
-              (OptimisticScenario, ScenarioWeight 0.2),
-              (PessimisticScenario, ScenarioWeight 0.2)
+        { pd12Month = 0.01
+        , pdLifetime = 0.05
+        , lgd = 0.45
+        , discountFactor = 0.95
+        , scenarioWeights =
+            [ (BaseScenario, ScenarioWeight 0.6)
+            , (OptimisticScenario, ScenarioWeight 0.2)
+            , (PessimisticScenario, ScenarioWeight 0.2)
             ]
         }
 
@@ -144,10 +144,10 @@ ead = mkMoney 1000000
 usdJpyRate :: ExchangeRate "USD" "JPY"
 usdJpyRate =
     ExchangeRate
-        { rateValue = 150,
-          rateKind = ClosingRate,
-          rateDate = fromGregorian 2026 3 31,
-          rateSource = "BOJ"
+        { rateValue = 150
+        , rateKind = ClosingRate
+        , rateDate = fromGregorian 2026 3 31
+        , rateSource = "BOJ"
         }
 
 sampleFaId :: FinancialAssetId
@@ -166,12 +166,12 @@ makeLines n =
 makeObligations :: Int -> [PerformanceObligation "JPY"]
 makeObligations n =
     [ PerformanceObligation
-        { poId = PerformanceObligationId (T.pack ("PO-" <> show i)),
-          poDescription = "obligation",
-          poPattern = AtPointInTime,
-          poProgressMethod = Nothing,
-          poStandalonePrice = mkMoney 100000,
-          poAllocatedPrice = zeroMoney
+        { poId = PerformanceObligationId (T.pack ("PO-" <> show i))
+        , poDescription = "obligation"
+        , poPattern = AtPointInTime
+        , poProgressMethod = Nothing
+        , poStandalonePrice = mkMoney 100000
+        , poAllocatedPrice = zeroMoney
         }
     | i <- [1 .. n]
     ]
@@ -183,12 +183,12 @@ makeEvents n =
         name = case mkUserName "Bench" of Right v -> v; Left _ -> error "fixture"
         email = case mkEmail "bench@example.com" of Right v -> v; Left _ -> error "fixture"
         base =
-            [ V1 (UserRegistered uid name email),
-              V1 (UserActivated uid)
+            [ V1 (UserRegistered uid name email)
+            , V1 (UserActivated uid)
             ]
         cycle' =
-            [ V2 (UserSuspended uid),
-              V2 (UserUnsuspended uid)
+            [ V2 (UserSuspended uid)
+            , V2 (UserUnsuspended uid)
             ]
      in base <> concat (replicate ((n - 2) `div` 2) cycle')
 
@@ -202,24 +202,24 @@ main =
         [ bgroup
             "IFRS 9 / ECL"
             [ bench "computeEcl Stage1" $
-                nf (\e -> computeEcl Stage1 e eclParams) ead,
-              bench "computeEcl Stage2" $
-                nf (\e -> computeEcl Stage2 e eclParams) ead,
-              bench "computeEcl Stage3" $
-                nf (\e -> computeEcl Stage3 e eclParams) ead,
-              bgroup
+                nf (\e -> computeEcl Stage1 e eclParams) ead
+            , bench "computeEcl Stage2" $
+                nf (\e -> computeEcl Stage2 e eclParams) ead
+            , bench "computeEcl Stage3" $
+                nf (\e -> computeEcl Stage3 e eclParams) ead
+            , bgroup
                 "classifyStage (1,000 calls)"
                 [ bench "all Stage1" $
-                    nf (map (\_ -> classifyStage 0 False False)) [1 .. 1000 :: Int],
-                  bench "all Stage3" $
+                    nf (map (\_ -> classifyStage 0 False False)) [1 .. 1000 :: Int]
+                , bench "all Stage3" $
                     nf (map (\_ -> classifyStage 91 False True)) [1 .. 1000 :: Int]
-                ],
-              bgroup
+                ]
+            , bgroup
                 "promoteToStage2"
                 [ bench "single" $
                     let fa = recordFinancialAsset sampleFaId ead 0.05
-                     in nf (promoteToStage2 fa) (mkMoney 4500 :: Money "JPY"),
-                  bench "chain Stage1→2→3" $
+                     in nf (promoteToStage2 fa) (mkMoney 4500 :: Money "JPY")
+                , bench "chain Stage1→2→3" $
                     let fa0 = recordFinancialAsset sampleFaId ead 0.05
                         ecl = mkMoney 21375 :: Money "JPY"
                      in nf
@@ -229,41 +229,41 @@ main =
                             )
                             ecl
                 ]
-            ],
-          bgroup
+            ]
+        , bgroup
             "IAS 21 / ExchangeRate"
             [ bench "translateMoney single" $
-                nf (translateMoney usdJpyRate) (mkMoney 1000 :: Money "USD"),
-              bench "translateMoney 10,000 calls" $
+                nf (translateMoney usdJpyRate) (mkMoney 1000 :: Money "USD")
+            , bench "translateMoney 10,000 calls" $
                 nf (map (translateMoney usdJpyRate . mkMoney . fromIntegral)) [1 .. 10000 :: Int]
-            ],
-          bgroup
+            ]
+        , bgroup
             "Accounting / JournalEntry"
             [ bench "validateBalance 2 lines" $
-                nf validateBalance (makeLines 2),
-              bench "validateBalance 20 lines" $
-                nf validateBalance (makeLines 20),
-              bench "validateBalance 200 lines" $
+                nf validateBalance (makeLines 2)
+            , bench "validateBalance 20 lines" $
+                nf validateBalance (makeLines 20)
+            , bench "validateBalance 200 lines" $
                 nf validateBalance (makeLines 200)
-            ],
-          bgroup
+            ]
+        , bgroup
             "IFRS 15 / Revenue allocation"
             [ bench "allocate 2 obligations" $
-                nf (allocateTransactionPrice (mkMoney 1000000 :: Money "JPY")) (makeObligations 2),
-              bench "allocate 10 obligations" $
-                nf (allocateTransactionPrice (mkMoney 1000000 :: Money "JPY")) (makeObligations 10),
-              bench "allocate 50 obligations" $
+                nf (allocateTransactionPrice (mkMoney 1000000 :: Money "JPY")) (makeObligations 2)
+            , bench "allocate 10 obligations" $
+                nf (allocateTransactionPrice (mkMoney 1000000 :: Money "JPY")) (makeObligations 10)
+            , bench "allocate 50 obligations" $
                 nf (allocateTransactionPrice (mkMoney 1000000 :: Money "JPY")) (makeObligations 50)
-            ],
-          bgroup
+            ]
+        , bgroup
             "IAM / User rehydrate"
             [ bench "rehydrate 2 events (register+activate)" $
-                nf rehydrate (makeEvents 2),
-              bench "rehydrate 10 events" $
-                nf rehydrate (makeEvents 10),
-              bench "rehydrate 100 events" $
-                nf rehydrate (makeEvents 100),
-              bench "rehydrate 1,000 events" $
+                nf rehydrate (makeEvents 2)
+            , bench "rehydrate 10 events" $
+                nf rehydrate (makeEvents 10)
+            , bench "rehydrate 100 events" $
+                nf rehydrate (makeEvents 100)
+            , bench "rehydrate 1,000 events" $
                 nf rehydrate (makeEvents 1000)
             ]
         ]

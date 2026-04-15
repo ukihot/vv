@@ -1,24 +1,24 @@
 module Domain.IAM.RoleSpec (tests) where
 
-import Domain.IAM.Role
-    ( activateRole
-    , assignPermissionToRole
-    , deactivateRole
-    , getRoleId
-    , getRoleProfile
-    , getRoleVersion
-    , revokePermissionFromRole
-    )
+import Domain.IAM.Role (
+    activateRole,
+    assignPermissionToRole,
+    deactivateRole,
+    getRoleId,
+    getRoleProfile,
+    getRoleVersion,
+    revokePermissionFromRole,
+ )
 import Domain.IAM.Role.Entities.Profile (RoleProfile (..))
 import Domain.IAM.Role.Events (RoleEventPayload (..))
 import Domain.IAM.Role.Services.Factory (createRole)
 import Domain.IAM.Role.ValueObjects.Version qualified as RoleVersion
-import Support.IAM.Fixtures
-    ( shouldMakePermissionId
-    , shouldMakeRoleId
-    , shouldMakeRoleName
-    , shouldMakeUserId
-    )
+import Support.IAM.Fixtures (
+    shouldMakePermissionId,
+    shouldMakeRoleId,
+    shouldMakeRoleName,
+    shouldMakeUserId,
+ )
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.HUnit (Assertion, assertEqual, testCase)
 
@@ -29,8 +29,8 @@ tests =
         [ testGroup
             "Factory"
             [ testCase "createRole seeds a draft role with empty permission set" case_createRoleSeedsDraftRole
-            ],
-          testGroup
+            ]
+        , testGroup
             "Transitions"
             [ testCase "active role can assign and revoke permissions" case_rolePermissionWorkflow
             ]

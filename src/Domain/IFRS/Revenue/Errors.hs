@@ -1,6 +1,6 @@
-module Domain.IFRS.Revenue.Errors
-    ( RevenueError (..)
-    )
+module Domain.IFRS.Revenue.Errors (
+    RevenueError (..),
+)
 where
 
 data RevenueError

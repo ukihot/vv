@@ -1,6 +1,6 @@
-module Domain.IFRS.Segment.Errors
-    ( SegmentError (..)
-    )
+module Domain.IFRS.Segment.Errors (
+    SegmentError (..),
+)
 where
 
 data SegmentError

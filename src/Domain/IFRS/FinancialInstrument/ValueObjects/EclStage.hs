@@ -1,6 +1,6 @@
-module Domain.IFRS.FinancialInstrument.ValueObjects.EclStage
-    ( EclStage (..)
-    )
+module Domain.IFRS.FinancialInstrument.ValueObjects.EclStage (
+    EclStage (..),
+)
 where
 
 data EclStage

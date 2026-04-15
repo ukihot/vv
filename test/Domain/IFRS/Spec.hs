@@ -9,7 +9,7 @@ tests :: TestTree
 tests =
     testGroup
         "Domain.IFRS"
-        [ RevenueSpec.tests,
-          FISpec.tests,
-          LeaseSpec.tests
+        [ RevenueSpec.tests
+        , FISpec.tests
+        , LeaseSpec.tests
         ]

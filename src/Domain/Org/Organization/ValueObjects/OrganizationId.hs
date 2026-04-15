@@ -1,7 +1,7 @@
-module Domain.Org.Organization.ValueObjects.OrganizationId
-    ( OrganizationId (..)
-    , mkOrganizationId
-    )
+module Domain.Org.Organization.ValueObjects.OrganizationId (
+    OrganizationId (..),
+    mkOrganizationId,
+)
 where
 
 import Data.Text (Text)

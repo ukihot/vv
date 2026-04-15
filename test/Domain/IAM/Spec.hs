@@ -9,7 +9,7 @@ tests :: TestTree
 tests =
     testGroup
         "Domain.IAM"
-        [ UserSpec.tests,
-          RoleSpec.tests,
-          PermissionSpec.tests
+        [ UserSpec.tests
+        , RoleSpec.tests
+        , PermissionSpec.tests
         ]

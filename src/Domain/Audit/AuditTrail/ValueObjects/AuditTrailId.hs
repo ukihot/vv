@@ -1,7 +1,7 @@
-module Domain.Audit.AuditTrail.ValueObjects.AuditTrailId
-    ( AuditTrailId (..)
-    , mkAuditTrailId
-    )
+module Domain.Audit.AuditTrail.ValueObjects.AuditTrailId (
+    AuditTrailId (..),
+    mkAuditTrailId,
+)
 where
 
 import Data.Text (Text)

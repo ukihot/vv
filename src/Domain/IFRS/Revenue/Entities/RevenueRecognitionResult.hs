@@ -1,6 +1,6 @@
-module Domain.IFRS.Revenue.Entities.RevenueRecognitionResult
-    ( RevenueRecognitionResult (..)
-    )
+module Domain.IFRS.Revenue.Entities.RevenueRecognitionResult (
+    RevenueRecognitionResult (..),
+)
 where
 
 import Data.Time (Day)
@@ -11,10 +11,10 @@ import Domain.Shared (Money)
 import GHC.TypeLits (Symbol)
 
 data RevenueRecognitionResult (currency :: Symbol) = RevenueRecognitionResult
-    { rrrContractId :: ContractId,
-      rrrObligationId :: PerformanceObligationId,
-      rrrRecognizedAmt :: Money currency,
-      rrrRecognizedAt :: Day,
-      rrrJudgmentLog :: RevenueJudgmentLog currency
+    { rrrContractId :: ContractId
+    , rrrObligationId :: PerformanceObligationId
+    , rrrRecognizedAmt :: Money currency
+    , rrrRecognizedAt :: Day
+    , rrrJudgmentLog :: RevenueJudgmentLog currency
     }
     deriving (Show, Eq)

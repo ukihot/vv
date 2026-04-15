@@ -1,7 +1,7 @@
-module Domain.IFRS.Impairment.ValueObjects.CguId
-    ( CguId (..)
-    , mkCguId
-    )
+module Domain.IFRS.Impairment.ValueObjects.CguId (
+    CguId (..),
+    mkCguId,
+)
 where
 
 import Data.Text (Text)

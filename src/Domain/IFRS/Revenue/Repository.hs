@@ -1,6 +1,6 @@
-module Domain.IFRS.Revenue.Repository
-    ( RevenueRepository (..)
-    )
+module Domain.IFRS.Revenue.Repository (
+    RevenueRepository (..),
+)
 where
 
 import Domain.IFRS.Revenue.Entities.RevenueRecognitionResult (RevenueRecognitionResult)

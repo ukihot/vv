@@ -1,6 +1,6 @@
-module Domain.Accounting.FiscalPeriod.Events
-    ( FiscalPeriodEvent (..)
-    )
+module Domain.Accounting.FiscalPeriod.Events (
+    FiscalPeriodEvent (..),
+)
 where
 
 import Domain.Accounting.FiscalPeriod.ValueObjects.FiscalPeriodId (FiscalPeriodId)

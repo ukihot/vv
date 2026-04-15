@@ -10,8 +10,8 @@ tests :: TestTree
 tests =
     testGroup
         "Domain.Accounting"
-        [ CoASpec.tests,
-          FPSpec.tests,
-          JESpec.tests,
-          ERSpec.tests
+        [ CoASpec.tests
+        , FPSpec.tests
+        , JESpec.tests
+        , ERSpec.tests
         ]

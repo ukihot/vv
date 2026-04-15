@@ -1,8 +1,8 @@
-module Domain.IAM.Permission.ValueObjects.PermissionCode
-    ( PermissionCode
-    , mkPermissionCode
-    , unPermissionCode
-    )
+module Domain.IAM.Permission.ValueObjects.PermissionCode (
+    PermissionCode,
+    mkPermissionCode,
+    unPermissionCode,
+)
 where
 
 import Data.Text (Text)

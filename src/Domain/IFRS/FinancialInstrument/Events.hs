@@ -1,6 +1,6 @@
-module Domain.IFRS.FinancialInstrument.Events
-    ( FinancialInstrumentEventPayload (..)
-    )
+module Domain.IFRS.FinancialInstrument.Events (
+    FinancialInstrumentEventPayload (..),
+)
 where
 
 import Data.Time (Day)

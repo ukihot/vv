@@ -1,6 +1,6 @@
-module Domain.Ops.BankAccount.Events
-    ( BankAccountEventPayload (..)
-    )
+module Domain.Ops.BankAccount.Events (
+    BankAccountEventPayload (..),
+)
 where
 
 import Domain.Ops.BankAccount.ValueObjects.BankAccountId (BankAccountId)

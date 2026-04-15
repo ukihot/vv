@@ -1,6 +1,6 @@
-module Domain.IFRS.Segment.Events
-    ( SegmentEventPayload (..)
-    )
+module Domain.IFRS.Segment.Events (
+    SegmentEventPayload (..),
+)
 where
 
 import Data.Text (Text)

@@ -1,7 +1,7 @@
-module Domain.IFRS.FixedAsset.ValueObjects.FixedAssetId
-    ( FixedAssetId (..)
-    , mkFixedAssetId
-    )
+module Domain.IFRS.FixedAsset.ValueObjects.FixedAssetId (
+    FixedAssetId (..),
+    mkFixedAssetId,
+)
 where
 
 import Data.Text (Text)

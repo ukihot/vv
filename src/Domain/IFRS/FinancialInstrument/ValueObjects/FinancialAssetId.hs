@@ -1,7 +1,7 @@
-module Domain.IFRS.FinancialInstrument.ValueObjects.FinancialAssetId
-    ( FinancialAssetId (..)
-    , mkFinancialAssetId
-    )
+module Domain.IFRS.FinancialInstrument.ValueObjects.FinancialAssetId (
+    FinancialAssetId (..),
+    mkFinancialAssetId,
+)
 where
 
 import Data.Text (Text)

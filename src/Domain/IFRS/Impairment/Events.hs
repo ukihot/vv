@@ -1,6 +1,6 @@
-module Domain.IFRS.Impairment.Events
-    ( ImpairmentEventPayload (..)
-    )
+module Domain.IFRS.Impairment.Events (
+    ImpairmentEventPayload (..),
+)
 where
 
 import Data.Text (Text)

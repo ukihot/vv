@@ -4,17 +4,17 @@
 生データ（Text等）を受け取り、DTOに変換してCommandを実行する。
 ファットコントローラは禁止。ビジネスロジックは含まない。
 -}
-module Adapter.Controller.IAM
-    ( handleActivateUser
-    )
+module Adapter.Controller.IAM (
+    handleActivateUser,
+)
 where
 
 import Adapter.Env (AppM, Env (..))
-import Adapter.Presenter.IAM
-    ( presentActivateUserFailure
-    , presentActivateUserProgress
-    , presentActivateUserSuccess
-    )
+import Adapter.Presenter.IAM (
+    presentActivateUserFailure,
+    presentActivateUserProgress,
+    presentActivateUserSuccess,
+ )
 import App.DTO.Request (ActivateUserRequest (..))
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Reader (ask)

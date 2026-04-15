@@ -1,6 +1,6 @@
-module Domain.Ops.Budget.Repository
-    ( BudgetRepository (..)
-    )
+module Domain.Ops.Budget.Repository (
+    BudgetRepository (..),
+)
 where
 
 import Domain.Accounting.ChartOfAccounts.ValueObjects.AccountCode (AccountCode)

@@ -6,36 +6,36 @@
 
 Components層の再利用可能なコンポーネントを組み合わせて画面を構築する。
 -}
-module Adapter.View.Brick.Screens
-    ( renderScreen
-    )
+module Adapter.View.Brick.Screens (
+    renderScreen,
+)
 where
 
-import Adapter.View.Brick.Types
-    ( Name (..)
-    , Screen (..)
-    , UiState (..)
-    )
-import Adapter.View.Components.Button
-    ( renderPrimaryButton
-    )
-import Adapter.View.Components.Form
-    ( renderTextInput
-    )
-import Adapter.View.Components.Layout
-    ( renderCard
-    , renderSection
-    , renderSpacer
-    )
-import Brick
-    ( Padding (Pad)
-    , Widget
-    , attrName
-    , padTop
-    , txt
-    , vBox
-    , withAttr
-    )
+import Adapter.View.Brick.Types (
+    Name (..),
+    Screen (..),
+    UiState (..),
+ )
+import Adapter.View.Components.Button (
+    renderPrimaryButton,
+ )
+import Adapter.View.Components.Form (
+    renderTextInput,
+ )
+import Adapter.View.Components.Layout (
+    renderCard,
+    renderSection,
+    renderSpacer,
+ )
+import Brick (
+    Padding (Pad),
+    Widget,
+    attrName,
+    padTop,
+    txt,
+    vBox,
+    withAttr,
+ )
 import Brick.Widgets.Edit (renderEditor)
 import Data.Text qualified as T
 
@@ -77,17 +77,17 @@ renderHomeScreen _st =
         vBox
             [ renderSection "Welcome to VV!" $
                 vBox
-                    [ txt "IFRS-based Accounting System",
-                      renderSpacer 1,
-                      txt "Built with Haskell + Event Sourcing + CQRS"
-                    ],
-              renderSpacer 1,
-              renderSection "Quick Start" $
+                    [ txt "IFRS-based Accounting System"
+                    , renderSpacer 1
+                    , txt "Built with Haskell + Event Sourcing + CQRS"
+                    ]
+            , renderSpacer 1
+            , renderSection "Quick Start" $
                 vBox
-                    [ txt "• Press 'n' to open navigation menu",
-                      txt "• Press 'Tab' to switch domain tabs",
-                      txt "• Press 'Esc' to go back",
-                      txt "• Press 'q' to quit"
+                    [ txt "• Press 'n' to open navigation menu"
+                    , txt "• Press 'Tab' to switch domain tabs"
+                    , txt "• Press 'Esc' to go back"
+                    , txt "• Press 'q' to quit"
                     ]
             ]
 
@@ -99,8 +99,8 @@ renderUserActivateScreen :: UiState -> Widget Name
 renderUserActivateScreen st =
     renderCard (Just "User Activation") $
         vBox
-            [ renderTextInput "User ID" (uiUserIdEditor st) True,
-              padTop (Pad 1) $
+            [ renderTextInput "User ID" (uiUserIdEditor st) True
+            , padTop (Pad 1) $
                 renderPrimaryButton "Activate" "Enter"
             ]
 
@@ -112,7 +112,7 @@ renderPlaceholderScreen :: String -> String -> UiState -> Widget Name
 renderPlaceholderScreen title description _st =
     renderCard (Just (T.pack title)) $
         vBox
-            [ txt (T.pack description),
-              renderSpacer 1,
-              withAttr (attrName "hint") $ txt "This screen is not yet implemented."
+            [ txt (T.pack description)
+            , renderSpacer 1
+            , withAttr (attrName "hint") $ txt "This screen is not yet implemented."
             ]

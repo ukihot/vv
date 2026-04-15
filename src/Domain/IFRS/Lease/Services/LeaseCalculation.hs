@@ -1,7 +1,7 @@
-module Domain.IFRS.Lease.Services.LeaseCalculation
-    ( computePeriodInterest
-    , computePeriodDepreciation
-    )
+module Domain.IFRS.Lease.Services.LeaseCalculation (
+    computePeriodInterest,
+    computePeriodDepreciation,
+)
 where
 
 import Domain.IFRS.Lease (Lease (..))

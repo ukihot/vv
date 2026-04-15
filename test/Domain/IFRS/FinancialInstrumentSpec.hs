@@ -1,30 +1,30 @@
 module Domain.IFRS.FinancialInstrumentSpec (tests) where
 
-import Domain.IFRS.FinancialInstrument
-    ( EclJudgmentLog (..)
-    , EclParameters (..)
-    , EclStage (..)
-    , FinancialAsset (..)
-    , FinancialInstrumentError (..)
-    , SomeFinancialAsset (..)
-    , classifyStage
-    , computeEcl
-    , faEclAllowance
-    , faStage
-    , faVersion
-    , mkFinancialAssetId
-    , promoteToStage2
-    , recordFinancialAsset
-    , updateEclStage
-    )
+import Domain.IFRS.FinancialInstrument (
+    EclJudgmentLog (..),
+    EclParameters (..),
+    EclStage (..),
+    FinancialAsset (..),
+    FinancialInstrumentError (..),
+    SomeFinancialAsset (..),
+    classifyStage,
+    computeEcl,
+    faEclAllowance,
+    faStage,
+    faVersion,
+    mkFinancialAssetId,
+    promoteToStage2,
+    recordFinancialAsset,
+    updateEclStage,
+ )
 import Domain.Shared (Money (..), Version, initialVersion, mkMoney, nextVersion, unMoney, zeroMoney)
 import Hedgehog (Property, forAll, property, (===))
 import Hedgehog.Gen qualified as Gen
 import Hedgehog.Range qualified as Range
-import Support.Accounting.Fixtures
-    ( sampleEclParams
-    , sampleFinancialAssetId
-    )
+import Support.Accounting.Fixtures (
+    sampleEclParams,
+    sampleFinancialAssetId,
+ )
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.HUnit (Assertion, assertEqual, assertFailure, testCase)
 import Test.Tasty.Hedgehog (testProperty)
@@ -35,30 +35,30 @@ tests =
         "FinancialInstrument (IFRS 9)"
         [ testGroup
             "classifyStage §4.7.6"
-            [ testCase "期日経過0日・格付正常 → Stage1" case_stage1Normal,
-              testCase "期日経過31日 → Stage2" case_stage2Overdue31,
-              testCase "格付著しく低下 → Stage2" case_stage2RatingDeteriorated,
-              testCase "期日経過91日 → Stage3" case_stage3Overdue91,
-              testCase "法的倒産 → Stage3" case_stage3LegalDefault
-            ],
-          testGroup
+            [ testCase "期日経過0日・格付正常 → Stage1" case_stage1Normal
+            , testCase "期日経過31日 → Stage2" case_stage2Overdue31
+            , testCase "格付著しく低下 → Stage2" case_stage2RatingDeteriorated
+            , testCase "期日経過91日 → Stage3" case_stage3Overdue91
+            , testCase "法的倒産 → Stage3" case_stage3LegalDefault
+            ]
+        , testGroup
             "computeEcl §4.7.7"
-            [ testCase "Stage1: ECL = EAD × PD(12M) × LGD" case_eclStage1,
-              testCase "Stage2: ECL = EAD × PD(Lifetime) × LGD × DF" case_eclStage2,
-              testCase "Stage3: Stage2と同じ算式（信用調整済み実効金利継続）" case_eclStage3,
-              testCase "LGD > 1 はエラー" case_invalidLgd
-            ],
-          testGroup
+            [ testCase "Stage1: ECL = EAD × PD(12M) × LGD" case_eclStage1
+            , testCase "Stage2: ECL = EAD × PD(Lifetime) × LGD × DF" case_eclStage2
+            , testCase "Stage3: Stage2と同じ算式（信用調整済み実効金利継続）" case_eclStage3
+            , testCase "LGD > 1 はエラー" case_invalidLgd
+            ]
+        , testGroup
             "recordFinancialAsset"
             [ testCase "初度認識: Stage1・ECLゼロ・初期バージョン" case_recordInitial
-            ],
-          testGroup
+            ]
+        , testGroup
             "updateEclStage (GADT)"
-            [ testCase "Stage移動でバージョンが進む" case_updateStageVersionBumps,
-              testCase "Stage1→Stage2への移動 (promoteToStage2)" case_stage1To2,
-              testCase "Stage2→Stage3への移動 (promoteToStage3)" case_stage2To3
-            ],
-          testGroup
+            [ testCase "Stage移動でバージョンが進む" case_updateStageVersionBumps
+            , testCase "Stage1→Stage2への移動 (promoteToStage2)" case_stage1To2
+            , testCase "Stage2→Stage3への移動 (promoteToStage3)" case_stage2To3
+            ]
+        , testGroup
             "Properties"
             [ testProperty "Stage1 ECL ≤ Stage2 ECL (同一EAD・パラメータ)" prop_stage1EclLeStage2Ecl
             ]

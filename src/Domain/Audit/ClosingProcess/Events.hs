@@ -1,6 +1,6 @@
-module Domain.Audit.ClosingProcess.Events
-    ( ClosingProcessEventPayload (..)
-    )
+module Domain.Audit.ClosingProcess.Events (
+    ClosingProcessEventPayload (..),
+)
 where
 
 import Domain.Audit.ClosingProcess.ValueObjects.ClosingProcessId (ClosingProcessId)

@@ -1,7 +1,7 @@
-module Domain.IFRS.FairValue.ValueObjects.FairValueMeasurementId
-    ( FairValueMeasurementId (..)
-    , mkFairValueMeasurementId
-    )
+module Domain.IFRS.FairValue.ValueObjects.FairValueMeasurementId (
+    FairValueMeasurementId (..),
+    mkFairValueMeasurementId,
+)
 where
 
 import Data.Text (Text)

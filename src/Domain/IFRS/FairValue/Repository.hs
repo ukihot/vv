@@ -1,6 +1,6 @@
-module Domain.IFRS.FairValue.Repository
-    ( FairValueRepository (..)
-    )
+module Domain.IFRS.FairValue.Repository (
+    FairValueRepository (..),
+)
 where
 
 import Data.Text (Text)

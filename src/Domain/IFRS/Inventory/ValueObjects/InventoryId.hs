@@ -1,7 +1,7 @@
-module Domain.IFRS.Inventory.ValueObjects.InventoryId
-    ( InventoryId (..)
-    , mkInventoryId
-    )
+module Domain.IFRS.Inventory.ValueObjects.InventoryId (
+    InventoryId (..),
+    mkInventoryId,
+)
 where
 
 import Data.Text (Text)

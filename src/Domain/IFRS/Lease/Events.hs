@@ -1,6 +1,6 @@
-module Domain.IFRS.Lease.Events
-    ( LeaseEventPayload (..)
-    )
+module Domain.IFRS.Lease.Events (
+    LeaseEventPayload (..),
+)
 where
 
 import Data.Time (Day)

@@ -1,6 +1,6 @@
-module Domain.Org.Organization.ValueObjects.OrganizationState
-    ( OrganizationState (..)
-    )
+module Domain.Org.Organization.ValueObjects.OrganizationState (
+    OrganizationState (..),
+)
 where
 
 data OrganizationState

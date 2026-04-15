@@ -1,17 +1,17 @@
-module Support.IAM.Fixtures
-    ( samplePendingUser
-    , genUserId
-    , genUserName
-    , genEmail
-    , shouldMakeUserId
-    , shouldMakeUserName
-    , shouldMakeEmail
-    , shouldMakeRoleId
-    , shouldMakeRoleName
-    , shouldMakePermissionId
-    , shouldMakePermissionName
-    , shouldMakePermissionCode
-    )
+module Support.IAM.Fixtures (
+    samplePendingUser,
+    genUserId,
+    genUserName,
+    genEmail,
+    shouldMakeUserId,
+    shouldMakeUserName,
+    shouldMakeEmail,
+    shouldMakeRoleId,
+    shouldMakeRoleName,
+    shouldMakePermissionId,
+    shouldMakePermissionName,
+    shouldMakePermissionCode,
+)
 where
 
 import Domain.IAM.Permission.ValueObjects.PermissionCode (PermissionCode, mkPermissionCode)

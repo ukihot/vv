@@ -2,15 +2,15 @@
 取引日レート・期末日レート・平均レートを型で区別し、
 誤ったレート種別の適用をコンパイル時に防ぐ。
 -}
-module Domain.Accounting.ExchangeRate
-    ( -- * 集約
-      ExchangeRate (..)
-    , mkExchangeRate
+module Domain.Accounting.ExchangeRate (
+    -- * 集約
+    ExchangeRate (..),
+    mkExchangeRate,
 
-      -- * 値オブジェクト
-    , module Domain.Accounting.ExchangeRate.ValueObjects.RateKind
-    , module Domain.Accounting.ExchangeRate.ValueObjects.MonetaryClass
-    )
+    -- * 値オブジェクト
+    module Domain.Accounting.ExchangeRate.ValueObjects.RateKind,
+    module Domain.Accounting.ExchangeRate.ValueObjects.MonetaryClass,
+)
 where
 
 import Data.Text (Text)
@@ -21,10 +21,10 @@ import Domain.Accounting.ExchangeRate.ValueObjects.RateKind
 import GHC.TypeLits (Symbol)
 
 data ExchangeRate (from :: Symbol) (to :: Symbol) = ExchangeRate
-    { rateValue :: Rational,
-      rateKind :: RateKind,
-      rateDate :: Day,
-      rateSource :: Text
+    { rateValue :: Rational
+    , rateKind :: RateKind
+    , rateDate :: Day
+    , rateSource :: Text
     }
     deriving (Show, Eq)
 

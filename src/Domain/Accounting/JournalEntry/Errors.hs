@@ -1,6 +1,6 @@
-module Domain.Accounting.JournalEntry.Errors
-    ( JournalError (..)
-    )
+module Domain.Accounting.JournalEntry.Errors (
+    JournalError (..),
+)
 where
 
 data JournalError

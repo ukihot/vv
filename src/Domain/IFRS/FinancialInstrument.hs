@@ -2,27 +2,27 @@
 ECL 3ステージモデルを型で表現し、
 ステージ移動・ECL算定・判断ログを型安全に管理する。
 -}
-module Domain.IFRS.FinancialInstrument
-    ( -- * 集約
-      FinancialAsset (..)
-    , EclStage (..)
-    , SomeFinancialAsset (..)
+module Domain.IFRS.FinancialInstrument (
+    -- * 集約
+    FinancialAsset (..),
+    EclStage (..),
+    SomeFinancialAsset (..),
 
-      -- * ゲッター
-    , faId
-    , faGrossCarrying
-    , faEclAllowance
-    , faOriginalEir
-    , faVersion
-    , faStage
+    -- * ゲッター
+    faId,
+    faGrossCarrying,
+    faEclAllowance,
+    faOriginalEir,
+    faVersion,
+    faStage,
 
-      -- * 状態遷移
-    , recordFinancialAsset
-    , promoteToStage2
-    , promoteToStage3
-    , demoteToStage1
-    , updateEclStage
-    )
+    -- * 状態遷移
+    recordFinancialAsset,
+    promoteToStage2,
+    promoteToStage3,
+    demoteToStage1,
+    updateEclStage,
+)
 where
 
 import Domain.IFRS.FinancialInstrument.Entities.EclJudgmentLog (EclJudgmentLog (..))
@@ -118,8 +118,8 @@ promoteToStage2 ::
     Money currency ->
     (FinancialAsset 'Stage2 currency, EclJudgmentLog currency)
 promoteToStage2 fa newEcl =
-    ( FA2 (faId fa) (faGrossCarrying fa) newEcl (faOriginalEir fa) (nextVersion (faVersion fa)),
-      EclJudgmentLog (faId fa) Stage1 Stage2 newEcl ""
+    ( FA2 (faId fa) (faGrossCarrying fa) newEcl (faOriginalEir fa) (nextVersion (faVersion fa))
+    , EclJudgmentLog (faId fa) Stage1 Stage2 newEcl ""
     )
 
 promoteToStage3 ::
@@ -127,8 +127,8 @@ promoteToStage3 ::
     Money currency ->
     (FinancialAsset 'Stage3 currency, EclJudgmentLog currency)
 promoteToStage3 fa newEcl =
-    ( FA3 (faId fa) (faGrossCarrying fa) newEcl (faOriginalEir fa) (nextVersion (faVersion fa)),
-      EclJudgmentLog (faId fa) Stage2 Stage3 newEcl ""
+    ( FA3 (faId fa) (faGrossCarrying fa) newEcl (faOriginalEir fa) (nextVersion (faVersion fa))
+    , EclJudgmentLog (faId fa) Stage2 Stage3 newEcl ""
     )
 
 demoteToStage1 ::
@@ -136,8 +136,8 @@ demoteToStage1 ::
     Money currency ->
     (FinancialAsset 'Stage1 currency, EclJudgmentLog currency)
 demoteToStage1 fa newEcl =
-    ( FA1 (faId fa) (faGrossCarrying fa) newEcl (faOriginalEir fa) (nextVersion (faVersion fa)),
-      EclJudgmentLog (faId fa) Stage2 Stage1 newEcl ""
+    ( FA1 (faId fa) (faGrossCarrying fa) newEcl (faOriginalEir fa) (nextVersion (faVersion fa))
+    , EclJudgmentLog (faId fa) Stage2 Stage1 newEcl ""
     )
 
 updateEclStage ::

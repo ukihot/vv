@@ -1,23 +1,23 @@
 module Domain.Accounting.ExchangeRateSpec (tests) where
 
 import Data.Time (fromGregorian)
-import Domain.Accounting.ExchangeRate
-    ( ExchangeRate (..)
-    , ExchangeRateError (..)
-    , MonetaryClass (..)
-    , RateKind (..)
-    , mkExchangeRate
-    , translateMoney
-    )
+import Domain.Accounting.ExchangeRate (
+    ExchangeRate (..),
+    ExchangeRateError (..),
+    MonetaryClass (..),
+    RateKind (..),
+    mkExchangeRate,
+    translateMoney,
+ )
 import Domain.Shared (Money (..), mkMoney, unMoney)
 import Hedgehog (Property, forAll, property, (===))
 import Hedgehog.Gen qualified as Gen
 import Hedgehog.Range qualified as Range
-import Support.Accounting.Fixtures
-    ( sampleUsdJpyClosingRate
-    , sampleUsdJpyHistoricalRate
-    , shouldRight
-    )
+import Support.Accounting.Fixtures (
+    sampleUsdJpyClosingRate,
+    sampleUsdJpyHistoricalRate,
+    shouldRight,
+ )
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.HUnit (Assertion, assertEqual, assertFailure, testCase)
 import Test.Tasty.Hedgehog (testProperty)
@@ -28,19 +28,19 @@ tests =
         "ExchangeRate"
         [ testGroup
             "mkExchangeRate"
-            [ testCase "正のレートは成功" case_positiveRateSucceeds,
-              testCase "ゼロレートはエラー" case_zeroRateFails,
-              testCase "負のレートはエラー" case_negativeRateFails
-            ],
-          testGroup
+            [ testCase "正のレートは成功" case_positiveRateSucceeds
+            , testCase "ゼロレートはエラー" case_zeroRateFails
+            , testCase "負のレートはエラー" case_negativeRateFails
+            ]
+        , testGroup
             "translateMoney §4.7.10.3"
-            [ testCase "期末日レートで貨幣性項目を換算" case_translateMonetary,
-              testCase "取引日レートで非貨幣性項目を換算" case_translateNonMonetary
-            ],
-          testGroup
+            [ testCase "期末日レートで貨幣性項目を換算" case_translateMonetary
+            , testCase "取引日レートで非貨幣性項目を換算" case_translateNonMonetary
+            ]
+        , testGroup
             "Properties"
-            [ testProperty "正のレートは常に成功" prop_positiveRateAlwaysSucceeds,
-              testProperty "換算後金額 = 原通貨金額 × レート" prop_translationIsLinear
+            [ testProperty "正のレートは常に成功" prop_positiveRateAlwaysSucceeds
+            , testProperty "換算後金額 = 原通貨金額 × レート" prop_translationIsLinear
             ]
         ]
 
@@ -110,10 +110,10 @@ prop_translationIsLinear = property $ do
     b <- forAll $ Gen.integral (Range.linear 1 100000)
     let rate =
             ExchangeRate
-                { rateValue = 150,
-                  rateKind = ClosingRate,
-                  rateDate = fromGregorian 2026 3 31,
-                  rateSource = "TEST"
+                { rateValue = 150
+                , rateKind = ClosingRate
+                , rateDate = fromGregorian 2026 3 31
+                , rateSource = "TEST"
                 }
         ma = mkMoney (fromIntegral a) :: Money "USD"
         mb = mkMoney (fromIntegral b) :: Money "USD"

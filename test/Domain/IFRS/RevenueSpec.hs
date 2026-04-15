@@ -1,27 +1,27 @@
 module Domain.IFRS.RevenueSpec (tests) where
 
 import Data.Time (fromGregorian)
-import Domain.IFRS.Revenue
-    ( AllocationMethod (..)
-    , PerformanceObligation (..)
-    , PerformanceObligationId (..)
-    , RevenueError (..)
-    , RevenueJudgmentLog (..)
-    , RevenueRecognitionResult (..)
-    , SatisfactionPattern (..)
-    , allocateTransactionPrice
-    , mkContractId
-    , recognizeRevenue
-    )
+import Domain.IFRS.Revenue (
+    AllocationMethod (..),
+    PerformanceObligation (..),
+    PerformanceObligationId (..),
+    RevenueError (..),
+    RevenueJudgmentLog (..),
+    RevenueRecognitionResult (..),
+    SatisfactionPattern (..),
+    allocateTransactionPrice,
+    mkContractId,
+    recognizeRevenue,
+ )
 import Domain.Shared (Money (..), mkMoney, unMoney, zeroMoney)
 import Hedgehog (Property, forAll, property, (===))
 import Hedgehog.Gen qualified as Gen
 import Hedgehog.Range qualified as Range
-import Support.Accounting.Fixtures
-    ( sampleContractId
-    , samplePoId
-    , shouldRight
-    )
+import Support.Accounting.Fixtures (
+    sampleContractId,
+    samplePoId,
+    shouldRight,
+ )
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.HUnit (Assertion, assertEqual, assertFailure, testCase)
 import Test.Tasty.Hedgehog (testProperty)
@@ -33,19 +33,19 @@ tests =
         [ testGroup
             "ContractId"
             [ testCase "有効なIDは成功" case_validContractId
-            ],
-          testGroup
+            ]
+        , testGroup
             "allocateTransactionPrice §4.3.2"
-            [ testCase "2履行義務への独立販売価格比率配分" case_allocateTwoObligations,
-              testCase "独立販売価格合計ゼロはエラー" case_zeroSspFails,
-              testCase "配分後合計 = 取引価格" case_allocationSumsToTransactionPrice
-            ],
-          testGroup
+            [ testCase "2履行義務への独立販売価格比率配分" case_allocateTwoObligations
+            , testCase "独立販売価格合計ゼロはエラー" case_zeroSspFails
+            , testCase "配分後合計 = 取引価格" case_allocationSumsToTransactionPrice
+            ]
+        , testGroup
             "recognizeRevenue §4.3.1 Step5"
-            [ testCase "一時点認識の履行義務は収益計上できる" case_recognizeAtPoint,
-              testCase "期間認識の履行義務は一時点認識できない" case_cannotRecognizeOverTimeAtPoint
-            ],
-          testGroup
+            [ testCase "一時点認識の履行義務は収益計上できる" case_recognizeAtPoint
+            , testCase "期間認識の履行義務は一時点認識できない" case_cannotRecognizeOverTimeAtPoint
+            ]
+        , testGroup
             "Properties"
             [ testProperty "配分後の各履行義務の合計は取引価格に等しい" prop_allocationPreservesTotal
             ]
@@ -60,25 +60,25 @@ sampleLog = do
     cid <- sampleContractId
     pure
         RevenueJudgmentLog
-            { rjlContractId = cid,
-              rjlStep1ContractExists = True,
-              rjlStep2ObligationBasis = "ライセンスと保守は別個の財・サービス",
-              rjlStep3AllocationMethod = RelativeStandalonePrice,
-              rjlStep3VariableConsideration = Nothing,
-              rjlStep5ProgressMethod = Nothing,
-              rjlJudgmentDate = fromGregorian 2026 3 31
+            { rjlContractId = cid
+            , rjlStep1ContractExists = True
+            , rjlStep2ObligationBasis = "ライセンスと保守は別個の財・サービス"
+            , rjlStep3AllocationMethod = RelativeStandalonePrice
+            , rjlStep3VariableConsideration = Nothing
+            , rjlStep5ProgressMethod = Nothing
+            , rjlJudgmentDate = fromGregorian 2026 3 31
             }
 
 makePO ::
     PerformanceObligationId -> SatisfactionPattern -> Money "JPY" -> PerformanceObligation "JPY"
 makePO pid pat ssp =
     PerformanceObligation
-        { poId = pid,
-          poDescription = "テスト履行義務",
-          poPattern = pat,
-          poProgressMethod = Nothing,
-          poStandalonePrice = ssp,
-          poAllocatedPrice = zeroMoney
+        { poId = pid
+        , poDescription = "テスト履行義務"
+        , poPattern = pat
+        , poProgressMethod = Nothing
+        , poStandalonePrice = ssp
+        , poAllocatedPrice = zeroMoney
         }
 
 -- ─────────────────────────────────────────────────────────────────────────────

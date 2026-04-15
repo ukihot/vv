@@ -1,0 +1,23 @@
+packages: .
+
+-- Global language extensions
+package vv
+  ghc-options: -XImportQualifiedPost
+               -XLambdaCase
+               -XMultiWayIf
+               -XOverloadedStrings
+               -XOverloadedRecordDot
+               -XRecordWildCards
+               -XDerivingStrategies
+               -XDeriveAnyClass
+               -XDataKinds
+               -XTypeFamilies
+               -XGADTs
+               -XViewPatterns
+               -XPatternSynonyms
+               -XStrictData
+
+-- Haddock options
+documentation: True
+haddock-all: True
+haddock-hyperlink-source: True

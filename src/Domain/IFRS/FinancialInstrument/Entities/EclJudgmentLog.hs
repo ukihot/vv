@@ -1,6 +1,6 @@
-module Domain.IFRS.FinancialInstrument.Entities.EclJudgmentLog
-    ( EclJudgmentLog (..)
-    )
+module Domain.IFRS.FinancialInstrument.Entities.EclJudgmentLog (
+    EclJudgmentLog (..),
+)
 where
 
 import Data.Text (Text)
@@ -10,10 +10,10 @@ import Domain.Shared (Money)
 import GHC.TypeLits (Symbol)
 
 data EclJudgmentLog (currency :: Symbol) = EclJudgmentLog
-    { ejlAssetId :: FinancialAssetId,
-      ejlPreviousStage :: EclStage,
-      ejlNewStage :: EclStage,
-      ejlEclAmount :: Money currency,
-      ejlMovementReason :: Text
+    { ejlAssetId :: FinancialAssetId
+    , ejlPreviousStage :: EclStage
+    , ejlNewStage :: EclStage
+    , ejlEclAmount :: Money currency
+    , ejlMovementReason :: Text
     }
     deriving (Show, Eq)

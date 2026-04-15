@@ -1,22 +1,22 @@
 module Domain.IAM.PermissionSpec (tests) where
 
-import Domain.IAM.Permission
-    ( activatePermission
-    , getPermissionId
-    , getPermissionProfile
-    , getPermissionVersion
-    , retirePermission
-    )
+import Domain.IAM.Permission (
+    activatePermission,
+    getPermissionId,
+    getPermissionProfile,
+    getPermissionVersion,
+    retirePermission,
+ )
 import Domain.IAM.Permission.Entities.Profile (PermissionProfile (..))
 import Domain.IAM.Permission.Events (PermissionEventPayload (..))
 import Domain.IAM.Permission.Services.Factory (definePermission)
 import Domain.IAM.Permission.ValueObjects.Version qualified as PermissionVersion
-import Support.IAM.Fixtures
-    ( shouldMakePermissionCode
-    , shouldMakePermissionId
-    , shouldMakePermissionName
-    , shouldMakeUserId
-    )
+import Support.IAM.Fixtures (
+    shouldMakePermissionCode,
+    shouldMakePermissionId,
+    shouldMakePermissionName,
+    shouldMakeUserId,
+ )
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.HUnit (Assertion, assertEqual, testCase)
 
@@ -29,8 +29,8 @@ tests =
             [ testCase
                 "definePermission seeds a draft permission with initial version"
                 case_definePermissionSeedsDraftPermission
-            ],
-          testGroup
+            ]
+        , testGroup
             "Transitions"
             [ testCase "permission lifecycle activates then retires" case_permissionLifecycle
             ]

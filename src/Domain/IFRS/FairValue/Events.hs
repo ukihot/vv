@@ -1,6 +1,6 @@
-module Domain.IFRS.FairValue.Events
-    ( FairValueEventPayload (..)
-    )
+module Domain.IFRS.FairValue.Events (
+    FairValueEventPayload (..),
+)
 where
 
 import Data.Text (Text)
@@ -12,7 +12,13 @@ import GHC.TypeLits (Symbol)
 
 data FairValueEventPayload (currency :: Symbol)
     = -- | 公正価値測定 → FixedAsset集約、FinancialInstrument集約、AuditTrail集約
-      FairValueMeasured FairValueMeasurementId Text Day (Money currency) FairValueHierarchy ValuationTechnique
+      FairValueMeasured
+        FairValueMeasurementId
+        Text
+        Day
+        (Money currency)
+        FairValueHierarchy
+        ValuationTechnique
     | -- | 公正価値再測定 → 関連集約
       FairValueRemeasured FairValueMeasurementId (Money currency) Day
     | -- | ヒエラルキーレベル変更 → AuditTrail集約

@@ -1,6 +1,6 @@
-module Domain.Ops.BankStatement.Repository
-    ( BankStatementRepository (..)
-    )
+module Domain.Ops.BankStatement.Repository (
+    BankStatementRepository (..),
+)
 where
 
 import Data.Time (Day)

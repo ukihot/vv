@@ -1,10 +1,10 @@
 module Domain.Accounting.ChartOfAccountsSpec (tests) where
 
-import Domain.Accounting.ChartOfAccounts
-    ( ChartError (..)
-    , mkAccountCode
-    , mkAccountName
-    )
+import Domain.Accounting.ChartOfAccounts (
+    ChartError (..),
+    mkAccountCode,
+    mkAccountName,
+ )
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.HUnit (Assertion, assertEqual, assertFailure, testCase)
 
@@ -14,13 +14,13 @@ tests =
         "ChartOfAccounts"
         [ testGroup
             "AccountCode"
-            [ testCase "空文字はエラー" case_emptyCodeIsError,
-              testCase "非空文字は成功" case_nonEmptyCodeSucceeds
-            ],
-          testGroup
+            [ testCase "空文字はエラー" case_emptyCodeIsError
+            , testCase "非空文字は成功" case_nonEmptyCodeSucceeds
+            ]
+        , testGroup
             "AccountName"
-            [ testCase "空文字はエラー" case_emptyNameIsError,
-              testCase "非空文字は成功" case_nonEmptyNameSucceeds
+            [ testCase "空文字はエラー" case_emptyNameIsError
+            , testCase "非空文字は成功" case_nonEmptyNameSucceeds
             ]
         ]
 

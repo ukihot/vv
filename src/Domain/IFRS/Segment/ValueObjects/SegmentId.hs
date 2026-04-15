@@ -1,7 +1,7 @@
-module Domain.IFRS.Segment.ValueObjects.SegmentId
-    ( SegmentId (..)
-    , mkSegmentId
-    )
+module Domain.IFRS.Segment.ValueObjects.SegmentId (
+    SegmentId (..),
+    mkSegmentId,
+)
 where
 
 import Data.Text (Text)

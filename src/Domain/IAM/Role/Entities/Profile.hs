@@ -1,16 +1,16 @@
-module Domain.IAM.Role.Entities.Profile
-    ( RoleProfile (..)
-    , addPermission
-    , removePermission
-    )
+module Domain.IAM.Role.Entities.Profile (
+    RoleProfile (..),
+    addPermission,
+    removePermission,
+)
 where
 
 import Domain.IAM.Permission.ValueObjects.PermissionId (PermissionId)
 import Domain.IAM.Role.ValueObjects.RoleName (RoleName)
 
 data RoleProfile = RoleProfile
-    { profileName :: RoleName,
-      profilePermissions :: [PermissionId]
+    { profileName :: RoleName
+    , profilePermissions :: [PermissionId]
     }
     deriving stock (Show, Eq)
 

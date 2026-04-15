@@ -1,6 +1,6 @@
-module Domain.Accounting.ExchangeRate.Errors
-    ( ExchangeRateError (..)
-    )
+module Domain.Accounting.ExchangeRate.Errors (
+    ExchangeRateError (..),
+)
 where
 
 data ExchangeRateError

@@ -1,6 +1,6 @@
-module Domain.IFRS.Revenue.Entities.RevenueJudgmentLog
-    ( RevenueJudgmentLog (..)
-    )
+module Domain.IFRS.Revenue.Entities.RevenueJudgmentLog (
+    RevenueJudgmentLog (..),
+)
 where
 
 import Data.Text (Text)
@@ -12,12 +12,12 @@ import Domain.IFRS.Revenue.ValueObjects.ContractId (ContractId)
 import GHC.TypeLits (Symbol)
 
 data RevenueJudgmentLog (currency :: Symbol) = RevenueJudgmentLog
-    { rjlContractId :: ContractId,
-      rjlStep1ContractExists :: Bool,
-      rjlStep2ObligationBasis :: Text,
-      rjlStep3AllocationMethod :: AllocationMethod,
-      rjlStep3VariableConsideration :: Maybe (VariableConsideration currency),
-      rjlStep5ProgressMethod :: Maybe ProgressMethod,
-      rjlJudgmentDate :: Day
+    { rjlContractId :: ContractId
+    , rjlStep1ContractExists :: Bool
+    , rjlStep2ObligationBasis :: Text
+    , rjlStep3AllocationMethod :: AllocationMethod
+    , rjlStep3VariableConsideration :: Maybe (VariableConsideration currency)
+    , rjlStep5ProgressMethod :: Maybe ProgressMethod
+    , rjlJudgmentDate :: Day
     }
     deriving (Show, Eq)

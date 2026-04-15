@@ -1,6 +1,6 @@
-module Domain.IFRS.Provision.Errors
-    ( ProvisionError (..)
-    )
+module Domain.IFRS.Provision.Errors (
+    ProvisionError (..),
+)
 where
 
 data ProvisionError

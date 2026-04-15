@@ -1,6 +1,6 @@
-module Domain.Ops.BankAccount.Errors
-    ( BankAccountError (..)
-    )
+module Domain.Ops.BankAccount.Errors (
+    BankAccountError (..),
+)
 where
 
 data BankAccountError

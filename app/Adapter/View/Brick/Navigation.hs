@@ -3,26 +3,26 @@
 {- | ナビゲーション機能
 画面遷移、スタック管理、パンくずリスト生成を提供する。
 -}
-module Adapter.View.Brick.Navigation
-    ( -- * Navigation Operations
-      pushScreen
-    , popScreen
-    , switchTab
-    , toggleNavigation
-    , getBreadcrumbs
+module Adapter.View.Brick.Navigation (
+    -- * Navigation Operations
+    pushScreen,
+    popScreen,
+    switchTab,
+    toggleNavigation,
+    getBreadcrumbs,
 
-      -- * Initial State
-    , initialNavigation
-    )
+    -- * Initial State
+    initialNavigation,
+)
 where
 
-import Adapter.View.Brick.Types
-    ( DomainTab (..)
-    , NavigationState (..)
-    , Screen (..)
-    , ScreenInfo (..)
-    , screenRegistry
-    )
+import Adapter.View.Brick.Types (
+    DomainTab (..),
+    NavigationState (..),
+    Screen (..),
+    ScreenInfo (..),
+    screenRegistry,
+ )
 import Data.List (find)
 import Data.Text (Text)
 import Data.Text qualified as T
@@ -34,10 +34,10 @@ import Data.Text qualified as T
 initialNavigation :: NavigationState
 initialNavigation =
     NavigationState
-        { navCurrentScreen = ScreenHome,
-          navScreenStack = [],
-          navCurrentTab = TabIAM,
-          navShowNavigation = False
+        { navCurrentScreen = ScreenHome
+        , navScreenStack = []
+        , navCurrentTab = TabIAM
+        , navShowNavigation = False
         }
 
 -- ─────────────────────────────────────────────────────────────────────────────
@@ -48,9 +48,9 @@ initialNavigation =
 pushScreen :: Screen -> NavigationState -> NavigationState
 pushScreen newScreen nav =
     nav
-        { navCurrentScreen = newScreen,
-          navScreenStack = navCurrentScreen nav : navScreenStack nav,
-          navShowNavigation = False -- 遷移時はナビゲーションを閉じる
+        { navCurrentScreen = newScreen
+        , navScreenStack = navCurrentScreen nav : navScreenStack nav
+        , navShowNavigation = False -- 遷移時はナビゲーションを閉じる
         }
 
 -- | スタックから画面をポップして戻る
@@ -59,8 +59,8 @@ popScreen nav = case navScreenStack nav of
     [] -> nav -- スタックが空なら何もしない
     (prevScreen : rest) ->
         nav
-            { navCurrentScreen = prevScreen,
-              navScreenStack = rest
+            { navCurrentScreen = prevScreen
+            , navScreenStack = rest
             }
 
 -- | タブを切り替え

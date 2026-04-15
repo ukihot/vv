@@ -1,11 +1,11 @@
 {-# LANGUAGE ImportQualifiedPost #-}
 
-module Adapter.View.Components.Modal
-    ( renderConfirmModal
-    , renderAlertModal
-    , renderInfoModal
-    , renderModalOverlay
-    ) where
+module Adapter.View.Components.Modal (
+    renderConfirmModal,
+    renderAlertModal,
+    renderInfoModal,
+    renderModalOverlay,
+) where
 
 import Brick
 import Brick.Widgets.Border qualified as Border
@@ -18,13 +18,13 @@ renderConfirmModal title message =
         Border.borderWithLabel (txt (" " <> title <> " ")) $
             padAll 2 $
                 vBox
-                    [ txt message,
-                      padTop (Pad 2) $
+                    [ txt message
+                    , padTop (Pad 2) $
                         hCenter $
                             hBox
-                                [ withAttr (attrName "buttonPrimary") $ txt " Yes (y) ",
-                                  str "  ",
-                                  withAttr (attrName "buttonSecondary") $ txt " No (n) "
+                                [ withAttr (attrName "buttonPrimary") $ txt " Yes (y) "
+                                , str "  "
+                                , withAttr (attrName "buttonSecondary") $ txt " No (n) "
                                 ]
                     ]
 
@@ -34,8 +34,8 @@ renderAlertModal title message =
         Border.borderWithLabel (txt (" ⚠ " <> title <> " ")) $
             padAll 2 $
                 vBox
-                    [ withAttr (attrName "alertMessage") $ txt message,
-                      padTop (Pad 2) $
+                    [ withAttr (attrName "alertMessage") $ txt message
+                    , padTop (Pad 2) $
                         hCenter $
                             withAttr (attrName "buttonPrimary") $
                                 txt " OK (Enter) "
@@ -47,8 +47,8 @@ renderInfoModal title message =
         Border.borderWithLabel (txt (" ℹ " <> title <> " ")) $
             padAll 2 $
                 vBox
-                    [ txt message,
-                      padTop (Pad 2) $
+                    [ txt message
+                    , padTop (Pad 2) $
                         hCenter $
                             withAttr (attrName "buttonPrimary") $
                                 txt " OK (Enter) "

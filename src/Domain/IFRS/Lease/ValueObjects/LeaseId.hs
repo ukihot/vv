@@ -1,7 +1,7 @@
-module Domain.IFRS.Lease.ValueObjects.LeaseId
-    ( LeaseId (..)
-    , mkLeaseId
-    )
+module Domain.IFRS.Lease.ValueObjects.LeaseId (
+    LeaseId (..),
+    mkLeaseId,
+)
 where
 
 import Data.Text (Text)

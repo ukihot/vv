@@ -1,6 +1,6 @@
-module Domain.IFRS.Revenue.Services.PriceAllocation
-    ( allocateTransactionPrice
-    )
+module Domain.IFRS.Revenue.Services.PriceAllocation (
+    allocateTransactionPrice,
+)
 where
 
 import Domain.IFRS.Revenue.Entities.PerformanceObligation (PerformanceObligation (..))

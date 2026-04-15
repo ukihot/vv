@@ -1,7 +1,7 @@
-module Domain.Accounting.JournalEntry.ValueObjects.JournalEntryId
-    ( JournalEntryId (..)
-    , mkJournalEntryId
-    )
+module Domain.Accounting.JournalEntry.ValueObjects.JournalEntryId (
+    JournalEntryId (..),
+    mkJournalEntryId,
+)
 where
 
 import Data.Text (Text)

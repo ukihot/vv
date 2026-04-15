@@ -1,6 +1,6 @@
-module Domain.Audit.AuditTrail.ValueObjects.AuditAction
-    ( AuditAction (..)
-    )
+module Domain.Audit.AuditTrail.ValueObjects.AuditAction (
+    AuditAction (..),
+)
 where
 
 data AuditAction

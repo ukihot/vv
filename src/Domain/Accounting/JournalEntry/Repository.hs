@@ -1,6 +1,6 @@
-module Domain.Accounting.JournalEntry.Repository
-    ( JournalEntryRepository (..)
-    )
+module Domain.Accounting.JournalEntry.Repository (
+    JournalEntryRepository (..),
+)
 where
 
 import Data.Time (Day)

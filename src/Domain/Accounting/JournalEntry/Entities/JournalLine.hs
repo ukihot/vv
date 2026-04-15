@@ -1,6 +1,6 @@
-module Domain.Accounting.JournalEntry.Entities.JournalLine
-    ( JournalLine (..)
-    )
+module Domain.Accounting.JournalEntry.Entities.JournalLine (
+    JournalLine (..),
+)
 where
 
 import Domain.Accounting.ChartOfAccounts.ValueObjects.AccountCode (AccountCode)
@@ -9,8 +9,8 @@ import Domain.Shared (Money)
 import GHC.TypeLits (Symbol)
 
 data JournalLine (currency :: Symbol) = JournalLine
-    { lineAccount :: AccountCode,
-      lineDrCr :: DrCr,
-      lineAmount :: Money currency
+    { lineAccount :: AccountCode
+    , lineDrCr :: DrCr
+    , lineAmount :: Money currency
     }
     deriving (Show, Eq)

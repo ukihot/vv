@@ -1,6 +1,6 @@
-module Domain.Accounting.ExchangeRate.Events
-    ( ExchangeRateEventPayload (..)
-    )
+module Domain.Accounting.ExchangeRate.Events (
+    ExchangeRateEventPayload (..),
+)
 where
 
 import Data.Time (Day)

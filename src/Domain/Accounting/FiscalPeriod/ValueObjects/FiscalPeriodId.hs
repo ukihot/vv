@@ -1,7 +1,7 @@
-module Domain.Accounting.FiscalPeriod.ValueObjects.FiscalPeriodId
-    ( FiscalPeriodId (..)
-    , mkFiscalPeriodId
-    )
+module Domain.Accounting.FiscalPeriod.ValueObjects.FiscalPeriodId (
+    FiscalPeriodId (..),
+    mkFiscalPeriodId,
+)
 where
 
 import Data.Text (Text)

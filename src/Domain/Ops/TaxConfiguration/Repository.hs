@@ -1,6 +1,6 @@
-module Domain.Ops.TaxConfiguration.Repository
-    ( TaxConfigurationRepository (..)
-    )
+module Domain.Ops.TaxConfiguration.Repository (
+    TaxConfigurationRepository (..),
+)
 where
 
 import Data.Time (Day)

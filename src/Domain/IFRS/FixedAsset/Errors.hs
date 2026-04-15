@@ -1,6 +1,6 @@
-module Domain.IFRS.FixedAsset.Errors
-    ( FixedAssetError (..)
-    )
+module Domain.IFRS.FixedAsset.Errors (
+    FixedAssetError (..),
+)
 where
 
 data FixedAssetError

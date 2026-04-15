@@ -1,15 +1,15 @@
 module Domain.IFRS.LeaseSpec (tests) where
 
 import Data.Time (fromGregorian)
-import Domain.IFRS.Lease
-    ( Lease (..)
-    , LeaseError (..)
-    , applyLeasePayment
-    , computePeriodDepreciation
-    , computePeriodInterest
-    , mkLeaseId
-    , recordLease
-    )
+import Domain.IFRS.Lease (
+    Lease (..),
+    LeaseError (..),
+    applyLeasePayment,
+    computePeriodDepreciation,
+    computePeriodInterest,
+    mkLeaseId,
+    recordLease,
+ )
 import Domain.Shared (Money, Version (..), initialVersion, mkMoney, nextVersion, unMoney)
 import Hedgehog (Property, forAll, property, (===))
 import Hedgehog.Gen qualified as Gen
@@ -25,26 +25,26 @@ tests =
         "Lease (IFRS 16)"
         [ testGroup
             "recordLease"
-            [ testCase "初度認識: 使用権資産 = リース負債" case_initialRecognitionRouEqLiability,
-              testCase "初度認識: 初期バージョン" case_initialVersion
-            ],
-          testGroup
+            [ testCase "初度認識: 使用権資産 = リース負債" case_initialRecognitionRouEqLiability
+            , testCase "初度認識: 初期バージョン" case_initialVersion
+            ]
+        , testGroup
             "computePeriodInterest §2.4.6"
             [ testCase "月次利息 = 負債残高 × 年率/12" case_periodInterest
-            ],
-          testGroup
+            ]
+        , testGroup
             "computePeriodDepreciation §2.4.6"
             [ testCase "月次償却 = 使用権資産 / リース期間" case_periodDepreciation
-            ],
-          testGroup
+            ]
+        , testGroup
             "applyLeasePayment"
-            [ testCase "支払後の負債残高が減少する" case_liabilityDecreases,
-              testCase "支払後バージョンが進む" case_versionBumps
-            ],
-          testGroup
+            [ testCase "支払後の負債残高が減少する" case_liabilityDecreases
+            , testCase "支払後バージョンが進む" case_versionBumps
+            ]
+        , testGroup
             "Properties"
-            [ testProperty "月次利息は常に非負" prop_interestNonNegative,
-              testProperty "月次償却は常に正" prop_depreciationPositive
+            [ testProperty "月次利息は常に非負" prop_interestNonNegative
+            , testProperty "月次償却は常に正" prop_depreciationPositive
             ]
         ]
 

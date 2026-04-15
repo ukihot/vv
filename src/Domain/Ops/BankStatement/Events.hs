@@ -1,6 +1,6 @@
-module Domain.Ops.BankStatement.Events
-    ( BankStatementEventPayload (..)
-    )
+module Domain.Ops.BankStatement.Events (
+    BankStatementEventPayload (..),
+)
 where
 
 import Data.Time (Day)

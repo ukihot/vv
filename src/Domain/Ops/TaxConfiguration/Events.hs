@@ -1,6 +1,6 @@
-module Domain.Ops.TaxConfiguration.Events
-    ( TaxConfigEventPayload (..)
-    )
+module Domain.Ops.TaxConfiguration.Events (
+    TaxConfigEventPayload (..),
+)
 where
 
 import Data.Time (Day)

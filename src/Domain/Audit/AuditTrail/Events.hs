@@ -1,6 +1,6 @@
-module Domain.Audit.AuditTrail.Events
-    ( AuditTrailEventPayload (..)
-    )
+module Domain.Audit.AuditTrail.Events (
+    AuditTrailEventPayload (..),
+)
 where
 
 import Data.Text (Text)

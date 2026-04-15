@@ -1,6 +1,6 @@
-module Domain.Accounting.JournalEntry.ValueObjects.DrCr
-    ( DrCr (..)
-    )
+module Domain.Accounting.JournalEntry.ValueObjects.DrCr (
+    DrCr (..),
+)
 where
 
 data DrCr = Dr | Cr

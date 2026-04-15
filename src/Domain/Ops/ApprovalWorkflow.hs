@@ -1,21 +1,21 @@
 {- | 承認ワークフロー集約ルートエンティティ
 承認プロセスを型安全に管理し、承認状態の遷移を保証する。
 -}
-module Domain.Ops.ApprovalWorkflow
-    ( -- * 集約
-      ApprovalWorkflow (..)
-    , ApprovalState (..)
-    , SomeApprovalWorkflow (..)
+module Domain.Ops.ApprovalWorkflow (
+    -- * 集約
+    ApprovalWorkflow (..),
+    ApprovalState (..),
+    SomeApprovalWorkflow (..),
 
-      -- * 値オブジェクト
-    , module Domain.Ops.ApprovalWorkflow.ValueObjects.ApprovalWorkflowId
+    -- * 値オブジェクト
+    module Domain.Ops.ApprovalWorkflow.ValueObjects.ApprovalWorkflowId,
 
-      -- * 状態遷移
-    , createDraft
-    , submitForApproval
-    , approve
-    , reject
-    )
+    -- * 状態遷移
+    createDraft,
+    submitForApproval,
+    approve,
+    reject,
+)
 where
 
 import Data.Text (Text)
@@ -82,16 +82,16 @@ createDraft ::
     UTCTime ->
     (ApprovalWorkflow 'Draft, ApprovalWorkflowEventPayload)
 createDraft wfId description creatorId timestamp =
-    ( AWDraft wfId description creatorId timestamp initialVersion,
-      WorkflowCreated wfId creatorId
+    ( AWDraft wfId description creatorId timestamp initialVersion
+    , WorkflowCreated wfId creatorId
     )
 
 submitForApproval ::
     ApprovalWorkflow 'Draft ->
     (ApprovalWorkflow 'PendingApproval, ApprovalWorkflowEventPayload)
 submitForApproval (AWDraft wfId description creatorId timestamp v) =
-    ( AWPendingApproval wfId description creatorId timestamp (nextVersion v),
-      WorkflowSubmitted wfId creatorId
+    ( AWPendingApproval wfId description creatorId timestamp (nextVersion v)
+    , WorkflowSubmitted wfId creatorId
     )
 
 approve ::
@@ -99,8 +99,8 @@ approve ::
     ApprovalWorkflow 'PendingApproval ->
     (ApprovalWorkflow 'Approved, ApprovalWorkflowEventPayload)
 approve approverId (AWPendingApproval wfId description creatorId timestamp v) =
-    ( AWApproved wfId description creatorId approverId timestamp (nextVersion v),
-      WorkflowApproved wfId approverId
+    ( AWApproved wfId description creatorId approverId timestamp (nextVersion v)
+    , WorkflowApproved wfId approverId
     )
 
 reject ::
@@ -109,6 +109,6 @@ reject ::
     ApprovalWorkflow 'PendingApproval ->
     (ApprovalWorkflow 'Rejected, ApprovalWorkflowEventPayload)
 reject rejecterId reason (AWPendingApproval wfId description creatorId timestamp v) =
-    ( AWRejected wfId description creatorId rejecterId reason timestamp (nextVersion v),
-      WorkflowRejected wfId rejecterId reason
+    ( AWRejected wfId description creatorId rejecterId reason timestamp (nextVersion v)
+    , WorkflowRejected wfId rejecterId reason
     )

@@ -1,6 +1,6 @@
-module Domain.IFRS.Provision.Repository
-    ( ProvisionRepository (..)
-    )
+module Domain.IFRS.Provision.Repository (
+    ProvisionRepository (..),
+)
 where
 
 import Domain.IFRS.Provision (Provision, ProvisionType)

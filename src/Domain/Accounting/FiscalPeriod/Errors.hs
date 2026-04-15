@@ -1,6 +1,6 @@
-module Domain.Accounting.FiscalPeriod.Errors
-    ( PeriodError (..)
-    )
+module Domain.Accounting.FiscalPeriod.Errors (
+    PeriodError (..),
+)
 where
 
 data PeriodError

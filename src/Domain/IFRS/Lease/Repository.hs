@@ -1,6 +1,6 @@
-module Domain.IFRS.Lease.Repository
-    ( LeaseRepository (..)
-    )
+module Domain.IFRS.Lease.Repository (
+    LeaseRepository (..),
+)
 where
 
 import Domain.IFRS.Lease (Lease)

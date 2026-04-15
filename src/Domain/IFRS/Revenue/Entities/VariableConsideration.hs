@@ -1,7 +1,7 @@
-module Domain.IFRS.Revenue.Entities.VariableConsideration
-    ( VariableConsideration (..)
-    , VariableConsiderationMethod (..)
-    )
+module Domain.IFRS.Revenue.Entities.VariableConsideration (
+    VariableConsideration (..),
+    VariableConsiderationMethod (..),
+)
 where
 
 import Data.Text (Text)
@@ -14,9 +14,9 @@ data VariableConsiderationMethod
     deriving (Show, Eq, Ord, Enum, Bounded)
 
 data VariableConsideration (currency :: Symbol) = VariableConsideration
-    { vcDescription :: Text,
-      vcMethod :: VariableConsiderationMethod,
-      vcEstimatedAmount :: Money currency,
-      vcConstraintNote :: Text
+    { vcDescription :: Text
+    , vcMethod :: VariableConsiderationMethod
+    , vcEstimatedAmount :: Money currency
+    , vcConstraintNote :: Text
     }
     deriving (Show, Eq)

@@ -1,6 +1,6 @@
-module Domain.Org.Organization.Repository
-    ( OrganizationRepository (..)
-    )
+module Domain.Org.Organization.Repository (
+    OrganizationRepository (..),
+)
 where
 
 import Domain.Org.Organization (Organization)

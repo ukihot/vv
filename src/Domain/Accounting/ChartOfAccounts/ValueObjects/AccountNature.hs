@@ -1,6 +1,6 @@
-module Domain.Accounting.ChartOfAccounts.ValueObjects.AccountNature
-    ( AccountNature (..)
-    )
+module Domain.Accounting.ChartOfAccounts.ValueObjects.AccountNature (
+    AccountNature (..),
+)
 where
 
 data AccountNature

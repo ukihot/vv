@@ -1,6 +1,6 @@
-module Domain.IAM.User.Services.Factory
-    ( registerUser -- createUser から意図の明確な名称へ変更
-    )
+module Domain.IAM.User.Services.Factory (
+    registerUser, -- createUser から意図の明確な名称へ変更
+)
 where
 
 import Domain.IAM.User (User (UserP))

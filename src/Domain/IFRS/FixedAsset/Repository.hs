@@ -1,6 +1,6 @@
-module Domain.IFRS.FixedAsset.Repository
-    ( FixedAssetRepository (..)
-    )
+module Domain.IFRS.FixedAsset.Repository (
+    FixedAssetRepository (..),
+)
 where
 
 import Domain.IFRS.FixedAsset (FixedAsset)

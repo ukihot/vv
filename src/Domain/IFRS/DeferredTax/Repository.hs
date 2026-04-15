@@ -1,6 +1,6 @@
-module Domain.IFRS.DeferredTax.Repository
-    ( DeferredTaxRepository (..)
-    )
+module Domain.IFRS.DeferredTax.Repository (
+    DeferredTaxRepository (..),
+)
 where
 
 import Domain.IFRS.DeferredTax (DeferredTaxItem)

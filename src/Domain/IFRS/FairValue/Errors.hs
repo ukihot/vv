@@ -1,6 +1,6 @@
-module Domain.IFRS.FairValue.Errors
-    ( FairValueError (..)
-    )
+module Domain.IFRS.FairValue.Errors (
+    FairValueError (..),
+)
 where
 
 data FairValueError

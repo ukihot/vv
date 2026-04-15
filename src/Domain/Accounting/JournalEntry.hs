@@ -2,19 +2,19 @@
 借貸一致を smart constructor で強制し、
 仕訳行為区分を必須属性として付与する。
 -}
-module Domain.Accounting.JournalEntry
-    ( -- * 集約
-      JournalEntry (..)
-    , recordEntry
+module Domain.Accounting.JournalEntry (
+    -- * 集約
+    JournalEntry (..),
+    recordEntry,
 
-      -- * エンティティ
-    , module Domain.Accounting.JournalEntry.Entities.JournalLine
-    , module Domain.Accounting.JournalEntry.Entities.CarryingAmountBridge
+    -- * エンティティ
+    module Domain.Accounting.JournalEntry.Entities.JournalLine,
+    module Domain.Accounting.JournalEntry.Entities.CarryingAmountBridge,
 
-      -- * 値オブジェクト
-    , module Domain.Accounting.JournalEntry.ValueObjects.JournalEntryId
-    , module Domain.Accounting.JournalEntry.ValueObjects.DrCr
-    )
+    -- * 値オブジェクト
+    module Domain.Accounting.JournalEntry.ValueObjects.JournalEntryId,
+    module Domain.Accounting.JournalEntry.ValueObjects.DrCr,
+)
 where
 
 import Data.Text (Text)
@@ -34,15 +34,15 @@ import GHC.TypeLits (Symbol)
 -- ─────────────────────────────────────────────────────────────────────────────
 
 data JournalEntry (currency :: Symbol) = JournalEntry
-    { entryId :: JournalEntryId,
-      entryDate :: Day,
-      entryLines :: [JournalLine currency],
-      entryKind :: JournalEntryKind,
-      entryRisk :: RiskClass,
-      entryMemo :: Text,
-      entryEvidenceRef :: Maybe Text,
-      entryPriorRef :: Maybe JournalEntryId,
-      entryVersion :: Version
+    { entryId :: JournalEntryId
+    , entryDate :: Day
+    , entryLines :: [JournalLine currency]
+    , entryKind :: JournalEntryKind
+    , entryRisk :: RiskClass
+    , entryMemo :: Text
+    , entryEvidenceRef :: Maybe Text
+    , entryPriorRef :: Maybe JournalEntryId
+    , entryVersion :: Version
     }
     deriving (Show, Eq)
 
@@ -66,13 +66,13 @@ recordEntry eid date lines kind risk memo evRef priorRef =
         Right _ ->
             Right
                 JournalEntry
-                    { entryId = eid,
-                      entryDate = date,
-                      entryLines = lines,
-                      entryKind = kind,
-                      entryRisk = risk,
-                      entryMemo = memo,
-                      entryEvidenceRef = evRef,
-                      entryPriorRef = priorRef,
-                      entryVersion = initialVersion
+                    { entryId = eid
+                    , entryDate = date
+                    , entryLines = lines
+                    , entryKind = kind
+                    , entryRisk = risk
+                    , entryMemo = memo
+                    , entryEvidenceRef = evRef
+                    , entryPriorRef = priorRef
+                    , entryVersion = initialVersion
                     }

@@ -1,6 +1,6 @@
-module Domain.IFRS.FinancialInstrument.Repository
-    ( FinancialInstrumentRepository (..)
-    )
+module Domain.IFRS.FinancialInstrument.Repository (
+    FinancialInstrumentRepository (..),
+)
 where
 
 import Domain.IFRS.FinancialInstrument (SomeFinancialAsset)

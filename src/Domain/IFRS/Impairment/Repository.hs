@@ -1,6 +1,6 @@
-module Domain.IFRS.Impairment.Repository
-    ( ImpairmentRepository (..)
-    )
+module Domain.IFRS.Impairment.Repository (
+    ImpairmentRepository (..),
+)
 where
 
 import Data.Time (Day)

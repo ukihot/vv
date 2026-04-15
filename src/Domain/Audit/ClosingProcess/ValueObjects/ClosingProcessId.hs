@@ -1,7 +1,7 @@
-module Domain.Audit.ClosingProcess.ValueObjects.ClosingProcessId
-    ( ClosingProcessId (..)
-    , mkClosingProcessId
-    )
+module Domain.Audit.ClosingProcess.ValueObjects.ClosingProcessId (
+    ClosingProcessId (..),
+    mkClosingProcessId,
+)
 where
 
 import Data.Text (Text)

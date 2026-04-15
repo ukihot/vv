@@ -4,43 +4,43 @@
 ヘッダー、タブバー、ナビゲーションメニュー、ステータスバー等の再利用可能なウィジェット。
 洗練されたUI/UXを提供する。
 -}
-module Adapter.View.Brick.Widgets
-    ( -- * Layout Widgets
-      renderHeader
-    , renderBreadcrumbs
-    , renderTabBar
-    , renderNavigationMenu
-    , renderStatusBar
-    , renderBackButton
-    , renderLogPanel
-    , renderKeyMapHelp
-    )
+module Adapter.View.Brick.Widgets (
+    -- * Layout Widgets
+    renderHeader,
+    renderBreadcrumbs,
+    renderTabBar,
+    renderNavigationMenu,
+    renderStatusBar,
+    renderBackButton,
+    renderLogPanel,
+    renderKeyMapHelp,
+)
 where
 
-import Adapter.View.Brick.Types
-    ( DomainTab (..)
-    , Name (..)
-    , ScreenInfo (..)
-    , UiState (..)
-    , getScreensByTab
-    )
-import Brick
-    ( Padding (Pad)
-    , Widget
-    , attrName
-    , hBox
-    , hLimit
-    , padBottom
-    , padLeft
-    , padRight
-    , padTop
-    , str
-    , txt
-    , vBox
-    , vLimit
-    , withAttr
-    , (<+>)
-    )
+import Adapter.View.Brick.Types (
+    DomainTab (..),
+    Name (..),
+    ScreenInfo (..),
+    UiState (..),
+    getScreensByTab,
+ )
+import Brick (
+    Padding (Pad),
+    Widget,
+    attrName,
+    hBox,
+    hLimit,
+    padBottom,
+    padLeft,
+    padRight,
+    padTop,
+    str,
+    txt,
+    vBox,
+    vLimit,
+    withAttr,
+    (<+>),
+ )
 import Brick.Widgets.Border qualified as Border
 import Brick.Widgets.Center (hCenter)
 import Control.Concurrent.STM (atomically, readTVar)
@@ -58,9 +58,9 @@ renderHeader =
         padLeft (Pad 2) $
             padRight (Pad 2) $
                 hBox
-                    [ withAttr (attrName "appTitle") $ txt "VV - IFRS Accounting System",
-                      txt "  ",
-                      withAttr (attrName "hint") $ txt "[Press 'h' for help]"
+                    [ withAttr (attrName "appTitle") $ txt "VV - IFRS Accounting System"
+                    , txt "  "
+                    , withAttr (attrName "hint") $ txt "[Press 'h' for help]"
                     ]
 
 -- ─────────────────────────────────────────────────────────────────────────────
@@ -85,17 +85,17 @@ renderTabBar currentTab =
         padBottom (Pad 1) $
             hCenter $
                 hBox
-                    [ renderTab 1 TabIAM currentTab,
-                      str "  ",
-                      renderTab 2 TabAccounting currentTab,
-                      str "  ",
-                      renderTab 3 TabIFRS currentTab,
-                      str "  ",
-                      renderTab 4 TabOps currentTab,
-                      str "  ",
-                      renderTab 5 TabAudit currentTab,
-                      str "  ",
-                      renderTab 6 TabOrg currentTab
+                    [ renderTab 1 TabIAM currentTab
+                    , str "  "
+                    , renderTab 2 TabAccounting currentTab
+                    , str "  "
+                    , renderTab 3 TabIFRS currentTab
+                    , str "  "
+                    , renderTab 4 TabOps currentTab
+                    , str "  "
+                    , renderTab 5 TabAudit currentTab
+                    , str "  "
+                    , renderTab 6 TabOrg currentTab
                     ]
 
 renderTab :: Int -> DomainTab -> DomainTab -> Widget Name
@@ -141,8 +141,8 @@ renderScreenItem selectedIndex index info =
                 else withAttr (attrName "navItem") $ txt (prefix <> screenTitle info)
      in padBottom (Pad 1) $
             vBox
-                [ titleWidget,
-                  padLeft (Pad 2) $
+                [ titleWidget
+                , padLeft (Pad 2) $
                     withAttr (attrName "navDescription") $
                         txt (screenDescription info)
                 ]
@@ -158,18 +158,18 @@ renderStatusBar st canGoBack =
             padRight (Pad 1) $
                 hBox
                     [ -- 左側：ログ
-                      renderCompactLog st,
-                      txt "  ",
-                      -- 中央：キーマップ
+                      renderCompactLog st
+                    , txt "  "
+                    , -- 中央：キーマップ
                       hLimit 60 $
                         hBox
-                            [ renderKeyBinding "q" "Quit",
-                              txt " ",
-                              renderKeyBinding "h" "Help",
-                              txt " ",
-                              renderKeyBinding "n" "Nav",
-                              txt " ",
-                              if canGoBack
+                            [ renderKeyBinding "q" "Quit"
+                            , txt " "
+                            , renderKeyBinding "h" "Help"
+                            , txt " "
+                            , renderKeyBinding "n" "Nav"
+                            , txt " "
+                            , if canGoBack
                                 then renderKeyBinding "Esc" "Back"
                                 else withAttr (attrName "hint") $ txt "[Esc:Back]"
                             ]
@@ -196,9 +196,9 @@ renderCompactLog st =
 renderKeyMapHelp :: Text -> Text -> Widget Name
 renderKeyMapHelp key description =
     hBox
-        [ hLimit 15 $ withAttr (attrName "keyMapKey") $ txt ("  " <> key),
-          withAttr (attrName "keyMapSep") $ txt " : ",
-          txt description
+        [ hLimit 15 $ withAttr (attrName "keyMapKey") $ txt ("  " <> key)
+        , withAttr (attrName "keyMapSep") $ txt " : "
+        , txt description
         ]
 
 -- ─────────────────────────────────────────────────────────────────────────────

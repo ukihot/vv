@@ -1,6 +1,6 @@
-module Domain.Accounting.FiscalPeriod.ValueObjects.PeriodState
-    ( PeriodState (..)
-    )
+module Domain.Accounting.FiscalPeriod.ValueObjects.PeriodState (
+    PeriodState (..),
+)
 where
 
 data PeriodState

@@ -1,6 +1,6 @@
-module Domain.Ops.ApprovalWorkflow.Errors
-    ( ApprovalWorkflowError (..)
-    )
+module Domain.Ops.ApprovalWorkflow.Errors (
+    ApprovalWorkflowError (..),
+)
 where
 
 data ApprovalWorkflowError

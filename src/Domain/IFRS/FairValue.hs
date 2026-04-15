@@ -1,15 +1,15 @@
 {- | 公正価値測定集約ルートエンティティ (IFRS 13準拠)
 公正価値ヒエラルキー、評価技法、インプットデータを管理する。
 -}
-module Domain.IFRS.FairValue
-    ( -- * 集約
-      FairValueMeasurement (..)
-    , FairValueHierarchy (..)
-    , ValuationTechnique (..)
+module Domain.IFRS.FairValue (
+    -- * 集約
+    FairValueMeasurement (..),
+    FairValueHierarchy (..),
+    ValuationTechnique (..),
 
-      -- * 値オブジェクト
-    , module Domain.IFRS.FairValue.ValueObjects.FairValueMeasurementId
-    )
+    -- * 値オブジェクト
+    module Domain.IFRS.FairValue.ValueObjects.FairValueMeasurementId,
+)
 where
 
 import Data.Text (Text)
@@ -32,14 +32,14 @@ data ValuationTechnique
     deriving (Show, Eq, Ord, Enum, Bounded)
 
 data FairValueMeasurement (currency :: Symbol) = FairValueMeasurement
-    { fvmId :: FairValueMeasurementId,
-      fvmAssetId :: Text,
-      fvmMeasurementDate :: Day,
-      fvmFairValue :: Money currency,
-      fvmHierarchy :: FairValueHierarchy,
-      fvmTechnique :: ValuationTechnique,
-      fvmInputData :: Text,
-      fvmUnobservableInputs :: Maybe Text,
-      fvmVersion :: Version
+    { fvmId :: FairValueMeasurementId
+    , fvmAssetId :: Text
+    , fvmMeasurementDate :: Day
+    , fvmFairValue :: Money currency
+    , fvmHierarchy :: FairValueHierarchy
+    , fvmTechnique :: ValuationTechnique
+    , fvmInputData :: Text
+    , fvmUnobservableInputs :: Maybe Text
+    , fvmVersion :: Version
     }
     deriving (Show, Eq)

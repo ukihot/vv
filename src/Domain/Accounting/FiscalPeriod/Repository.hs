@@ -1,6 +1,6 @@
-module Domain.Accounting.FiscalPeriod.Repository
-    ( FiscalPeriodRepository (..)
-    )
+module Domain.Accounting.FiscalPeriod.Repository (
+    FiscalPeriodRepository (..),
+)
 where
 
 import Domain.Accounting.FiscalPeriod (FiscalPeriod, SomeFiscalPeriod)

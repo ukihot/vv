@@ -1,7 +1,9 @@
-module Domain.Accounting.ChartOfAccounts.ValueObjects.AccountCode
-    ( AccountCode (..)
-    , mkAccountCode
-    )
+{-# LANGUAGE ImportQualifiedPost #-}
+
+module Domain.Accounting.ChartOfAccounts.ValueObjects.AccountCode (
+    AccountCode (..),
+    mkAccountCode,
+)
 where
 
 import Data.Text (Text)

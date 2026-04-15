@@ -1,6 +1,6 @@
-module Domain.Accounting.ChartOfAccounts.ValueObjects.AccountClass
-    ( AccountClass (..)
-    )
+module Domain.Accounting.ChartOfAccounts.ValueObjects.AccountClass (
+    AccountClass (..),
+)
 where
 
 data AccountClass

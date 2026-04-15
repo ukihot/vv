@@ -4,35 +4,35 @@
 入力フィールド、バリデーション表示、フォームレイアウト等の再利用可能なコンポーネント。
 Brick固有の実装だが、将来的に他のUIフレームワークに移植可能な設計。
 -}
-module Adapter.View.Components.Form
-    ( -- * Input Fields
-      renderTextInput
-    , renderTextArea
-    , renderPasswordInput
+module Adapter.View.Components.Form (
+    -- * Input Fields
+    renderTextInput,
+    renderTextArea,
+    renderPasswordInput,
 
-      -- * Validation
-    , renderValidationError
-    , renderValidationSuccess
+    -- * Validation
+    renderValidationError,
+    renderValidationSuccess,
 
-      -- * Form Layout
-    , renderFormField
-    , renderFormGroup
-    , renderFormActions
-    )
+    -- * Form Layout
+    renderFormField,
+    renderFormGroup,
+    renderFormActions,
+)
 where
 
-import Brick
-    ( Padding (Pad)
-    , Widget
-    , attrName
-    , padBottom
-    , padLeft
-    , padTop
-    , str
-    , txt
-    , vBox
-    , withAttr
-    )
+import Brick (
+    Padding (Pad),
+    Widget,
+    attrName,
+    padBottom,
+    padLeft,
+    padTop,
+    str,
+    txt,
+    vBox,
+    withAttr,
+ )
 import Brick.Widgets.Edit (Editor, renderEditor)
 import Data.Text (Text)
 import Data.Text qualified as T
@@ -53,8 +53,8 @@ renderTextInput ::
     Widget n
 renderTextInput label editor focused =
     vBox
-        [ txt label,
-          renderEditor (txt . T.unlines) focused editor
+        [ txt label
+        , renderEditor (txt . T.unlines) focused editor
         ]
 
 -- | テキストエリア（複数行）
@@ -75,8 +75,8 @@ renderPasswordInput ::
     Widget n
 renderPasswordInput label editor focused =
     vBox
-        [ txt label,
-          renderEditor (const (txt "********")) focused editor
+        [ txt label
+        , renderEditor (const (txt "********")) focused editor
         ]
 
 -- ─────────────────────────────────────────────────────────────────────────────
@@ -113,9 +113,9 @@ renderFormField ::
 renderFormField label inputWidget validation =
     padBottom (Pad 1) $
         vBox
-            [ txt label,
-              inputWidget,
-              case validation of
+            [ txt label
+            , inputWidget
+            , case validation of
                 Nothing -> txt ""
                 Just (Left err) -> renderValidationError err
                 Just (Right msg) -> renderValidationSuccess msg
@@ -130,8 +130,8 @@ renderFormGroup ::
     Widget n
 renderFormGroup title fields =
     vBox
-        [ withAttr (attrName "formGroupTitle") $ txt title,
-          padLeft (Pad 2) $ vBox fields
+        [ withAttr (attrName "formGroupTitle") $ txt title
+        , padLeft (Pad 2) $ vBox fields
         ]
 
 -- | フォームアクション（送信ボタン等）

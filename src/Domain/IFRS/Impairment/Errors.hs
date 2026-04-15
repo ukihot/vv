@@ -1,6 +1,6 @@
-module Domain.IFRS.Impairment.Errors
-    ( ImpairmentError (..)
-    )
+module Domain.IFRS.Impairment.Errors (
+    ImpairmentError (..),
+)
 where
 
 data ImpairmentError

@@ -1,6 +1,6 @@
-module Domain.Org.Organization.Events
-    ( OrganizationEventPayload (..)
-    )
+module Domain.Org.Organization.Events (
+    OrganizationEventPayload (..),
+)
 where
 
 import Domain.Org.Organization.ValueObjects.OrganizationId (OrganizationId)

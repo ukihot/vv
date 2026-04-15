@@ -1,6 +1,6 @@
-module Domain.IFRS.Inventory.Events
-    ( InventoryEventPayload (..)
-    )
+module Domain.IFRS.Inventory.Events (
+    InventoryEventPayload (..),
+)
 where
 
 import Data.Time (Day)

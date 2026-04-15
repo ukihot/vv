@@ -26,71 +26,71 @@ module Adapter.View.Brick.App (runBrickApp) where
 
 import Adapter.Controller.IAM (handleActivateUser)
 import Adapter.Env (Env, mkEnv, runAppM)
-import Adapter.View.Brick.Navigation
-    ( getBreadcrumbs
-    , initialNavigation
-    , popScreen
-    , pushScreen
-    , switchTab
-    , toggleNavigation
-    )
+import Adapter.View.Brick.Navigation (
+    getBreadcrumbs,
+    initialNavigation,
+    popScreen,
+    pushScreen,
+    switchTab,
+    toggleNavigation,
+ )
 import Adapter.View.Brick.Screens (renderScreen)
-import Adapter.View.Brick.Types
-    ( DomainTab (..)
-    , Name (..)
-    , NavigationState (..)
-    , Screen (..)
-    , ScreenInfo (..)
-    , UiState (..)
-    , getScreensByTab
-    , screenId
-    )
-import Adapter.View.Brick.Widgets
-    ( renderBackButton
-    , renderBreadcrumbs
-    , renderHeader
-    , renderKeyMapHelp
-    , renderLogPanel
-    , renderNavigationMenu
-    , renderStatusBar
-    , renderTabBar
-    )
-import Brick
-    ( App (..)
-    , AttrMap
-    , AttrName
-    , BrickEvent (VtyEvent)
-    , EventM
-    , Padding (Max, Pad)
-    , Widget
-    , attrMap
-    , attrName
-    , bg
-    , defaultMain
-    , fg
-    , hBox
-    , hLimit
-    , halt
-    , on
-    , padAll
-    , padLeft
-    , padRight
-    , showFirstCursor
-    , txt
-    , vBox
-    , vLimit
-    , withAttr
-    , (<+>)
-    )
+import Adapter.View.Brick.Types (
+    DomainTab (..),
+    Name (..),
+    NavigationState (..),
+    Screen (..),
+    ScreenInfo (..),
+    UiState (..),
+    getScreensByTab,
+    screenId,
+ )
+import Adapter.View.Brick.Widgets (
+    renderBackButton,
+    renderBreadcrumbs,
+    renderHeader,
+    renderKeyMapHelp,
+    renderLogPanel,
+    renderNavigationMenu,
+    renderStatusBar,
+    renderTabBar,
+ )
+import Brick (
+    App (..),
+    AttrMap,
+    AttrName,
+    BrickEvent (VtyEvent),
+    EventM,
+    Padding (Max, Pad),
+    Widget,
+    attrMap,
+    attrName,
+    bg,
+    defaultMain,
+    fg,
+    hBox,
+    hLimit,
+    halt,
+    on,
+    padAll,
+    padLeft,
+    padRight,
+    showFirstCursor,
+    txt,
+    vBox,
+    vLimit,
+    withAttr,
+    (<+>),
+ )
 import Brick.Widgets.Border qualified as Border
 import Brick.Widgets.Border.Style qualified as BorderStyle
-import Brick.Widgets.Edit
-    ( Editor
-    , applyEdit
-    , editorText
-    , getEditContents
-    , handleEditorEvent
-    )
+import Brick.Widgets.Edit (
+    Editor,
+    applyEdit,
+    editorText,
+    getEditContents,
+    handleEditorEvent,
+ )
 import Control.Concurrent.STM (TVar, atomically, modifyTVar', newTVarIO)
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.State qualified
@@ -113,12 +113,12 @@ runBrickApp = do
 
     let initialState =
             UiState
-                { uiEnv = env,
-                  uiLogs = logsVar,
-                  uiNavigation = initialNavigation,
-                  uiUserIdEditor = emptyEditor,
-                  uiShowHelp = False,
-                  uiNavSelectedIndex = 0
+                { uiEnv = env
+                , uiLogs = logsVar
+                , uiNavigation = initialNavigation
+                , uiUserIdEditor = emptyEditor
+                , uiShowHelp = False
+                , uiNavSelectedIndex = 0
                 }
 
     _ <- defaultMain brickApp initialState
@@ -270,11 +270,11 @@ handleUserActivateEvent vtyEv st = case vtyEv of
 brickApp :: App UiState e Name
 brickApp =
     App
-        { appDraw = drawUi,
-          appChooseCursor = showFirstCursor,
-          appHandleEvent = handleEvent,
-          appStartEvent = pure (),
-          appAttrMap = const theMap
+        { appDraw = drawUi
+        , appChooseCursor = showFirstCursor
+        , appHandleEvent = handleEvent
+        , appStartEvent = pure ()
+        , appAttrMap = const theMap
         }
 
 -- ─────────────────────────────────────────────────────────────────────────────
@@ -288,22 +288,22 @@ drawUi st =
         canGoBack = not (null (navScreenStack nav))
      in [ vBox
             [ -- ヘッダー
-              renderHeader,
-              -- タブバー
-              renderTabBar (navCurrentTab nav),
-              -- パンくずリスト
-              renderBreadcrumbs breadcrumbs,
-              Border.hBorder,
-              -- メインコンテンツ
+              renderHeader
+            , -- タブバー
+              renderTabBar (navCurrentTab nav)
+            , -- パンくずリスト
+              renderBreadcrumbs breadcrumbs
+            , Border.hBorder
+            , -- メインコンテンツ
               if uiShowHelp st
                 then renderHelpScreen
                 else
                     if navShowNavigation nav
                         then renderWithNavigation st
-                        else padAll 1 $ renderMainContent st,
-              -- ステータスバー
-              Border.hBorder,
-              renderStatusBar st canGoBack
+                        else padAll 1 $ renderMainContent st
+            , -- ステータスバー
+              Border.hBorder
+            , renderStatusBar st canGoBack
             ]
         ]
 
@@ -315,9 +315,9 @@ renderWithNavigation st =
             vBox
                 [ Border.borderWithLabel (txt " Navigation (j/k:move Space:select) ") $
                     renderNavigationMenu (navCurrentTab (uiNavigation st)) (uiNavSelectedIndex st)
-                ],
-          Border.vBorder,
-          padAll 1 $ renderMainContent st
+                ]
+        , Border.vBorder
+        , padAll 1 $ renderMainContent st
         ]
 
 -- ヘルプ画面
@@ -326,35 +326,35 @@ renderHelpScreen =
     Border.borderWithLabel (txt " Help ") $
         padAll 2 $
             vBox
-                [ withAttr (attrName "title") $ txt "Keyboard Shortcuts",
-                  txt "",
-                  renderKeyMapHelp "q" "Quit application",
-                  renderKeyMapHelp "h" "Toggle help screen",
-                  renderKeyMapHelp "n" "Toggle navigation menu",
-                  renderKeyMapHelp "Esc" "Go back",
-                  txt "",
-                  withAttr (attrName "title") $ txt "Navigation Menu",
-                  txt "",
-                  renderKeyMapHelp "j" "Move down",
-                  renderKeyMapHelp "k" "Move up",
-                  renderKeyMapHelp "Space" "Select/Launch screen",
-                  txt "",
-                  withAttr (attrName "title") $ txt "Tab Navigation",
-                  txt "",
-                  renderKeyMapHelp "Tab" "Next tab",
-                  renderKeyMapHelp "Shift+Tab" "Previous tab",
-                  renderKeyMapHelp "1" "IAM tab",
-                  renderKeyMapHelp "2" "Accounting tab",
-                  renderKeyMapHelp "3" "IFRS tab",
-                  renderKeyMapHelp "4" "Operations tab",
-                  renderKeyMapHelp "5" "Audit tab",
-                  renderKeyMapHelp "6" "Organization tab",
-                  txt "",
-                  withAttr (attrName "title") $ txt "Screen Actions",
-                  txt "",
-                  renderKeyMapHelp "Enter" "Execute/Select",
-                  txt "",
-                  withAttr (attrName "hint") $ txt "Press 'h' to close this help"
+                [ withAttr (attrName "title") $ txt "Keyboard Shortcuts"
+                , txt ""
+                , renderKeyMapHelp "q" "Quit application"
+                , renderKeyMapHelp "h" "Toggle help screen"
+                , renderKeyMapHelp "n" "Toggle navigation menu"
+                , renderKeyMapHelp "Esc" "Go back"
+                , txt ""
+                , withAttr (attrName "title") $ txt "Navigation Menu"
+                , txt ""
+                , renderKeyMapHelp "j" "Move down"
+                , renderKeyMapHelp "k" "Move up"
+                , renderKeyMapHelp "Space" "Select/Launch screen"
+                , txt ""
+                , withAttr (attrName "title") $ txt "Tab Navigation"
+                , txt ""
+                , renderKeyMapHelp "Tab" "Next tab"
+                , renderKeyMapHelp "Shift+Tab" "Previous tab"
+                , renderKeyMapHelp "1" "IAM tab"
+                , renderKeyMapHelp "2" "Accounting tab"
+                , renderKeyMapHelp "3" "IFRS tab"
+                , renderKeyMapHelp "4" "Operations tab"
+                , renderKeyMapHelp "5" "Audit tab"
+                , renderKeyMapHelp "6" "Organization tab"
+                , txt ""
+                , withAttr (attrName "title") $ txt "Screen Actions"
+                , txt ""
+                , renderKeyMapHelp "Enter" "Execute/Select"
+                , txt ""
+                , withAttr (attrName "hint") $ txt "Press 'h' to close this help"
                 ]
 
 -- メインコンテンツ
@@ -375,35 +375,35 @@ theMap =
     attrMap
         V.defAttr
         [ -- テキスト
-          (attrName "hint", fg V.brightBlack),
-          (attrName "title", fg V.brightCyan `V.withStyle` V.bold),
-          (attrName "subtitle", fg V.cyan),
-          (attrName "success", fg V.brightGreen),
-          (attrName "error", fg V.brightRed),
-          (attrName "warning", fg V.brightYellow),
-          -- ヘッダー
-          (attrName "header", V.white `on` V.blue `V.withStyle` V.bold),
-          (attrName "appTitle", fg V.brightWhite `V.withStyle` V.bold),
-          -- パンくずリスト
-          (attrName "breadcrumbs", fg V.brightYellow),
-          -- タブ
-          (attrName "tabActive", V.black `on` V.brightCyan `V.withStyle` V.bold),
-          (attrName "tabInactive", fg V.brightBlack),
-          (attrName "tabNumber", fg V.brightBlue),
-          -- ナビゲーション
-          (attrName "navItem", fg V.brightWhite `V.withStyle` V.bold),
-          (attrName "navItemSelected", V.black `on` V.brightYellow `V.withStyle` V.bold),
-          (attrName "navDescription", fg V.brightBlack),
-          (attrName "navBorder", fg V.cyan),
-          -- ステータスバー
-          (attrName "statusBar", V.white `on` V.black),
-          (attrName "keyMap", fg V.brightCyan),
-          (attrName "keyMapKey", fg V.brightYellow `V.withStyle` V.bold),
-          (attrName "keyMapSep", fg V.brightBlack),
-          -- ボタン
-          (attrName "backButton", fg V.brightGreen `V.withStyle` V.bold),
-          (attrName "backButtonDisabled", fg V.brightBlack),
-          -- コンポーネント
-          (attrName "cardBorder", fg V.cyan),
-          (attrName "sectionTitle", fg V.brightCyan `V.withStyle` V.bold)
+          (attrName "hint", fg V.brightBlack)
+        , (attrName "title", fg V.brightCyan `V.withStyle` V.bold)
+        , (attrName "subtitle", fg V.cyan)
+        , (attrName "success", fg V.brightGreen)
+        , (attrName "error", fg V.brightRed)
+        , (attrName "warning", fg V.brightYellow)
+        , -- ヘッダー
+          (attrName "header", V.white `on` V.blue `V.withStyle` V.bold)
+        , (attrName "appTitle", fg V.brightWhite `V.withStyle` V.bold)
+        , -- パンくずリスト
+          (attrName "breadcrumbs", fg V.brightYellow)
+        , -- タブ
+          (attrName "tabActive", V.black `on` V.brightCyan `V.withStyle` V.bold)
+        , (attrName "tabInactive", fg V.brightBlack)
+        , (attrName "tabNumber", fg V.brightBlue)
+        , -- ナビゲーション
+          (attrName "navItem", fg V.brightWhite `V.withStyle` V.bold)
+        , (attrName "navItemSelected", V.black `on` V.brightYellow `V.withStyle` V.bold)
+        , (attrName "navDescription", fg V.brightBlack)
+        , (attrName "navBorder", fg V.cyan)
+        , -- ステータスバー
+          (attrName "statusBar", V.white `on` V.black)
+        , (attrName "keyMap", fg V.brightCyan)
+        , (attrName "keyMapKey", fg V.brightYellow `V.withStyle` V.bold)
+        , (attrName "keyMapSep", fg V.brightBlack)
+        , -- ボタン
+          (attrName "backButton", fg V.brightGreen `V.withStyle` V.bold)
+        , (attrName "backButtonDisabled", fg V.brightBlack)
+        , -- コンポーネント
+          (attrName "cardBorder", fg V.cyan)
+        , (attrName "sectionTitle", fg V.brightCyan `V.withStyle` V.bold)
         ]

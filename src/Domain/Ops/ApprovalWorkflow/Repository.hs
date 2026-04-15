@@ -1,6 +1,6 @@
-module Domain.Ops.ApprovalWorkflow.Repository
-    ( ApprovalWorkflowRepository (..)
-    )
+module Domain.Ops.ApprovalWorkflow.Repository (
+    ApprovalWorkflowRepository (..),
+)
 where
 
 import Domain.Ops.ApprovalWorkflow (ApprovalWorkflow, SomeApprovalWorkflow)

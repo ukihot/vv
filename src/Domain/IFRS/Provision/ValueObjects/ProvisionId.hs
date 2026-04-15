@@ -1,7 +1,7 @@
-module Domain.IFRS.Provision.ValueObjects.ProvisionId
-    ( ProvisionId (..)
-    , mkProvisionId
-    )
+module Domain.IFRS.Provision.ValueObjects.ProvisionId (
+    ProvisionId (..),
+    mkProvisionId,
+)
 where
 
 import Data.Text (Text)

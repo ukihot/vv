@@ -1,6 +1,6 @@
-module Domain.Accounting.ExchangeRate.ValueObjects.RateKind
-    ( RateKind (..)
-    )
+module Domain.Accounting.ExchangeRate.ValueObjects.RateKind (
+    RateKind (..),
+)
 where
 
 data RateKind

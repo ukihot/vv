@@ -1,7 +1,7 @@
-module Domain.Accounting.ChartOfAccounts.ValueObjects.StatementSection
-    ( StatementSection (..)
-    , CurrentNonCurrent (..)
-    )
+module Domain.Accounting.ChartOfAccounts.ValueObjects.StatementSection (
+    StatementSection (..),
+    CurrentNonCurrent (..),
+)
 where
 
 data CurrentNonCurrent

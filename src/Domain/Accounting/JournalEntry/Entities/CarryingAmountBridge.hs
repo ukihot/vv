@@ -1,7 +1,7 @@
-module Domain.Accounting.JournalEntry.Entities.CarryingAmountBridge
-    ( CarryingAmountBridge (..)
-    , carryingAmount
-    )
+module Domain.Accounting.JournalEntry.Entities.CarryingAmountBridge (
+    CarryingAmountBridge (..),
+    carryingAmount,
+)
 where
 
 import Data.List (foldl')
@@ -10,12 +10,12 @@ import Domain.Shared (Money, addMoney, negateMoney)
 import GHC.TypeLits (Symbol)
 
 data CarryingAmountBridge (currency :: Symbol) = CarryingAmountBridge
-    { bridgeAccountCode :: AccountCode,
-      bridgeCostBasis :: Money currency,
-      bridgeAccumDeprec :: Money currency,
-      bridgeImpairmentLoss :: Money currency,
-      bridgeFvAdjustment :: Money currency,
-      bridgeEclAllowance :: Money currency
+    { bridgeAccountCode :: AccountCode
+    , bridgeCostBasis :: Money currency
+    , bridgeAccumDeprec :: Money currency
+    , bridgeImpairmentLoss :: Money currency
+    , bridgeFvAdjustment :: Money currency
+    , bridgeEclAllowance :: Money currency
     }
     deriving (Show, Eq)
 
@@ -24,8 +24,8 @@ carryingAmount b =
     foldl'
         addMoney
         (bridgeCostBasis b)
-        [ negateMoney (bridgeAccumDeprec b),
-          negateMoney (bridgeImpairmentLoss b),
-          bridgeFvAdjustment b,
-          negateMoney (bridgeEclAllowance b)
+        [ negateMoney (bridgeAccumDeprec b)
+        , negateMoney (bridgeImpairmentLoss b)
+        , bridgeFvAdjustment b
+        , negateMoney (bridgeEclAllowance b)
         ]

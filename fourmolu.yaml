@@ -9,14 +9,12 @@ single-constraint-parens: never
 
 # 関数の矢印スタイル
 function-arrows: trailing
-# alternatives: leading
 
 # カンマの位置
-comma-style: trailing
+comma-style: leading
 
 # import の整形
-import-export-style: leading
-# alternatives: diff-friendly, trailing
+import-export-style: diff-friendly
 
 # let / in の配置
 indent-wheres: true
@@ -33,12 +31,8 @@ sort-imports: true
 # 冗長な括弧を削除する
 simplify-parentheses: true
 
-# Unicode 記号の使用を禁止
-# unicode-syntax: never
-
 # newtype/derivingの扱い
 respectful: true
 
-extensions:
-  - OverloadedStrings
-  - RecordWildCards
+# Explicitly tell fourmolu to read cabal file
+cabal: true

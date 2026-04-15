@@ -1,12 +1,12 @@
 module Domain.Accounting.FiscalPeriodSpec (tests) where
 
-import Domain.Accounting.FiscalPeriod
-    ( FiscalPeriod (..)
-    , FiscalPeriodEvent (..)
-    , lockPeriod
-    , openPeriod
-    , reopenPeriod
-    )
+import Domain.Accounting.FiscalPeriod (
+    FiscalPeriod (..),
+    FiscalPeriodEvent (..),
+    lockPeriod,
+    openPeriod,
+    reopenPeriod,
+ )
 import Domain.Shared (Version (..), initialVersion, nextVersion)
 import Support.Accounting.Fixtures (sampleFiscalPeriodId, sampleFiscalYearMonth)
 import Test.Tasty (TestTree, testGroup)
@@ -19,12 +19,12 @@ tests =
         [ testGroup
             "Factory"
             [ testCase "openPeriod は Open 状態で初期バージョンを持つ" case_openPeriodSeeds
-            ],
-          testGroup
+            ]
+        , testGroup
             "Transitions"
-            [ testCase "lockPeriod は Open → Locked へ遷移しバージョンを進める" case_lockPeriod,
-              testCase "reopenPeriod は Locked → Open へ遷移しバージョンを進める" case_reopenPeriod,
-              testCase "open → lock → reopen でバージョンが2になる" case_fullCycleVersion
+            [ testCase "lockPeriod は Open → Locked へ遷移しバージョンを進める" case_lockPeriod
+            , testCase "reopenPeriod は Locked → Open へ遷移しバージョンを進める" case_reopenPeriod
+            , testCase "open → lock → reopen でバージョンが2になる" case_fullCycleVersion
             ]
         ]
 

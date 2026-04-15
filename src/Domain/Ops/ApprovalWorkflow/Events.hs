@@ -1,6 +1,6 @@
-module Domain.Ops.ApprovalWorkflow.Events
-    ( ApprovalWorkflowEventPayload (..)
-    )
+module Domain.Ops.ApprovalWorkflow.Events (
+    ApprovalWorkflowEventPayload (..),
+)
 where
 
 import Data.Text (Text)

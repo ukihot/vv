@@ -1,6 +1,6 @@
-module Domain.IFRS.DeferredTax.Errors
-    ( DeferredTaxError (..)
-    )
+module Domain.IFRS.DeferredTax.Errors (
+    DeferredTaxError (..),
+)
 where
 
 data DeferredTaxError

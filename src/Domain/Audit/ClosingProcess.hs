@@ -1,21 +1,21 @@
 {- | 決算プロセス集約ルートエンティティ
 月次・四半期・年次決算の承認フローを型安全に管理する。
 -}
-module Domain.Audit.ClosingProcess
-    ( -- * 集約
-      ClosingProcess (..)
-    , ClosingState (..)
-    , SomeClosingProcess (..)
+module Domain.Audit.ClosingProcess (
+    -- * 集約
+    ClosingProcess (..),
+    ClosingState (..),
+    SomeClosingProcess (..),
 
-      -- * 値オブジェクト
-    , module Domain.Audit.ClosingProcess.ValueObjects.ClosingProcessId
+    -- * 値オブジェクト
+    module Domain.Audit.ClosingProcess.ValueObjects.ClosingProcessId,
 
-      -- * 状態遷移
-    , startClosingProcess
-    , submitForApproval
-    , approve
-    , finalize
-    )
+    -- * 状態遷移
+    startClosingProcess,
+    submitForApproval,
+    approve,
+    finalize,
+)
 where
 
 import Data.Time (UTCTime)
@@ -81,16 +81,16 @@ startClosingProcess ::
     UserId ->
     (ClosingProcess 'InProgress, ClosingProcessEventPayload)
 startClosingProcess cpId period timestamp actorId =
-    ( CPInProgress cpId period timestamp actorId initialVersion,
-      ClosingProcessStarted cpId period actorId
+    ( CPInProgress cpId period timestamp actorId initialVersion
+    , ClosingProcessStarted cpId period actorId
     )
 
 submitForApproval ::
     ClosingProcess 'InProgress ->
     (ClosingProcess 'PendingApproval, ClosingProcessEventPayload)
 submitForApproval (CPInProgress cpId period timestamp actorId v) =
-    ( CPPendingApproval cpId period timestamp actorId (nextVersion v),
-      ClosingProcessStateChanged cpId PendingApproval actorId
+    ( CPPendingApproval cpId period timestamp actorId (nextVersion v)
+    , ClosingProcessStateChanged cpId PendingApproval actorId
     )
 
 approve ::
@@ -98,14 +98,14 @@ approve ::
     ClosingProcess 'PendingApproval ->
     (ClosingProcess 'Approved, ClosingProcessEventPayload)
 approve approverId (CPPendingApproval cpId period timestamp actorId v) =
-    ( CPApproved cpId period timestamp actorId (Just approverId) (nextVersion v),
-      ClosingProcessStateChanged cpId Approved approverId
+    ( CPApproved cpId period timestamp actorId (Just approverId) (nextVersion v)
+    , ClosingProcessStateChanged cpId Approved approverId
     )
 
 finalize ::
     ClosingProcess 'Approved ->
     (ClosingProcess 'Finalized, ClosingProcessEventPayload)
 finalize (CPApproved cpId period timestamp actorId approverId v) =
-    ( CPFinalized cpId period timestamp actorId approverId (nextVersion v),
-      ClosingProcessFinalized cpId actorId
+    ( CPFinalized cpId period timestamp actorId approverId (nextVersion v)
+    , ClosingProcessFinalized cpId actorId
     )

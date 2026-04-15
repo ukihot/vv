@@ -1,6 +1,6 @@
-module Domain.IFRS.Inventory.Errors
-    ( InventoryError (..)
-    )
+module Domain.IFRS.Inventory.Errors (
+    InventoryError (..),
+)
 where
 
 data InventoryError

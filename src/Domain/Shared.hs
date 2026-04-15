@@ -2,38 +2,38 @@
 safe-money の Dense を財務金額の基盤とし、
 通貨タグを型レベルで強制することで異通貨混算をコンパイル時に排除する。
 -}
-module Domain.Shared
-    ( -- * 財務金額
-      Money (..)
-    , mkMoney
-    , addMoney
-    , subMoney
-    , negateMoney
-    , zeroMoney
-    , scaleMoney
-    , unMoney
+module Domain.Shared (
+    -- * 財務金額
+    Money (..),
+    mkMoney,
+    addMoney,
+    subMoney,
+    negateMoney,
+    zeroMoney,
+    scaleMoney,
+    unMoney,
 
-      -- * 通貨コード (ISO 4217)
-    , CurrencyCode (..)
+    -- * 通貨コード (ISO 4217)
+    CurrencyCode (..),
 
-      -- * 会計期間
-    , FiscalYearMonth (..)
-    , fiscalYearMonth
+    -- * 会計期間
+    FiscalYearMonth (..),
+    fiscalYearMonth,
 
-      -- * 仕訳行為区分 (§2.1.1)
-    , JournalEntryKind (..)
+    -- * 仕訳行為区分 (§2.1.1)
+    JournalEntryKind (..),
 
-      -- * リスク分類 (§3.2)
-    , RiskClass (..)
+    -- * リスク分類 (§3.2)
+    RiskClass (..),
 
-      -- * 重要性判定結果 (§3.1)
-    , MaterialityResult (..)
+    -- * 重要性判定結果 (§3.1)
+    MaterialityResult (..),
 
-      -- * バージョン
-    , Version (..)
-    , initialVersion
-    , nextVersion
-    )
+    -- * バージョン
+    Version (..),
+    initialVersion,
+    nextVersion,
+)
 where
 
 import Data.Text (Text)
@@ -50,8 +50,8 @@ import GHC.TypeLits (Symbol)
 表示・永続化時のみ 'discretise' で丸める。
 -}
 newtype Money (currency :: Symbol) = Money
-    { -- | 内部表現は有理数。safe-money の Dense と同等の精度保証。
-      unMoney :: Rational
+    { unMoney :: Rational
+    -- ^ 内部表現は有理数。safe-money の Dense と同等の精度保証。
     }
     deriving stock (Show, Eq, Ord)
 
@@ -91,8 +91,8 @@ newtype CurrencyCode = CurrencyCode {unCurrencyCode :: Text}
 
 -- | 年月で表現する会計期間単位。
 data FiscalYearMonth = FiscalYearMonth
-    { fymYear :: Int,
-      fymMonth :: Int -- 1–12
+    { fymYear :: Int
+    , fymMonth :: Int -- 1–12
     }
     deriving (Show, Eq, Ord)
 

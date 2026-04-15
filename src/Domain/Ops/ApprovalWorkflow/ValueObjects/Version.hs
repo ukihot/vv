@@ -1,8 +1,8 @@
-module Domain.Ops.ApprovalWorkflow.ValueObjects.Version
-    ( Version (..)
-    , initialVersion
-    , nextVersion
-    )
+module Domain.Ops.ApprovalWorkflow.ValueObjects.Version (
+    Version (..),
+    initialVersion,
+    nextVersion,
+)
 where
 
 newtype Version = Version {unVersion :: Int}

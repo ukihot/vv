@@ -1,7 +1,7 @@
-module Domain.IFRS.Impairment.ValueObjects.ImpairmentTestId
-    ( ImpairmentTestId (..)
-    , mkImpairmentTestId
-    )
+module Domain.IFRS.Impairment.ValueObjects.ImpairmentTestId (
+    ImpairmentTestId (..),
+    mkImpairmentTestId,
+)
 where
 
 import Data.Text (Text)

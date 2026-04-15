@@ -1,12 +1,12 @@
-module Domain.IAM.Permission
-    ( Permission (..)
-    , PermissionState (..)
-    , getPermissionId
-    , getPermissionProfile
-    , getPermissionVersion
-    , activatePermission
-    , retirePermission
-    )
+module Domain.IAM.Permission (
+    Permission (..),
+    PermissionState (..),
+    getPermissionId,
+    getPermissionProfile,
+    getPermissionVersion,
+    activatePermission,
+    retirePermission,
+)
 where
 
 import Domain.IAM.Permission.Entities.Profile (PermissionProfile)

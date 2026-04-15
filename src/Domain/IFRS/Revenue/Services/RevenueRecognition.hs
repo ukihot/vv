@@ -1,10 +1,13 @@
-module Domain.IFRS.Revenue.Services.RevenueRecognition
-    ( recognizeRevenue
-    )
+module Domain.IFRS.Revenue.Services.RevenueRecognition (
+    recognizeRevenue,
+)
 where
 
 import Data.Time (Day)
-import Domain.IFRS.Revenue.Entities.PerformanceObligation (PerformanceObligation (..), SatisfactionPattern (..))
+import Domain.IFRS.Revenue.Entities.PerformanceObligation (
+    PerformanceObligation (..),
+    SatisfactionPattern (..),
+ )
 import Domain.IFRS.Revenue.Entities.RevenueJudgmentLog (RevenueJudgmentLog (..))
 import Domain.IFRS.Revenue.Entities.RevenueRecognitionResult (RevenueRecognitionResult (..))
 import Domain.IFRS.Revenue.Errors (RevenueError (..))
@@ -19,9 +22,9 @@ recognizeRevenue po date log
     | otherwise =
         Right
             RevenueRecognitionResult
-                { rrrContractId = rjlContractId log,
-                  rrrObligationId = poId po,
-                  rrrRecognizedAmt = poAllocatedPrice po,
-                  rrrRecognizedAt = date,
-                  rrrJudgmentLog = log
+                { rrrContractId = rjlContractId log
+                , rrrObligationId = poId po
+                , rrrRecognizedAmt = poAllocatedPrice po
+                , rrrRecognizedAt = date
+                , rrrJudgmentLog = log
                 }

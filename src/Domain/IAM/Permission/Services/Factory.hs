@@ -1,6 +1,6 @@
-module Domain.IAM.Permission.Services.Factory
-    ( definePermission
-    )
+module Domain.IAM.Permission.Services.Factory (
+    definePermission,
+)
 where
 
 import Domain.IAM.Permission (Permission (PermissionD))

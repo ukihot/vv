@@ -1,6 +1,6 @@
-module Domain.Accounting.ChartOfAccounts.Events
-    ( ChartEventPayload (..)
-    )
+module Domain.Accounting.ChartOfAccounts.Events (
+    ChartEventPayload (..),
+)
 where
 
 import Domain.Accounting.ChartOfAccounts.ValueObjects.AccountCode (AccountCode)

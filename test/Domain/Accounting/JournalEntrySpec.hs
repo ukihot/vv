@@ -2,31 +2,31 @@ module Domain.Accounting.JournalEntrySpec (tests) where
 
 import Data.Time (fromGregorian)
 import Domain.Accounting.ChartOfAccounts (mkAccountCode)
-import Domain.Accounting.JournalEntry
-    ( CarryingAmountBridge (..)
-    , DrCr (..)
-    , JournalEntry (..)
-    , JournalError (..)
-    , JournalLine (..)
-    , mkJournalEntryId
-    , recordEntry
-    , validateBalance
-    )
-import Domain.Shared
-    ( JournalEntryKind (..)
-    , Money (..)
-    , RiskClass (..)
-    , mkMoney
-    )
+import Domain.Accounting.JournalEntry (
+    CarryingAmountBridge (..),
+    DrCr (..),
+    JournalEntry (..),
+    JournalError (..),
+    JournalLine (..),
+    mkJournalEntryId,
+    recordEntry,
+    validateBalance,
+ )
+import Domain.Shared (
+    JournalEntryKind (..),
+    Money (..),
+    RiskClass (..),
+    mkMoney,
+ )
 import Hedgehog (Property, forAll, property, (===))
 import Hedgehog.Gen qualified as Gen
 import Hedgehog.Range qualified as Range
-import Support.Accounting.Fixtures
-    ( sampleCreditLine
-    , sampleDebitLine
-    , sampleJournalEntryId
-    , shouldRight
-    )
+import Support.Accounting.Fixtures (
+    sampleCreditLine,
+    sampleDebitLine,
+    sampleJournalEntryId,
+    shouldRight,
+ )
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.HUnit (Assertion, assertEqual, assertFailure, testCase)
 import Test.Tasty.Hedgehog (testProperty)
@@ -37,21 +37,21 @@ tests =
         "JournalEntry"
         [ testGroup
             "validateBalance"
-            [ testCase "借貸一致は成功" case_balancedLinesSucceed,
-              testCase "借貸不一致はエラー" case_imbalancedLinesFail,
-              testCase "空行リストは借貸一致（ゼロ）" case_emptyLinesBalance
-            ],
-          testGroup
+            [ testCase "借貸一致は成功" case_balancedLinesSucceed
+            , testCase "借貸不一致はエラー" case_imbalancedLinesFail
+            , testCase "空行リストは借貸一致（ゼロ）" case_emptyLinesBalance
+            ]
+        , testGroup
             "recordEntry"
-            [ testCase "借貸一致の仕訳は記録できる" case_recordBalancedEntry,
-              testCase "借貸不一致の仕訳は記録できない" case_recordImbalancedEntryFails,
-              testCase "仕訳行為区分が保持される" case_entryKindPreserved
-            ],
-          testGroup
+            [ testCase "借貸一致の仕訳は記録できる" case_recordBalancedEntry
+            , testCase "借貸不一致の仕訳は記録できない" case_recordImbalancedEntryFails
+            , testCase "仕訳行為区分が保持される" case_entryKindPreserved
+            ]
+        , testGroup
             "CarryingAmountBridge §2.3.5"
             [ testCase "帳簿価額 = 取得原価 − 累計償却 − 減損 ± FV調整 − ECL" case_carryingAmountBridge
-            ],
-          testGroup
+            ]
+        , testGroup
             "Properties"
             [ testProperty "借方合計 = 貸方合計の仕訳は常に成功" prop_balancedEntryAlwaysSucceeds
             ]
@@ -119,12 +119,12 @@ case_carryingAmountBridge = do
     code <- shouldRight "code" (mkAccountCode "1500")
     let bridge =
             CarryingAmountBridge
-                { bridgeAccountCode = code,
-                  bridgeCostBasis = mkMoney 1000000 :: Money "JPY",
-                  bridgeAccumDeprec = mkMoney 200000 :: Money "JPY",
-                  bridgeImpairmentLoss = mkMoney 50000 :: Money "JPY",
-                  bridgeFvAdjustment = mkMoney 30000 :: Money "JPY",
-                  bridgeEclAllowance = mkMoney 10000 :: Money "JPY"
+                { bridgeAccountCode = code
+                , bridgeCostBasis = mkMoney 1000000 :: Money "JPY"
+                , bridgeAccumDeprec = mkMoney 200000 :: Money "JPY"
+                , bridgeImpairmentLoss = mkMoney 50000 :: Money "JPY"
+                , bridgeFvAdjustment = mkMoney 30000 :: Money "JPY"
+                , bridgeEclAllowance = mkMoney 10000 :: Money "JPY"
                 }
         expected = mkMoney 770000 :: Money "JPY"
         actual = carryingAmount bridge

@@ -1,6 +1,6 @@
-module Domain.IFRS.Inventory.Repository
-    ( InventoryRepository (..)
-    )
+module Domain.IFRS.Inventory.Repository (
+    InventoryRepository (..),
+)
 where
 
 import Data.Text (Text)

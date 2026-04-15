@@ -2,14 +2,14 @@
 #12, #27, #28: イベントをバージョン別に分け、スキーマ進化を可能にする。
 #23: イベントは業務の事実に対応させる。
 -}
-module Domain.IAM.User.Events
-    ( -- * バージョン別ペイロード
-      UserEventPayloadV1 (..)
-    , UserEventPayloadV2 (..)
+module Domain.IAM.User.Events (
+    -- * バージョン別ペイロード
+    UserEventPayloadV1 (..),
+    UserEventPayloadV2 (..),
 
-      -- * 統合ペイロード
-    , UserEventPayload (..)
-    )
+    -- * 統合ペイロード
+    UserEventPayload (..),
+)
 where
 
 import Domain.IAM.User.ValueObjects.Email (Email)
