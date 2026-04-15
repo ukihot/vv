@@ -5,5 +5,5 @@ where
 
 import App.DTO.Request (ActivateUserRequest)
 
-class Monad m => ActivateUserUseCase m where
+class (Monad m) => ActivateUserUseCase m where
   execute :: ActivateUserRequest -> m ()

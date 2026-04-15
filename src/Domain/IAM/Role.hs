@@ -11,9 +11,9 @@ module Domain.IAM.Role
   )
 where
 
+import Domain.IAM.Permission.ValueObjects.PermissionId (PermissionId)
 import Domain.IAM.Role.Entities.Profile (RoleProfile, addPermission, removePermission)
 import Domain.IAM.Role.Events (RoleEventPayload (..))
-import Domain.IAM.Permission.ValueObjects.PermissionId (PermissionId)
 import Domain.IAM.Role.ValueObjects.RoleId (RoleId)
 import Domain.IAM.Role.ValueObjects.RoleState (RoleState (..))
 import Domain.IAM.Role.ValueObjects.Version (Version, nextVersion)

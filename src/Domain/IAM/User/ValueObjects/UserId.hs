@@ -1,7 +1,7 @@
 module Domain.IAM.User.ValueObjects.UserId (UserId, mkUserId, unUserId) where
 
 import Data.Text (Text)
-import qualified Data.Text as T
+import Data.Text qualified as T
 import Domain.IAM.User.Errors (DomainError (InvalidUserId))
 
 newtype UserId = UserId {unUserId :: Text} deriving (Show, Eq, Ord)

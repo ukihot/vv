@@ -6,7 +6,7 @@ module Domain.IAM.Permission.ValueObjects.PermissionId
 where
 
 import Data.Text (Text)
-import qualified Data.Text as T
+import Data.Text qualified as T
 import Domain.IAM.Permission.Errors (DomainError (InvalidPermissionId))
 
 newtype PermissionId = PermissionId {unPermissionId :: Text}

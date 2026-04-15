@@ -275,8 +275,18 @@ test-suite vv-test
         Domain.IAM.UserSpec
         Domain.IAM.RoleSpec
         Domain.IAM.PermissionSpec
+        Domain.Accounting.Spec
+        Domain.Accounting.ChartOfAccountsSpec
+        Domain.Accounting.FiscalPeriodSpec
+        Domain.Accounting.JournalEntrySpec
+        Domain.Accounting.ExchangeRateSpec
+        Domain.IFRS.Spec
+        Domain.IFRS.RevenueSpec
+        Domain.IFRS.FinancialInstrumentSpec
+        Domain.IFRS.LeaseSpec
         Support.Assert
         Support.IAM.Fixtures
+        Support.Accounting.Fixtures
         Support.Text
     build-depends:
         base,

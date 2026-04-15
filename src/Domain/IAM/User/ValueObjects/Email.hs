@@ -1,7 +1,7 @@
 module Domain.IAM.User.ValueObjects.Email (Email, mkEmail, unEmail) where
 
 import Data.Text (Text)
-import qualified Data.Text as T
+import Data.Text qualified as T
 import Domain.IAM.User.Errors (DomainError (InvalidEmail))
 
 newtype Email = Email {unEmail :: Text} deriving (Show, Eq)

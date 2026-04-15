@@ -1,9 +1,9 @@
 module Domain.IAM.Role.Events (RoleEventPayload (..)) where
 
+import Domain.IAM.Permission.ValueObjects.PermissionId (PermissionId)
 import Domain.IAM.Role.ValueObjects.RoleId (RoleId)
 import Domain.IAM.Role.ValueObjects.RoleName (RoleName)
 import Domain.IAM.User.ValueObjects.UserId (UserId)
-import Domain.IAM.Permission.ValueObjects.PermissionId (PermissionId)
 
 data RoleEventPayload
   = RoleCreated RoleId RoleName

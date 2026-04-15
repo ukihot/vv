@@ -1,7 +1,7 @@
 module Domain.IAM.Role.ValueObjects.RoleName (RoleName, mkRoleName, unRoleName) where
 
 import Data.Text (Text)
-import qualified Data.Text as T
+import Data.Text qualified as T
 import Domain.IAM.Role.Errors (DomainError (InvalidRoleName))
 
 newtype RoleName = RoleName {unRoleName :: Text}
