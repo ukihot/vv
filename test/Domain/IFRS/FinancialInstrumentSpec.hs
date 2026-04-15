@@ -1,7 +1,10 @@
 module Domain.IFRS.FinancialInstrumentSpec (tests) where
 
 import Domain.IFRS.FinancialInstrument
-  ( EclStage (..),
+  ( EclJudgmentLog (..),
+    EclParameters (..),
+    EclStage (..),
+    FinancialAsset (..),
     FinancialInstrumentError (..),
     classifyStage,
     computeEcl,
@@ -9,7 +12,7 @@ import Domain.IFRS.FinancialInstrument
     recordFinancialAsset,
     updateEclStage,
   )
-import Domain.Shared (Money (..), Version (..), initialVersion, mkMoney, nextVersion, zeroMoney)
+import Domain.Shared (Money (..), initialVersion, mkMoney, nextVersion, unMoney, zeroMoney)
 import Hedgehog (Property, forAll, property, (===))
 import Hedgehog.Gen qualified as Gen
 import Hedgehog.Range qualified as Range
@@ -122,10 +125,6 @@ case_recordInitial = do
   assertEqual "初期ステージ" Stage1 (faStage fa)
   assertEqual "初期ECL" zeroMoney (faEclAllowance fa)
   assertEqual "初期バージョン" initialVersion (faVersion fa)
-  where
-    faStage = Domain.IFRS.FinancialInstrument.faStage
-    faEclAllowance = Domain.IFRS.FinancialInstrument.faEclAllowance
-    faVersion = Domain.IFRS.FinancialInstrument.faVersion
 
 case_updateStageVersionBumps :: Assertion
 case_updateStageVersionBumps = do
@@ -133,20 +132,17 @@ case_updateStageVersionBumps = do
   let fa = recordFinancialAsset fid (mkMoney 500000 :: Money "JPY") 0.05
       newEcl = mkMoney 21375 :: Money "JPY"
       (fa', _) = updateEclStage fa Stage2 newEcl
-  assertEqual "バージョンが進む" (nextVersion initialVersion) (Domain.IFRS.FinancialInstrument.faVersion fa')
+  assertEqual "バージョンが進む" (nextVersion initialVersion) (faVersion fa')
 
 case_stage1To2 :: Assertion
 case_stage1To2 = do
   fid <- sampleFinancialAssetId
   let fa = recordFinancialAsset fid (mkMoney 500000 :: Money "JPY") 0.05
       newEcl = mkMoney 21375 :: Money "JPY"
-      (fa', log) = updateEclStage fa Stage2 newEcl
-  assertEqual "新ステージ" Stage2 (Domain.IFRS.FinancialInstrument.faStage fa')
-  assertEqual "ログ: 旧ステージ" Stage1 (ejlPreviousStage log)
-  assertEqual "ログ: 新ステージ" Stage2 (ejlNewStage log)
-  where
-    ejlPreviousStage = Domain.IFRS.FinancialInstrument.ejlPreviousStage
-    ejlNewStage = Domain.IFRS.FinancialInstrument.ejlNewStage
+      (fa', log') = updateEclStage fa Stage2 newEcl
+  assertEqual "新ステージ" Stage2 (faStage fa')
+  assertEqual "ログ: 旧ステージ" Stage1 (ejlPreviousStage log')
+  assertEqual "ログ: 新ステージ" Stage2 (ejlNewStage log')
 
 case_stage2To3 :: Assertion
 case_stage2To3 = do
@@ -154,7 +150,7 @@ case_stage2To3 = do
   let fa0 = recordFinancialAsset fid (mkMoney 500000 :: Money "JPY") 0.05
       (fa1, _) = updateEclStage fa0 Stage2 (mkMoney 21375)
       (fa2, _) = updateEclStage fa1 Stage3 (mkMoney 21375)
-  assertEqual "Stage3へ移動" Stage3 (Domain.IFRS.FinancialInstrument.faStage fa2)
+  assertEqual "Stage3へ移動" Stage3 (faStage fa2)
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- Hedgehog プロパティ

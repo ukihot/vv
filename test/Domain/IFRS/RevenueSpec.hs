@@ -7,12 +7,13 @@ import Domain.IFRS.Revenue
     PerformanceObligationId (..),
     RevenueError (..),
     RevenueJudgmentLog (..),
+    RevenueRecognitionResult (..),
     SatisfactionPattern (..),
     allocateTransactionPrice,
     mkContractId,
     recognizeRevenue,
   )
-import Domain.Shared (Money (..), mkMoney, zeroMoney)
+import Domain.Shared (Money (..), mkMoney, unMoney, zeroMoney)
 import Hedgehog (Property, forAll, property, (===))
 import Hedgehog.Gen qualified as Gen
 import Hedgehog.Range qualified as Range

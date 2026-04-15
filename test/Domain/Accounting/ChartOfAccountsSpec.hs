@@ -1,9 +1,7 @@
 module Domain.Accounting.ChartOfAccountsSpec (tests) where
 
 import Domain.Accounting.ChartOfAccounts
-  ( AccountClass (..),
-    AccountNature (..),
-    ChartError (..),
+  ( ChartError (..),
     mkAccountCode,
     mkAccountName,
   )

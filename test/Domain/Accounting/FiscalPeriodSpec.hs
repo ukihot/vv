@@ -7,7 +7,7 @@ import Domain.Accounting.FiscalPeriod
     openPeriod,
     reopenPeriod,
   )
-import Domain.Shared (FiscalYearMonth (..), Version (..), initialVersion, nextVersion)
+import Domain.Shared (Version (..), initialVersion, nextVersion)
 import Support.Accounting.Fixtures (sampleFiscalPeriodId, sampleFiscalYearMonth)
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.HUnit (Assertion, assertEqual, testCase)

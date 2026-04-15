@@ -2,14 +2,15 @@ module Domain.IFRS.LeaseSpec (tests) where
 
 import Data.Time (fromGregorian)
 import Domain.IFRS.Lease
-  ( LeaseError (..),
+  ( Lease (..),
+    LeaseError (..),
     applyLeasePayment,
     computePeriodDepreciation,
     computePeriodInterest,
     mkLeaseId,
     recordLease,
   )
-import Domain.Shared (Money (..), Version (..), initialVersion, mkMoney, nextVersion)
+import Domain.Shared (Money, Version (..), initialVersion, mkMoney, nextVersion, unMoney)
 import Hedgehog (Property, forAll, property, (===))
 import Hedgehog.Gen qualified as Gen
 import Hedgehog.Range qualified as Range
@@ -51,7 +52,7 @@ tests =
 -- フィクスチャ
 -- ─────────────────────────────────────────────────────────────────────────────
 
-sampleLease :: IO (Domain.IFRS.Lease.Lease "JPY")
+sampleLease :: IO (Lease "JPY")
 sampleLease = do
   lid <- sampleLeaseId
   pure $ recordLease lid (fromGregorian 2026 4 1) 36 0.03 (mkMoney 3000000)
@@ -65,13 +66,13 @@ case_initialRecognitionRouEqLiability = do
   l <- sampleLease
   assertEqual
     "使用権資産 = リース負債"
-    (Domain.IFRS.Lease.leaseRouAsset l)
-    (Domain.IFRS.Lease.leaseLiability l)
+    (leaseRouAsset l)
+    (leaseLiability l)
 
 case_initialVersion :: Assertion
 case_initialVersion = do
   l <- sampleLease
-  assertEqual "初期バージョン" initialVersion (Domain.IFRS.Lease.leaseVersion l)
+  assertEqual "初期バージョン" initialVersion (leaseVersion l)
 
 -- 月次利息 = 3,000,000 × 0.03 / 12 = 7,500
 case_periodInterest :: Assertion
@@ -85,7 +86,7 @@ case_periodDepreciation :: Assertion
 case_periodDepreciation = do
   l <- sampleLease
   let deprec = computePeriodDepreciation l
-      expected = Money (3000000 / 36) :: Money "JPY"
+      expected = mkMoney (3000000 / 36) :: Money "JPY"
   assertEqual "月次償却" expected deprec
 
 -- 支払 90,000 → 利息 7,500 → 元本返済 82,500 → 残高 2,917,500
@@ -95,13 +96,13 @@ case_liabilityDecreases = do
   let payment = mkMoney 90000 :: Money "JPY"
       l' = applyLeasePayment l payment
       expected = mkMoney 2917500 :: Money "JPY"
-  assertEqual "支払後負債残高" expected (Domain.IFRS.Lease.leaseLiability l')
+  assertEqual "支払後負債残高" expected (leaseLiability l')
 
 case_versionBumps :: Assertion
 case_versionBumps = do
   l <- sampleLease
   let l' = applyLeasePayment l (mkMoney 90000 :: Money "JPY")
-  assertEqual "バージョンが進む" (nextVersion initialVersion) (Domain.IFRS.Lease.leaseVersion l')
+  assertEqual "バージョンが進む" (nextVersion initialVersion) (leaseVersion l')
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- Hedgehog プロパティ

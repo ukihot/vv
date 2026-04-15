@@ -2,13 +2,14 @@ module Domain.Accounting.ExchangeRateSpec (tests) where
 
 import Data.Time (fromGregorian)
 import Domain.Accounting.ExchangeRate
-  ( ExchangeRateError (..),
+  ( ExchangeRate (..),
+    ExchangeRateError (..),
     MonetaryClass (..),
     RateKind (..),
     mkExchangeRate,
     translateMoney,
   )
-import Domain.Shared (Money (..), mkMoney)
+import Domain.Shared (Money (..), mkMoney, unMoney)
 import Hedgehog (Property, forAll, property, (===))
 import Hedgehog.Gen qualified as Gen
 import Hedgehog.Range qualified as Range
@@ -59,14 +60,14 @@ case_zeroRateFails =
   assertEqual
     "ゼロレートはエラー"
     (Left NonPositiveRate)
-    (mkExchangeRate 0 ClosingRate (fromGregorian 2026 3 31) "BOJ" :: Either ExchangeRateError (Domain.Accounting.ExchangeRate.ExchangeRate "USD" "JPY"))
+    (mkExchangeRate 0 ClosingRate (fromGregorian 2026 3 31) "BOJ" :: Either ExchangeRateError (ExchangeRate "USD" "JPY"))
 
 case_negativeRateFails :: Assertion
 case_negativeRateFails =
   assertEqual
     "負レートはエラー"
     (Left NonPositiveRate)
-    (mkExchangeRate (-1) ClosingRate (fromGregorian 2026 3 31) "BOJ" :: Either ExchangeRateError (Domain.Accounting.ExchangeRate.ExchangeRate "USD" "JPY"))
+    (mkExchangeRate (-1) ClosingRate (fromGregorian 2026 3 31) "BOJ" :: Either ExchangeRateError (ExchangeRate "USD" "JPY"))
 
 -- | 貨幣性項目: USD 1,000 × 期末日レート 150 = JPY 150,000
 case_translateMonetary :: Assertion
@@ -93,7 +94,7 @@ prop_positiveRateAlwaysSucceeds = property $ do
   r <- forAll $ Gen.realFrac_ (Range.linearFrac 0.0001 10000)
   let result =
         mkExchangeRate (toRational r) ClosingRate (fromGregorian 2026 3 31) "TEST" ::
-          Either ExchangeRateError (Domain.Accounting.ExchangeRate.ExchangeRate "USD" "JPY")
+          Either ExchangeRateError (ExchangeRate "USD" "JPY")
   case result of
     Right _ -> pure ()
     Left e -> fail ("正のレートが失敗: " <> show e)
@@ -104,11 +105,11 @@ prop_translationIsLinear = property $ do
   a <- forAll $ Gen.integral (Range.linear 1 100000)
   b <- forAll $ Gen.integral (Range.linear 1 100000)
   let rate =
-        Domain.Accounting.ExchangeRate.ExchangeRate
-          { Domain.Accounting.ExchangeRate.rateValue = 150,
-            Domain.Accounting.ExchangeRate.rateKind = ClosingRate,
-            Domain.Accounting.ExchangeRate.rateDate = fromGregorian 2026 3 31,
-            Domain.Accounting.ExchangeRate.rateSource = "TEST"
+        ExchangeRate
+          { rateValue = 150,
+            rateKind = ClosingRate,
+            rateDate = fromGregorian 2026 3 31,
+            rateSource = "TEST"
           }
       ma = mkMoney (fromIntegral a) :: Money "USD"
       mb = mkMoney (fromIntegral b) :: Money "USD"

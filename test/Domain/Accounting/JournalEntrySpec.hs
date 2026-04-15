@@ -5,6 +5,7 @@ import Domain.Accounting.ChartOfAccounts (mkAccountCode)
 import Domain.Accounting.JournalEntry
   ( CarryingAmountBridge (..),
     DrCr (..),
+    JournalEntry (..),
     JournalError (..),
     JournalLine (..),
     mkJournalEntryId,
@@ -15,9 +16,7 @@ import Domain.Shared
   ( JournalEntryKind (..),
     Money (..),
     RiskClass (..),
-    addMoney,
     mkMoney,
-    zeroMoney,
   )
 import Hedgehog (Property, forAll, property, (===))
 import Hedgehog.Gen qualified as Gen
@@ -111,8 +110,6 @@ case_entryKindPreserved = do
   case recordEntry eid date [dr, cr] WashEntry RiskHigh "洗替" Nothing Nothing of
     Left e -> assertFailure ("予期しないエラー: " <> show e)
     Right e -> assertEqual "仕訳行為区分" WashEntry (entryKind e)
-  where
-    entryKind je = Domain.Accounting.JournalEntry.entryKind je
 
 -- | 帳簿価額ブリッジの算定検証
 -- 取得原価1,000,000 − 累計償却200,000 − 減損50,000 + FV調整30,000 − ECL10,000 = 770,000

@@ -69,7 +69,7 @@ import Domain.IFRS.Revenue
     PerformanceObligationId (..),
     mkContractId,
   )
-import Domain.Shared (FiscalYearMonth (..), Money (..), mkMoney)
+import Domain.Shared (FiscalYearMonth (..), mkMoney)
 import Test.Tasty.HUnit (assertFailure)
 
 -- ─────────────────────────────────────────────────────────────────────────────
