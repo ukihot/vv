@@ -123,7 +123,6 @@ library
         Domain.IAM.User.ValueObjects.UserState
         Domain.IAM.User.ValueObjects.Version
         App.Ports.Command
-        App.Ports.Commands
         App.Ports.Query
         App.Ports.Output
         App.DTO.Response
@@ -215,7 +214,6 @@ library vv-internal
         Domain.Audit.AuditTrail
         Domain.Audit.ClosingProcess
         App.Ports.Command
-        App.Ports.Commands
         App.Ports.Query
         App.Ports.Output
         App.DTO.Response
