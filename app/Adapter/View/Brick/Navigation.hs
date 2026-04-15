@@ -21,7 +21,6 @@ import Adapter.View.Brick.Types
     , NavigationState (..)
     , Screen (..)
     , ScreenInfo (..)
-    , ScreenStack
     , screenRegistry
     )
 import Data.List (find)

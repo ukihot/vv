@@ -50,14 +50,6 @@ data DomainTab
     | TabOrg -- 組織
     deriving stock (Eq, Ord, Show, Enum, Bounded)
 
-tabLabel :: DomainTab -> Text
-tabLabel TabIAM = "IAM"
-tabLabel TabAccounting = "Accounting"
-tabLabel TabIFRS = "IFRS"
-tabLabel TabOps = "Operations"
-tabLabel TabAudit = "Audit"
-tabLabel TabOrg = "Organization"
-
 -- ─────────────────────────────────────────────────────────────────────────────
 -- Screen (画面定義)
 -- ─────────────────────────────────────────────────────────────────────────────
@@ -174,5 +166,9 @@ data UiState = UiState
       -- ナビゲーション
       uiNavigation :: NavigationState,
       -- 画面固有の状態（現在はUserActivate用のエディタのみ）
-      uiUserIdEditor :: Editor Text Name
+      uiUserIdEditor :: Editor Text Name,
+      -- ヘルプ表示フラグ
+      uiShowHelp :: Bool,
+      -- ナビゲーションメニューの選択インデックス
+      uiNavSelectedIndex :: Int
     }

@@ -31,14 +31,11 @@ import Brick
     ( Padding (Pad)
     , Widget
     , attrName
-    , padAll
     , padTop
-    , str
     , txt
     , vBox
     , withAttr
     )
-import Brick.Widgets.Border qualified as Border
 import Brick.Widgets.Edit (renderEditor)
 import Data.Text qualified as T
 

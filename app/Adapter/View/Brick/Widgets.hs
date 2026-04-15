@@ -1,15 +1,19 @@
 {-# LANGUAGE ImportQualifiedPost #-}
 
 {- | 共通ウィジェット
-パンくずリスト、タブバー、ナビゲーションメニュー等の再利用可能なウィジェット。
+ヘッダー、タブバー、ナビゲーションメニュー、ステータスバー等の再利用可能なウィジェット。
+洗練されたUI/UXを提供する。
 -}
 module Adapter.View.Brick.Widgets
     ( -- * Layout Widgets
-      renderBreadcrumbs
+      renderHeader
+    , renderBreadcrumbs
     , renderTabBar
     , renderNavigationMenu
+    , renderStatusBar
     , renderBackButton
     , renderLogPanel
+    , renderKeyMapHelp
     )
 where
 
@@ -25,20 +29,39 @@ import Brick
     , Widget
     , attrName
     , hBox
+    , hLimit
     , padBottom
     , padLeft
     , padRight
+    , padTop
     , str
     , txt
     , vBox
     , vLimit
     , withAttr
+    , (<+>)
     )
 import Brick.Widgets.Border qualified as Border
 import Brick.Widgets.Center (hCenter)
 import Control.Concurrent.STM (atomically, readTVar)
 import Data.Text (Text)
+import Data.Text qualified as T
 import System.IO.Unsafe (unsafePerformIO)
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Header (ヘッダー)
+-- ─────────────────────────────────────────────────────────────────────────────
+
+renderHeader :: Widget Name
+renderHeader =
+    withAttr (attrName "header") $
+        padLeft (Pad 2) $
+            padRight (Pad 2) $
+                hBox
+                    [ withAttr (attrName "appTitle") $ txt "VV - IFRS Accounting System",
+                      txt "  ",
+                      withAttr (attrName "hint") $ txt "[Press 'h' for help]"
+                    ]
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- Breadcrumbs (パンくずリスト)
@@ -46,9 +69,11 @@ import System.IO.Unsafe (unsafePerformIO)
 
 renderBreadcrumbs :: Text -> Widget Name
 renderBreadcrumbs breadcrumbs =
-    padBottom (Pad 1) $
-        withAttr (attrName "breadcrumbs") $
-            txt ("📍 " <> breadcrumbs)
+    padLeft (Pad 2) $
+        padTop (Pad 1) $
+            padBottom (Pad 1) $
+                withAttr (attrName "breadcrumbs") $
+                    txt ("📍 " <> breadcrumbs)
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- Tab Bar (タブバー)
@@ -56,34 +81,35 @@ renderBreadcrumbs breadcrumbs =
 
 renderTabBar :: DomainTab -> Widget Name
 renderTabBar currentTab =
-    padBottom (Pad 1) $
-        vBox
-            [ Border.hBorder,
-              hCenter
-                ( hBox
-                    [ renderTab TabIAM currentTab,
-                      str " ",
-                      renderTab TabAccounting currentTab,
-                      str " ",
-                      renderTab TabIFRS currentTab,
-                      str " ",
-                      renderTab TabOps currentTab,
-                      str " ",
-                      renderTab TabAudit currentTab,
-                      str " ",
-                      renderTab TabOrg currentTab
+    padTop (Pad 1) $
+        padBottom (Pad 1) $
+            hCenter $
+                hBox
+                    [ renderTab 1 TabIAM currentTab,
+                      str "  ",
+                      renderTab 2 TabAccounting currentTab,
+                      str "  ",
+                      renderTab 3 TabIFRS currentTab,
+                      str "  ",
+                      renderTab 4 TabOps currentTab,
+                      str "  ",
+                      renderTab 5 TabAudit currentTab,
+                      str "  ",
+                      renderTab 6 TabOrg currentTab
                     ]
-                ),
-              Border.hBorder
-            ]
 
-renderTab :: DomainTab -> DomainTab -> Widget Name
-renderTab tab currentTab =
+renderTab :: Int -> DomainTab -> DomainTab -> Widget Name
+renderTab num tab currentTab =
     let label = tabLabel tab
-        widget = txt (" " <> label <> " ")
+        numStr = T.pack (show num)
+        widget =
+            withAttr (attrName "tabNumber") (txt (numStr <> ":"))
+                <+> txt " "
+                <+> txt label
+                <+> txt " "
      in if tab == currentTab
-            then withAttr (attrName "tabActive") widget
-            else withAttr (attrName "tabInactive") widget
+            then withAttr (attrName "tabActive") $ txt " " <+> widget <+> txt " "
+            else withAttr (attrName "tabInactive") $ txt " " <+> widget <+> txt " "
 
 tabLabel :: DomainTab -> Text
 tabLabel TabIAM = "IAM"
@@ -97,23 +123,83 @@ tabLabel TabOrg = "Organization"
 -- Navigation Menu (ナビゲーションメニュー)
 -- ─────────────────────────────────────────────────────────────────────────────
 
-renderNavigationMenu :: DomainTab -> Widget Name
-renderNavigationMenu currentTab =
-    Border.borderWithLabel (txt " Navigation ") $
+renderNavigationMenu :: DomainTab -> Int -> Widget Name
+renderNavigationMenu currentTab selectedIndex =
+    padLeft (Pad 1) $
+        padRight (Pad 1) $
+            padTop (Pad 1) $
+                vBox $
+                    zipWith (renderScreenItem selectedIndex) [0 ..] (getScreensByTab currentTab)
+
+renderScreenItem :: Int -> Int -> ScreenInfo -> Widget Name
+renderScreenItem selectedIndex index info =
+    let isSelected = index == selectedIndex
+        prefix = if isSelected then "▶ " else "  "
+        titleWidget =
+            if isSelected
+                then withAttr (attrName "navItemSelected") $ txt (prefix <> screenTitle info)
+                else withAttr (attrName "navItem") $ txt (prefix <> screenTitle info)
+     in padBottom (Pad 1) $
+            vBox
+                [ titleWidget,
+                  padLeft (Pad 2) $
+                    withAttr (attrName "navDescription") $
+                        txt (screenDescription info)
+                ]
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Status Bar (ステータスバー)
+-- ─────────────────────────────────────────────────────────────────────────────
+
+renderStatusBar :: UiState -> Bool -> Widget Name
+renderStatusBar st canGoBack =
+    withAttr (attrName "statusBar") $
         padLeft (Pad 1) $
             padRight (Pad 1) $
-                vBox $
-                    map renderScreenItem (getScreensByTab currentTab)
+                hBox
+                    [ -- 左側：ログ
+                      renderCompactLog st,
+                      txt "  ",
+                      -- 中央：キーマップ
+                      hLimit 60 $
+                        hBox
+                            [ renderKeyBinding "q" "Quit",
+                              txt " ",
+                              renderKeyBinding "h" "Help",
+                              txt " ",
+                              renderKeyBinding "n" "Nav",
+                              txt " ",
+                              if canGoBack
+                                then renderKeyBinding "Esc" "Back"
+                                else withAttr (attrName "hint") $ txt "[Esc:Back]"
+                            ]
+                    ]
 
-renderScreenItem :: ScreenInfo -> Widget Name
-renderScreenItem info =
-    padBottom (Pad 1) $
-        vBox
-            [ withAttr (attrName "navItem") $ txt ("▸ " <> screenTitle info),
-              padLeft (Pad 2) $
-                withAttr (attrName "navDescription") $
-                    txt (screenDescription info)
-            ]
+renderKeyBinding :: Text -> Text -> Widget Name
+renderKeyBinding key label =
+    withAttr (attrName "keyMapSep") (txt "[")
+        <+> withAttr (attrName "keyMapKey") (txt key)
+        <+> withAttr (attrName "keyMapSep") (txt ":")
+        <+> withAttr (attrName "keyMap") (txt label)
+        <+> withAttr (attrName "keyMapSep") (txt "]")
+
+renderCompactLog :: UiState -> Widget Name
+renderCompactLog st =
+    let logs = readLogsSync st
+        latestLog = if null logs then "Ready" else last logs
+     in withAttr (attrName "hint") $ txt ("💬 " <> latestLog)
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Key Map Help (キーマップヘルプ)
+-- ─────────────────────────────────────────────────────────────────────────────
+
+renderKeyMapHelp :: Text -> Text -> Widget Name
+renderKeyMapHelp key description =
+    hBox
+        [ hLimit 15 $ withAttr (attrName "keyMapKey") $ txt ("  " <> key),
+          withAttr (attrName "keyMapSep") $ txt " : ",
+          txt description
+        ]
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- Back Button (戻るボタン)

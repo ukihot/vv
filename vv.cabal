@@ -259,6 +259,7 @@ executable vv
         optparse-applicative >= 0.18 && < 1,
         brick >= 2.3 && < 3,
         vty >= 6.1 && < 7,
+        text-zipper >= 0.13 && < 1,
         stm,
         prettyprinter >= 1.7 && < 2,
         prettyprinter-ansi-terminal >= 1.1 && < 2,
