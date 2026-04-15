@@ -240,14 +240,17 @@ executable vv
     hs-source-dirs:   app
     main-is:          Main.hs
     other-modules:
-        Adapter.TUI.Brick.App
-        Adapter.TUI.Brick.Runtime
+        Adapter.Env
+        Adapter.Controller.IAM
+        Adapter.Presenter.IAM
+        Adapter.View.Brick.App
     build-depends:
         base,
         vv:vv-internal,
         optparse-applicative >= 0.18 && < 1,
         brick >= 2.3 && < 3,
         vty >= 6.1 && < 7,
+        stm,
         prettyprinter >= 1.7 && < 2,
         prettyprinter-ansi-terminal >= 1.1 && < 2,
         cassava >= 0.5 && < 1,

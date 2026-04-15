@@ -1,6 +1,6 @@
 module Main (main) where
 
-import Adapter.TUI.Brick.App (runBrickApp)
+import Adapter.View.Brick.App (runBrickApp)
 import System.IO (hSetEncoding, stdout, utf8)
 
 main :: IO ()
