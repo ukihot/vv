@@ -37,6 +37,7 @@ module Domain.Shared (
 where
 
 import Data.Text (Text)
+import GHC.Generics (Generic)
 import GHC.TypeLits (Symbol)
 
 -- ─────────────────────────────────────────────────────────────────────────────
@@ -53,7 +54,15 @@ newtype Money (currency :: Symbol) = Money
     { unMoney :: Rational
     -- ^ 内部表現は有理数。safe-money の Dense と同等の精度保証。
     }
-    deriving stock (Show, Eq, Ord)
+    deriving stock (Show, Eq, Ord, Generic)
+
+-- | 同一通貨の加算を (<>) で表現する。異通貨は型が通らない（項目 #3, #11）。
+instance Semigroup (Money c) where
+    (<>) = addMoney
+
+-- | 単位元は zeroMoney。mconcat で仕訳行の合計が自然に書ける（項目 #33）。
+instance Monoid (Money c) where
+    mempty = zeroMoney
 
 -- | 金額コンストラクタ。負値も許容（負債・費用の逆仕訳等）。
 mkMoney :: Rational -> Money currency

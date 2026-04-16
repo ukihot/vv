@@ -3,10 +3,10 @@ module Domain.Org.Organization.Repository (
 )
 where
 
-import Domain.Org.Organization (Organization)
+import Domain.Org.Organization (SomeOrganization)
 import Domain.Org.Organization.ValueObjects.OrganizationId (OrganizationId)
 
 class Monad m => OrganizationRepository m where
-    saveOrganization :: Organization -> m ()
-    findOrganizationById :: OrganizationId -> m (Maybe Organization)
-    listAllOrganizations :: m [Organization]
+    saveOrganization :: SomeOrganization -> m ()
+    findOrganizationById :: OrganizationId -> m (Maybe SomeOrganization)
+    listAllOrganizations :: m [SomeOrganization]

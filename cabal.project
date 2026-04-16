@@ -1,23 +1,11 @@
 packages: .
 
--- Global language extensions
-package vv
-  ghc-options: -XImportQualifiedPost
-               -XLambdaCase
-               -XMultiWayIf
-               -XOverloadedStrings
-               -XOverloadedRecordDot
-               -XRecordWildCards
-               -XDerivingStrategies
-               -XDeriveAnyClass
-               -XDataKinds
-               -XTypeFamilies
-               -XGADTs
-               -XViewPatterns
-               -XPatternSynonyms
-               -XStrictData
-
--- Haddock options
+-- ドキュメント生成
 documentation: True
-haddock-all: True
-haddock-hyperlink-source: True
+
+package vv
+  haddock-options: --no-warnings
+  -- Windowsでのリンクエラー（ld.lld）対策
+  ghc-options: -static
+
+optimization: 2

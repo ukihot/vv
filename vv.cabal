@@ -46,12 +46,7 @@ common common-options
         -Wunused-packages
         -fhide-source-paths
 
--- ────────────────────────────────────────────────────────────────────────────
--- Library
--- ────────────────────────────────────────────────────────────────────────────
-library
-    import:           common-options
-    hs-source-dirs:   src
+common lib-deps
     build-depends:
         base >= 4.17 && < 5,
         sqlite-simple,
@@ -69,112 +64,126 @@ library
         transformers,
         exceptions
 
-    exposed-modules:
-        Domain.IAM.User
-        Domain.IAM.Role
-        Domain.IAM.Permission
-        Domain.Org.Organization
-        Domain.Accounting.JournalEntry
-        Domain.Accounting.ChartOfAccounts
-        Domain.Accounting.FiscalPeriod
-        Domain.Accounting.ExchangeRate
-        Domain.Ops.Budget
-        Domain.Ops.BankAccount
-        Domain.Ops.BankStatement
-        Domain.Ops.ApprovalWorkflow
-        Domain.Ops.TaxConfiguration
-        Domain.IFRS.Lease
-        Domain.IFRS.Revenue
-        Domain.IFRS.FinancialInstrument
-        Domain.IFRS.Segment
-        Domain.Audit.AuditTrail
-        Domain.Audit.ClosingProcess
-
-    other-modules:
-        Domain.Shared
-        Domain.IAM.Permission.Entities.Profile
-        Domain.IAM.Permission.Errors
-        Domain.IAM.Permission.Events
-        Domain.IAM.Permission.Repository
-        Domain.IAM.Permission.Services.Factory
-        Domain.IAM.Permission.Services.Uniqueness
-        Domain.IAM.Permission.ValueObjects.PermissionCode
-        Domain.IAM.Permission.ValueObjects.PermissionId
-        Domain.IAM.Permission.ValueObjects.PermissionName
-        Domain.IAM.Permission.ValueObjects.PermissionState
-        Domain.IAM.Permission.ValueObjects.Version
-        Domain.IAM.Role.Entities.Profile
-        Domain.IAM.Role.Errors
-        Domain.IAM.Role.Events
-        Domain.IAM.Role.Repository
-        Domain.IAM.Role.Services.Factory
-        Domain.IAM.Role.Services.Uniqueness
-        Domain.IAM.Role.ValueObjects.RoleId
-        Domain.IAM.Role.ValueObjects.RoleName
-        Domain.IAM.Role.ValueObjects.RoleState
-        Domain.IAM.Role.ValueObjects.Version
-        Domain.IAM.User.Entities.Profile
-        Domain.IAM.User.Errors
-        Domain.IAM.User.Events
-        Domain.IAM.User.Repository
-        Domain.IAM.User.Services.Factory
-        Domain.IAM.User.Services.Uniqueness
-        Domain.IAM.User.ValueObjects.Email
-        Domain.IAM.User.ValueObjects.UserId
-        Domain.IAM.User.ValueObjects.UserName
-        Domain.IAM.User.ValueObjects.UserState
-        Domain.IAM.User.ValueObjects.Version
-        App.Ports.Command
-        App.Ports.Query
-        App.Ports.Output
-        App.DTO.Response
-        App.DTO.Request
-        App.UseCase.IAM
-        App.UseCase.IAM.Internal
-        App.UseCase.IAM.Login
-        App.UseCase.IAM.Logout
-        App.UseCase.IAM.RegisterUser
-        App.UseCase.IAM.ActivateUser
-        App.UseCase.IAM.DeactivateUser
-        App.UseCase.IAM.AssignRole
-        App.UseCase.IAM.RevokeRole
-        App.UseCase.IAM.GrantPermission
-        App.UseCase.IAM.RevokePermission
-        Infra.Persistence.SQLite.EventStore
-        Infra.Persistence.SQLite.Schema
-        Infra.Persistence.SQLite.Projection
-        Infra.Repositories.IAM
-        Infra.Repositories.Accounting
-        Infra.Repositories.Ops
-        Infra.Repositories.Audit
-        Infra.Queries.SQLite.BalanceSheet
-        Infra.Queries.SQLite.TrialBalance
-        Infra.Queries.SQLite.GeneralLedger
-        Infra.Drivers.Time
-        Infra.Drivers.FileSystem
-
+-- ────────────────────────────────────────────────────────────────────────────
+-- Internal library (src の唯一のオーナー)
+-- executable / test-suite / bench はすべてこれを参照する
+-- ────────────────────────────────────────────────────────────────────────────
 library vv-internal
-    import:           common-options
+    import:           common-options, lib-deps
     hs-source-dirs:   src
-    build-depends:
-        base >= 4.17 && < 5,
-        sqlite-simple,
-        direct-sqlite,
-        text,
-        bytestring,
-        time,
-        containers,
-        aeson,
-        uuid,
-        safe-money,
-        Decimal,
-        effectful-core,
-        mtl,
-        transformers,
-        exceptions
+    visibility:       public
 
     exposed-modules:
-        Domain.Shared
+        -- App
+        App.DTO.Request
+        App.DTO.Request.Closing
+        App.DTO.Request.IAM
+        App.DTO.Request.Organization
+        App.DTO.Request.Transaction
+        App.DTO.Response
+        App.DTO.Response.Closing
+        App.DTO.Response.FinancialStatement
+        App.DTO.Response.IAM
+        App.DTO.Response.Ledger
+        App.DTO.Response.Transaction
+        App.Ports.Command
+        App.Ports.Command.Adjustment
+        App.Ports.Command.Audit
+        App.Ports.Command.Closing
+        App.Ports.Command.Consolidation
+        App.Ports.Command.FinancialStatement
+        App.Ports.Command.FixedAsset
+        App.Ports.Command.IAM
+        App.Ports.Command.Lease
+        App.Ports.Command.Ledger
+        App.Ports.Command.Management
+        App.Ports.Command.MasterData
+        App.Ports.Command.Organization
+        App.Ports.Command.Reproducibility
+        App.Ports.Command.Revenue
+        App.Ports.Command.Tax
+        App.Ports.Command.Transaction
+        App.Ports.Command.Valuation
+        App.Ports.Command.Workflow
+        App.Ports.Output
+        App.Ports.Output.Closing
+        App.Ports.Output.FinancialStatement
+        App.Ports.Output.IAM
+        App.Ports.Output.Ledger
+        App.Ports.Output.Transaction
+        App.Ports.Query
+        App.Ports.Query.Closing
+        App.Ports.Query.FinancialStatement
+        App.Ports.Query.IAM
+        App.Ports.Query.Ledger
+        App.Ports.Query.MasterData
+        App.Ports.Query.Organization
+        App.Ports.Query.Transaction
+        App.UseCase.IAM
+        App.UseCase.IAM.ActivateUser
+        App.UseCase.IAM.AssignRole
+        App.UseCase.IAM.DeactivateUser
+        App.UseCase.IAM.GrantPermission
+        App.UseCase.IAM.Internal
+        App.UseCase.IAM.Login
+        App.UseCase.IAM.Logout
+        App.UseCase.IAM.RegisterUser
+        App.UseCase.IAM.RevokePermission
+        App.UseCase.IAM.RevokeRole
+
+        -- Domain.Accounting
+        Domain.Accounting.ChartOfAccounts
+        Domain.Accounting.ChartOfAccounts.Errors
+        Domain.Accounting.ChartOfAccounts.Events
+        Domain.Accounting.ChartOfAccounts.Repository
+        Domain.Accounting.ChartOfAccounts.ValueObjects.AccountClass
+        Domain.Accounting.ChartOfAccounts.ValueObjects.AccountCode
+        Domain.Accounting.ChartOfAccounts.ValueObjects.AccountName
+        Domain.Accounting.ChartOfAccounts.ValueObjects.AccountNature
+        Domain.Accounting.ChartOfAccounts.ValueObjects.StatementSection
+        Domain.Accounting.ExchangeRate
+        Domain.Accounting.ExchangeRate.Errors
+        Domain.Accounting.ExchangeRate.Events
+        Domain.Accounting.ExchangeRate.Repository
+        Domain.Accounting.ExchangeRate.Services.Translation
+        Domain.Accounting.ExchangeRate.ValueObjects.MonetaryClass
+        Domain.Accounting.ExchangeRate.ValueObjects.RateKind
+        Domain.Accounting.FiscalPeriod
+        Domain.Accounting.FiscalPeriod.Errors
+        Domain.Accounting.FiscalPeriod.Events
+        Domain.Accounting.FiscalPeriod.Repository
+        Domain.Accounting.FiscalPeriod.ValueObjects.FiscalPeriodId
+        Domain.Accounting.FiscalPeriod.ValueObjects.PeriodState
+        Domain.Accounting.FiscalPeriod.ValueObjects.Version
+        Domain.Accounting.JournalEntry
+        Domain.Accounting.JournalEntry.Entities.CarryingAmountBridge
+        Domain.Accounting.JournalEntry.Entities.JournalLine
+        Domain.Accounting.JournalEntry.Errors
+        Domain.Accounting.JournalEntry.Events
+        Domain.Accounting.JournalEntry.Repository
+        Domain.Accounting.JournalEntry.Services.Validation
+        Domain.Accounting.JournalEntry.ValueObjects.DrCr
+        Domain.Accounting.JournalEntry.ValueObjects.JournalEntryId
+        Domain.Accounting.JournalEntry.ValueObjects.Version
+
+        -- Domain.Audit
+        Domain.Audit.AuditTrail
+        Domain.Audit.AuditTrail.Errors
+        Domain.Audit.AuditTrail.Events
+        Domain.Audit.AuditTrail.Repository
+        Domain.Audit.AuditTrail.ValueObjects.AuditAction
+        Domain.Audit.AuditTrail.ValueObjects.AuditTrailId
+        Domain.Audit.AuditTrail.ValueObjects.Version
+        Domain.Audit.ClosingProcess
+        Domain.Audit.ClosingProcess.Errors
+        Domain.Audit.ClosingProcess.Events
+        Domain.Audit.ClosingProcess.Repository
+        Domain.Audit.ClosingProcess.ValueObjects.ClosingProcessId
+        Domain.Audit.ClosingProcess.ValueObjects.ClosingState
+        Domain.Audit.ClosingProcess.ValueObjects.Version
+
+        -- Domain.IAM
+        Domain.IAM.Permission
         Domain.IAM.Permission.Entities.Profile
         Domain.IAM.Permission.Errors
         Domain.IAM.Permission.Events
@@ -186,6 +195,7 @@ library vv-internal
         Domain.IAM.Permission.ValueObjects.PermissionName
         Domain.IAM.Permission.ValueObjects.PermissionState
         Domain.IAM.Permission.ValueObjects.Version
+        Domain.IAM.Role
         Domain.IAM.Role.Entities.Profile
         Domain.IAM.Role.Errors
         Domain.IAM.Role.Events
@@ -197,8 +207,6 @@ library vv-internal
         Domain.IAM.Role.ValueObjects.RoleState
         Domain.IAM.Role.ValueObjects.Version
         Domain.IAM.User
-        Domain.IAM.Role
-        Domain.IAM.Permission
         Domain.IAM.User.Entities.Profile
         Domain.IAM.User.Errors
         Domain.IAM.User.Events
@@ -210,50 +218,147 @@ library vv-internal
         Domain.IAM.User.ValueObjects.UserName
         Domain.IAM.User.ValueObjects.UserState
         Domain.IAM.User.ValueObjects.Version
-        Domain.Org.Organization
-        Domain.Accounting.JournalEntry
-        Domain.Accounting.ChartOfAccounts
-        Domain.Accounting.FiscalPeriod
-        Domain.Accounting.ExchangeRate
-        Domain.Ops.Budget
-        Domain.Ops.BankAccount
-        Domain.Ops.BankStatement
-        Domain.Ops.ApprovalWorkflow
-        Domain.Ops.TaxConfiguration
-        Domain.IFRS.Lease
-        Domain.IFRS.Revenue
+
+        -- Domain.IFRS
+        Domain.IFRS.DeferredTax
+        Domain.IFRS.DeferredTax.Errors
+        Domain.IFRS.DeferredTax.Events
+        Domain.IFRS.DeferredTax.Repository
+        Domain.IFRS.DeferredTax.ValueObjects.DeferredTaxItemId
+        Domain.IFRS.DeferredTax.ValueObjects.Version
+        Domain.IFRS.FairValue
+        Domain.IFRS.FairValue.Errors
+        Domain.IFRS.FairValue.Events
+        Domain.IFRS.FairValue.Repository
+        Domain.IFRS.FairValue.ValueObjects.FairValueMeasurementId
+        Domain.IFRS.FairValue.ValueObjects.Version
         Domain.IFRS.FinancialInstrument
+        Domain.IFRS.FinancialInstrument.Entities.EclJudgmentLog
+        Domain.IFRS.FinancialInstrument.Entities.EclParameters
+        Domain.IFRS.FinancialInstrument.Errors
+        Domain.IFRS.FinancialInstrument.Events
+        Domain.IFRS.FinancialInstrument.Repository
+        Domain.IFRS.FinancialInstrument.Services.EclCalculation
+        Domain.IFRS.FinancialInstrument.ValueObjects.EclStage
+        Domain.IFRS.FinancialInstrument.ValueObjects.FinancialAssetId
+        Domain.IFRS.FinancialInstrument.ValueObjects.Version
+        Domain.IFRS.FixedAsset
+        Domain.IFRS.FixedAsset.Errors
+        Domain.IFRS.FixedAsset.Events
+        Domain.IFRS.FixedAsset.Repository
+        Domain.IFRS.FixedAsset.ValueObjects.ComponentId
+        Domain.IFRS.FixedAsset.ValueObjects.FixedAssetId
+        Domain.IFRS.FixedAsset.ValueObjects.Version
+        Domain.IFRS.Impairment
+        Domain.IFRS.Impairment.Errors
+        Domain.IFRS.Impairment.Events
+        Domain.IFRS.Impairment.Repository
+        Domain.IFRS.Impairment.ValueObjects.CguId
+        Domain.IFRS.Impairment.ValueObjects.ImpairmentTestId
+        Domain.IFRS.Impairment.ValueObjects.Version
+        Domain.IFRS.Inventory
+        Domain.IFRS.Inventory.Errors
+        Domain.IFRS.Inventory.Events
+        Domain.IFRS.Inventory.Repository
+        Domain.IFRS.Inventory.ValueObjects.InventoryId
+        Domain.IFRS.Inventory.ValueObjects.Version
+        Domain.IFRS.Lease
+        Domain.IFRS.Lease.Errors
+        Domain.IFRS.Lease.Events
+        Domain.IFRS.Lease.Repository
+        Domain.IFRS.Lease.Services.LeaseCalculation
+        Domain.IFRS.Lease.ValueObjects.LeaseId
+        Domain.IFRS.Lease.ValueObjects.Version
+        Domain.IFRS.Provision
+        Domain.IFRS.Provision.Errors
+        Domain.IFRS.Provision.Events
+        Domain.IFRS.Provision.Repository
+        Domain.IFRS.Provision.ValueObjects.ProvisionId
+        Domain.IFRS.Provision.ValueObjects.Version
+        Domain.IFRS.Revenue
+        Domain.IFRS.Revenue.Entities.PerformanceObligation
+        Domain.IFRS.Revenue.Entities.RevenueJudgmentLog
+        Domain.IFRS.Revenue.Entities.RevenueRecognitionResult
+        Domain.IFRS.Revenue.Entities.VariableConsideration
+        Domain.IFRS.Revenue.Errors
+        Domain.IFRS.Revenue.Events
+        Domain.IFRS.Revenue.Repository
+        Domain.IFRS.Revenue.Services.PriceAllocation
+        Domain.IFRS.Revenue.Services.RevenueRecognition
+        Domain.IFRS.Revenue.ValueObjects.AllocationMethod
+        Domain.IFRS.Revenue.ValueObjects.ContractId
         Domain.IFRS.Segment
-        Domain.Audit.AuditTrail
-        Domain.Audit.ClosingProcess
-        App.Ports.Command
-        App.Ports.Query
-        App.Ports.Output
-        App.DTO.Response
-        App.DTO.Request
-        App.UseCase.IAM
-        App.UseCase.IAM.Internal
-        App.UseCase.IAM.Login
-        App.UseCase.IAM.Logout
-        App.UseCase.IAM.RegisterUser
-        App.UseCase.IAM.ActivateUser
-        App.UseCase.IAM.DeactivateUser
-        App.UseCase.IAM.AssignRole
-        App.UseCase.IAM.RevokeRole
-        App.UseCase.IAM.GrantPermission
-        App.UseCase.IAM.RevokePermission
-        Infra.Persistence.SQLite.EventStore
-        Infra.Persistence.SQLite.Schema
-        Infra.Persistence.SQLite.Projection
-        Infra.Repositories.IAM
-        Infra.Repositories.Accounting
-        Infra.Repositories.Ops
-        Infra.Repositories.Audit
-        Infra.Queries.SQLite.BalanceSheet
-        Infra.Queries.SQLite.TrialBalance
-        Infra.Queries.SQLite.GeneralLedger
-        Infra.Drivers.Time
+        Domain.IFRS.Segment.Entities.SegmentResult
+        Domain.IFRS.Segment.Errors
+        Domain.IFRS.Segment.Events
+        Domain.IFRS.Segment.Repository
+        Domain.IFRS.Segment.ValueObjects.SegmentId
+
+        -- Domain.Ops
+        Domain.Ops.ApprovalWorkflow
+        Domain.Ops.ApprovalWorkflow.Errors
+        Domain.Ops.ApprovalWorkflow.Events
+        Domain.Ops.ApprovalWorkflow.Repository
+        Domain.Ops.ApprovalWorkflow.ValueObjects.ApprovalState
+        Domain.Ops.ApprovalWorkflow.ValueObjects.ApprovalWorkflowId
+        Domain.Ops.ApprovalWorkflow.ValueObjects.Version
+        Domain.Ops.BankAccount
+        Domain.Ops.BankAccount.Errors
+        Domain.Ops.BankAccount.Events
+        Domain.Ops.BankAccount.Repository
+        Domain.Ops.BankAccount.ValueObjects.AccountNumber
+        Domain.Ops.BankAccount.ValueObjects.BankAccountId
+        Domain.Ops.BankAccount.ValueObjects.BankCode
+        Domain.Ops.BankAccount.ValueObjects.Version
+        Domain.Ops.BankStatement
+        Domain.Ops.BankStatement.Entities.BankTransaction
+        Domain.Ops.BankStatement.Errors
+        Domain.Ops.BankStatement.Events
+        Domain.Ops.BankStatement.Repository
+        Domain.Ops.BankStatement.ValueObjects.BankStatementId
+        Domain.Ops.BankStatement.ValueObjects.Version
+        Domain.Ops.Budget
+        Domain.Ops.Budget.Errors
+        Domain.Ops.Budget.Events
+        Domain.Ops.Budget.Repository
+        Domain.Ops.Budget.ValueObjects.BudgetId
+        Domain.Ops.Budget.ValueObjects.Version
+        Domain.Ops.TaxConfiguration
+        Domain.Ops.TaxConfiguration.Errors
+        Domain.Ops.TaxConfiguration.Events
+        Domain.Ops.TaxConfiguration.Repository
+        Domain.Ops.TaxConfiguration.ValueObjects.TaxConfigId
+        Domain.Ops.TaxConfiguration.ValueObjects.TaxType
+        Domain.Ops.TaxConfiguration.ValueObjects.Version
+
+        -- Domain.Org
+        Domain.Org.Organization
+        Domain.Org.Organization.Entities.Address
+        Domain.Org.Organization.Errors
+        Domain.Org.Organization.Events
+        Domain.Org.Organization.Repository
+        Domain.Org.Organization.ValueObjects.OrganizationId
+        Domain.Org.Organization.ValueObjects.OrganizationName
+        Domain.Org.Organization.ValueObjects.OrganizationState
+        Domain.Org.Organization.ValueObjects.TaxId
+        Domain.Org.Organization.ValueObjects.Version
+
+        -- Domain.Shared
+        Domain.Shared
+
+        -- Infra
         Infra.Drivers.FileSystem
+        Infra.Drivers.Time
+        Infra.Persistence.SQLite.EventStore
+        Infra.Persistence.SQLite.Projection
+        Infra.Persistence.SQLite.Schema
+        Infra.Queries.SQLite.BalanceSheet
+        Infra.Queries.SQLite.GeneralLedger
+        Infra.Queries.SQLite.TrialBalance
+        Infra.Repositories.Accounting
+        Infra.Repositories.Audit
+        Infra.Repositories.IAM
+        Infra.Repositories.Ops
 
 -- ────────────────────────────────────────────────────────────────────────────
 -- Executable
@@ -318,6 +423,7 @@ test-suite vv-test
         Domain.IFRS.RevenueSpec
         Domain.IFRS.FinancialInstrumentSpec
         Domain.IFRS.LeaseSpec
+        Domain.Shared.SharedSpec
         Support.Assert
         Support.IAM.Fixtures
         Support.Accounting.Fixtures
