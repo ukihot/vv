@@ -8,6 +8,7 @@ data DomainError
     | InvalidRoleName
     | DuplicateRoleName
     | EmptyPermissionSet
+    | IllegalTransition
     | RepositoryError String
     deriving stock (Show, Eq)
 
@@ -16,4 +17,5 @@ domainErrorMessage InvalidRoleId = "Invalid role ID"
 domainErrorMessage InvalidRoleName = "Invalid role name"
 domainErrorMessage DuplicateRoleName = "Role name already exists"
 domainErrorMessage EmptyPermissionSet = "Permission set must not be empty"
+domainErrorMessage IllegalTransition = "Illegal state transition"
 domainErrorMessage (RepositoryError msg) = T.pack $ "Repository error: " ++ msg

@@ -1,16 +1,21 @@
 {- | 全集約横断の共有型定義
-safe-money の Dense を財務金額の基盤とし、
-通貨タグを型レベルで強制することで異通貨混算をコンパイル時に排除する。
+safe-money の Dense を財務金額の基盤とする。
+Dense currency は有理数精度で金額を保持し、
+型パラメータ (currency :: Symbol) により通貨を型レベルで区別する。
+異通貨混算はコンパイルエラーになる。
+表示・永続化時のみ discreteFromDense で丸める。
 -}
 module Domain.Shared (
-    -- * 財務金額
-    Money (..),
+    -- * 財務金額（safe-money の Dense をそのまま再エクスポート）
+    Money,
     mkMoney,
+    mkMoney',
     addMoney,
     subMoney,
     negateMoney,
     zeroMoney,
     scaleMoney,
+    toRationalMoney,
 
     -- * 通貨コード (ISO 4217)
     CurrencyCode (..),
@@ -38,50 +43,53 @@ where
 import Data.Text (Text)
 import GHC.Generics (Generic)
 import GHC.TypeLits (Symbol)
+import Money qualified
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 財務金額
--- safe-money の Dense は有理数精度で金額を保持し、
--- 型パラメータ (currency :: Symbol) により通貨を型レベルで区別する。
+-- safe-money の Dense (currency :: Symbol) を型エイリアスとして使う。
+-- Dense は有理数精度で金額を保持し、通貨タグを型レベルで強制する。
+-- 異通貨の加算はコンパイルエラーになる（項目 #3, #11）。
 -- ─────────────────────────────────────────────────────────────────────────────
 
 {- | 通貨タグ付き金額。
-'Dense' は分母を持つ有理数表現であり、丸め誤差が発生しない。
-表示・永続化時のみ 'discretise' で丸める。
+内部表現は safe-money の 'Money.Dense'。
+有理数精度で丸め誤差が発生しない。
+表示・永続化時のみ 'Money.discreteFromDense' で丸める。
 -}
-newtype Money (currency :: Symbol) = Money
-    { unMoney :: Rational
-    -- ^ 内部表現は有理数。safe-money の Dense と同等の精度保証。
-    }
-    deriving stock (Show, Eq, Ord, Generic)
+type Money (currency :: Symbol) = Money.Dense currency
 
--- | 同一通貨の加算を (<>) で表現する。異通貨は型が通らない（項目 #3, #11）。
-instance Semigroup (Money c) where
-    (<>) = addMoney
+{- | 金額コンストラクタ。Rational から Dense を構築する。
+分母がゼロの場合は Nothing を返す。
+-}
+mkMoney :: Rational -> Maybe (Money currency)
+mkMoney = Money.dense
 
--- | 単位元は zeroMoney。mconcat で仕訳行の合計が自然に書ける（項目 #33）。
-instance Monoid (Money c) where
-    mempty = zeroMoney
-
--- | 金額コンストラクタ。負値も許容（負債・費用の逆仕訳等）。
-mkMoney :: Rational -> Money currency
-mkMoney = Money
+{- | 信頼できる値から直接 Money を構築する（テスト・定数用）。
+分母がゼロの場合はクラッシュする。
+-}
+mkMoney' :: Rational -> Money currency
+mkMoney' = Money.dense'
 
 zeroMoney :: Money currency
-zeroMoney = Money 0
+zeroMoney = Money.dense' 0
 
 addMoney :: Money c -> Money c -> Money c
-addMoney a b = mkMoney (unMoney a + unMoney b)
+addMoney = (+)
 
 subMoney :: Money c -> Money c -> Money c
-subMoney a b = mkMoney (unMoney a - unMoney b)
+subMoney = (-)
 
 negateMoney :: Money c -> Money c
-negateMoney a = mkMoney (negate (unMoney a))
+negateMoney = negate
 
 -- | スカラー倍（割引率・配賦比率等に使用）
 scaleMoney :: Rational -> Money c -> Money c
-scaleMoney r a = mkMoney (r * unMoney a)
+scaleMoney r m = Money.dense' r * m
+
+-- | 内部の有理数表現を取り出す（永続化・表示用）
+toRationalMoney :: Money c -> Rational
+toRationalMoney = toRational
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 通貨コード

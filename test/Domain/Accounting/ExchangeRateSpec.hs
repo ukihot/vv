@@ -4,19 +4,18 @@ import Data.Time (fromGregorian)
 import Domain.Accounting.ExchangeRate (
     ExchangeRate (..),
     ExchangeRateError (..),
-    MonetaryClass (..),
     RateKind (..),
     mkExchangeRate,
     translateMoney,
  )
-import Domain.Shared (Money (..), mkMoney, unMoney)
+import Domain.Shared (Money, mkMoney', toRationalMoney)
 import Hedgehog (Property, forAll, property, (===))
 import Hedgehog.Gen qualified as Gen
 import Hedgehog.Range qualified as Range
+import Money qualified as M
 import Support.Accounting.Fixtures (
     sampleUsdJpyClosingRate,
     sampleUsdJpyHistoricalRate,
-    shouldRight,
  )
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.HUnit (Assertion, assertEqual, assertFailure, testCase)
@@ -43,10 +42,6 @@ tests =
             , testProperty "換算後金額 = 原通貨金額 × レート" prop_translationIsLinear
             ]
         ]
-
--- ─────────────────────────────────────────────────────────────────────────────
--- HUnit ケース
--- ─────────────────────────────────────────────────────────────────────────────
 
 case_positiveRateSucceeds :: Assertion
 case_positiveRateSucceeds = do
@@ -76,26 +71,22 @@ case_negativeRateFails =
 -- | 貨幣性項目: USD 1,000 × 期末日レート 150 = JPY 150,000
 case_translateMonetary :: Assertion
 case_translateMonetary = do
-    rate <- sampleUsdJpyClosingRate -- 150
-    let usd = mkMoney 1000 :: Money "USD"
+    rate <- sampleUsdJpyClosingRate
+    let usd = mkMoney' 1000 :: Money "USD"
         jpy = translateMoney rate usd
-    assertEqual "換算結果" (mkMoney 150000 :: Money "JPY") jpy
+    assertEqual "換算結果" (mkMoney' 150000 :: Money "JPY") jpy
 
 -- | 非貨幣性項目: USD 1,000 × 取引日レート 145 = JPY 145,000
 case_translateNonMonetary :: Assertion
 case_translateNonMonetary = do
-    rate <- sampleUsdJpyHistoricalRate -- 145
-    let usd = mkMoney 1000 :: Money "USD"
+    rate <- sampleUsdJpyHistoricalRate
+    let usd = mkMoney' 1000 :: Money "USD"
         jpy = translateMoney rate usd
-    assertEqual "換算結果" (mkMoney 145000 :: Money "JPY") jpy
-
--- ─────────────────────────────────────────────────────────────────────────────
--- Hedgehog プロパティ
--- ─────────────────────────────────────────────────────────────────────────────
+    assertEqual "換算結果" (mkMoney' 145000 :: Money "JPY") jpy
 
 prop_positiveRateAlwaysSucceeds :: Property
 prop_positiveRateAlwaysSucceeds = property $ do
-    r <- forAll $ Gen.realFrac_ (Range.linearFrac 0.0001 10000)
+    r <- forAll $ Gen.realFrac_ (Range.linearFrac 0.0001 10000 :: Range.Range Double)
     let result =
             mkExchangeRate (toRational r) ClosingRate (fromGregorian 2026 3 31) "TEST" ::
                 Either ExchangeRateError (ExchangeRate "USD" "JPY")
@@ -106,8 +97,8 @@ prop_positiveRateAlwaysSucceeds = property $ do
 -- | 換算の線形性: translate(r, a + b) = translate(r, a) + translate(r, b)
 prop_translationIsLinear :: Property
 prop_translationIsLinear = property $ do
-    a <- forAll $ Gen.integral (Range.linear 1 100000)
-    b <- forAll $ Gen.integral (Range.linear 1 100000)
+    a <- forAll $ Gen.integral (Range.linear 1 100000 :: Range.Range Int)
+    b <- forAll $ Gen.integral (Range.linear 1 100000 :: Range.Range Int)
     let rate =
             ExchangeRate
                 { rateValue = 150
@@ -115,9 +106,9 @@ prop_translationIsLinear = property $ do
                 , rateDate = fromGregorian 2026 3 31
                 , rateSource = "TEST"
                 }
-        ma = mkMoney (fromIntegral a) :: Money "USD"
-        mb = mkMoney (fromIntegral b) :: Money "USD"
-        mab = mkMoney (fromIntegral (a + b)) :: Money "USD"
+        ma = mkMoney' (fromIntegral a) :: Money "USD"
+        mb = mkMoney' (fromIntegral b) :: Money "USD"
+        mab = mkMoney' (fromIntegral (a + b)) :: Money "USD"
         lhs = translateMoney rate mab
-        rhs = Money (unMoney (translateMoney rate ma) + unMoney (translateMoney rate mb))
-    lhs === rhs
+        rhs = M.dense' (toRationalMoney (translateMoney rate ma) + toRationalMoney (translateMoney rate mb))
+    toRationalMoney lhs === toRationalMoney rhs

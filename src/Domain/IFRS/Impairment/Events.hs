@@ -1,3 +1,5 @@
+{-# LANGUAGE StandaloneDeriving #-}
+
 module Domain.IFRS.Impairment.Events (
     ImpairmentEventPayload (..),
 )
@@ -8,7 +10,7 @@ import Data.Time (Day)
 import Domain.IFRS.Impairment.ValueObjects.CguId (CguId)
 import Domain.IFRS.Impairment.ValueObjects.ImpairmentTestId (ImpairmentTestId)
 import Domain.Shared (Money)
-import GHC.TypeLits (Symbol)
+import GHC.TypeLits (KnownSymbol, Symbol)
 
 data ImpairmentEventPayload (currency :: Symbol)
     = -- | 減損兆候検出 → AuditTrail集約、FixedAsset集約
@@ -21,4 +23,6 @@ data ImpairmentEventPayload (currency :: Symbol)
       ImpairmentReversed ImpairmentTestId CguId (Money currency) Day
     | -- | 使用価値算定 → AuditTrail集約（割引率・CF予測）
       ValueInUseCalculated ImpairmentTestId (Money currency) Rational Day
-    deriving stock (Show, Eq)
+
+deriving stock instance KnownSymbol currency => Show (ImpairmentEventPayload currency)
+deriving stock instance Eq (ImpairmentEventPayload currency)

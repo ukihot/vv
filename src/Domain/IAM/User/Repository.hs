@@ -1,26 +1,20 @@
-module Domain.IAM.User.Repository where
+{- | ユーザーリポジトリの型定義
+Handle パターン (#45, #46) で依存を値として渡す。
+型クラス DI を使わない。
+-}
+module Domain.IAM.User.Repository (UserHandle (..)) where
 
 import Domain.IAM.User (User)
 import Domain.IAM.User.Errors (DomainError)
 import Domain.IAM.User.Events (UserEventPayload)
 import Domain.IAM.User.ValueObjects.UserId (UserId)
 
-{- | #14, #16: 集約の復元と保存のみを責務とするリポジトリ
-CQRSにより、検索系（Query）はここに含まない
+{- | ユーザー集約の永続化ハンドル
+CQRSにより、検索系（findBy 等）は一切持たない。
+load / save / appendEvent のみ。
 -}
-class Monad m => UserRepository m where
-    {- | 特定の状態(s)を指定して集約をロードする
-    #4: 有効化コマンドなら 'Pending' を、修正コマンドなら 'Active' を、
-    呼び出し側のコンテキストが求める「状態」を型安全に復元する
-    -}
-    loadUser :: forall s. UserId -> m (Either DomainError (User s))
-
-    {- | 変更された集約の状態を永続化する
-    状態(s)に関わらず、保存の責務を果たす
-    -}
-    saveUser :: User s -> m (Either DomainError ())
-
-    {- | イベントを append-only で永続化する (#21, #22, #25)
-    現在値の上書きではなく、発生した事実をイベントストアに積む。
-    -}
-    appendUserEvent :: UserId -> UserEventPayload -> m (Either DomainError ())
+data UserHandle m = UserHandle
+    { loadUser :: forall s. UserId -> m (Either DomainError (User s))
+    , saveUser :: forall s. User s -> m (Either DomainError ())
+    , appendUserEvent :: UserId -> UserEventPayload -> m (Either DomainError ())
+    }

@@ -24,8 +24,9 @@ import Data.Time (Day)
 import Domain.Accounting.ExchangeRate.Errors (ExchangeRateError (..))
 import Domain.Accounting.ExchangeRate.ValueObjects.MonetaryClass
 import Domain.Accounting.ExchangeRate.ValueObjects.RateKind
-import Domain.Shared (Money, mkMoney, unMoney)
+import Domain.Shared (Money, toRationalMoney)
 import GHC.TypeLits (Symbol)
+import Money qualified
 
 data ExchangeRate (from :: Symbol) (to :: Symbol) = ExchangeRate
     { rateValue :: Rational
@@ -53,4 +54,4 @@ translateMoney ::
     ExchangeRate from to ->
     Money from ->
     Money to
-translateMoney er m = mkMoney (unMoney m * rateValue er)
+translateMoney er m = Money.dense' (toRationalMoney m * rateValue er)

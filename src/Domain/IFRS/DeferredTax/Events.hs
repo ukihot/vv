@@ -1,3 +1,5 @@
+{-# LANGUAGE StandaloneDeriving #-}
+
 module Domain.IFRS.DeferredTax.Events (
     DeferredTaxEventPayload (..),
 )
@@ -8,7 +10,7 @@ import Data.Time (Day)
 import Domain.IFRS.DeferredTax (TemporaryDifferenceType)
 import Domain.IFRS.DeferredTax.ValueObjects.DeferredTaxItemId (DeferredTaxItemId)
 import Domain.Shared (FiscalYearMonth, Money)
-import GHC.TypeLits (Symbol)
+import GHC.TypeLits (KnownSymbol, Symbol)
 
 data DeferredTaxEventPayload (currency :: Symbol)
     = -- | 一時差異認識 → AuditTrail集約
@@ -28,4 +30,6 @@ data DeferredTaxEventPayload (currency :: Symbol)
       RecoverabilityReassessed DeferredTaxItemId (Money currency) Text Day
     | -- | 一時差異解消
       TemporaryDifferenceReversed DeferredTaxItemId (Money currency) Day
-    deriving stock (Show, Eq)
+
+deriving stock instance KnownSymbol currency => Show (DeferredTaxEventPayload currency)
+deriving stock instance Eq (DeferredTaxEventPayload currency)

@@ -59,7 +59,7 @@ import Domain.IFRS.FinancialInstrument.ValueObjects.FinancialAssetId (
  )
 import Domain.IFRS.FinancialInstrument.ValueObjects.Version (Version, initialVersion, nextVersion)
 import Domain.Shared (Money, zeroMoney)
-import GHC.TypeLits (Symbol)
+import GHC.TypeLits (KnownSymbol, Symbol)
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 金融資産集約 GADT
@@ -88,13 +88,13 @@ data FinancialAsset (s :: EclStage) (currency :: Symbol) where
         Version ->
         FinancialAsset 'Stage3 currency
 
-deriving stock instance Show (FinancialAsset s currency)
+deriving stock instance KnownSymbol currency => Show (FinancialAsset s currency)
 deriving stock instance Eq (FinancialAsset s currency)
 
 data SomeFinancialAsset currency where
     SomeFA :: FinancialAsset s currency -> SomeFinancialAsset currency
 
-deriving stock instance Show (SomeFinancialAsset currency)
+deriving stock instance KnownSymbol currency => Show (SomeFinancialAsset currency)
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- ゲッター

@@ -1,3 +1,5 @@
+{-# LANGUAGE StandaloneDeriving #-}
+
 module Domain.IFRS.FixedAsset.Events (
     FixedAssetEventPayload (..),
 )
@@ -7,7 +9,7 @@ import Data.Time (Day)
 import Domain.IFRS.FixedAsset (AssetType, MeasurementModel)
 import Domain.IFRS.FixedAsset.ValueObjects.FixedAssetId (FixedAssetId)
 import Domain.Shared (Money)
-import GHC.TypeLits (Symbol)
+import GHC.TypeLits (KnownSymbol, Symbol)
 
 data FixedAssetEventPayload (currency :: Symbol)
     = -- | 固定資産取得 → DeferredTax集約（一時差異）
@@ -28,4 +30,6 @@ data FixedAssetEventPayload (currency :: Symbol)
       UsefulLifeChanged FixedAssetId Int Day
     | -- | 除却・売却 → DeferredTax集約（一時差異解消）
       FixedAssetDisposed FixedAssetId (Money currency) Day
-    deriving stock (Show, Eq)
+
+deriving stock instance KnownSymbol currency => Show (FixedAssetEventPayload currency)
+deriving stock instance Eq (FixedAssetEventPayload currency)

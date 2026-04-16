@@ -69,7 +69,7 @@ import Domain.IFRS.Revenue (
     PerformanceObligationId (..),
     mkContractId,
  )
-import Domain.Shared (FiscalYearMonth (..), mkMoney)
+import Domain.Shared (FiscalYearMonth (..), mkMoney')
 import Test.Tasty.HUnit (assertFailure)
 
 -- ─────────────────────────────────────────────────────────────────────────────
@@ -164,7 +164,7 @@ sampleDebitLine = do
         JournalLine
             { lineAccount = code
             , lineDrCr = Dr
-            , lineAmount = mkMoney 100000
+            , lineAmount = mkMoney' 100000
             }
 
 sampleCreditLine :: IO (JournalLine "JPY")
@@ -174,7 +174,7 @@ sampleCreditLine = do
         JournalLine
             { lineAccount = code
             , lineDrCr = Cr
-            , lineAmount = mkMoney 100000
+            , lineAmount = mkMoney' 100000
             }
 
 -- ─────────────────────────────────────────────────────────────────────────────

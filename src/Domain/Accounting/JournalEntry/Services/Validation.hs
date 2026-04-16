@@ -7,7 +7,7 @@ import Data.List (foldl')
 import Domain.Accounting.JournalEntry.Entities.JournalLine (JournalLine (..))
 import Domain.Accounting.JournalEntry.Errors (JournalError (..))
 import Domain.Accounting.JournalEntry.ValueObjects.DrCr (DrCr (..))
-import Domain.Shared (addMoney, unMoney, zeroMoney)
+import Domain.Shared (addMoney, toRationalMoney, zeroMoney)
 
 validateBalance :: [JournalLine currency] -> Either JournalError ()
 validateBalance journalLines
@@ -15,13 +15,13 @@ validateBalance journalLines
     | otherwise = Left (ImbalancedEntry drTotal crTotal)
     where
         drTotal =
-            unMoney $
+            toRationalMoney $
                 foldl'
                     (\acc l -> if lineDrCr l == Dr then addMoney acc (lineAmount l) else acc)
                     zeroMoney
                     journalLines
         crTotal =
-            unMoney $
+            toRationalMoney $
                 foldl'
                     (\acc l -> if lineDrCr l == Cr then addMoney acc (lineAmount l) else acc)
                     zeroMoney

@@ -14,13 +14,15 @@ import Domain.Accounting.JournalEntry (
  )
 import Domain.Shared (
     JournalEntryKind (..),
-    Money (..),
+    Money,
     RiskClass (..),
-    mkMoney,
+    mkMoney',
+    toRationalMoney,
  )
 import Hedgehog (Property, forAll, property, (===))
 import Hedgehog.Gen qualified as Gen
 import Hedgehog.Range qualified as Range
+import Money qualified as M
 import Support.Accounting.Fixtures (
     sampleCreditLine,
     sampleDebitLine,
@@ -57,10 +59,6 @@ tests =
             ]
         ]
 
--- ─────────────────────────────────────────────────────────────────────────────
--- HUnit ケース
--- ─────────────────────────────────────────────────────────────────────────────
-
 case_balancedLinesSucceed :: Assertion
 case_balancedLinesSucceed = do
     dr <- sampleDebitLine
@@ -70,8 +68,8 @@ case_balancedLinesSucceed = do
 case_imbalancedLinesFail :: Assertion
 case_imbalancedLinesFail = do
     code <- shouldRight "code" (mkAccountCode "1000")
-    let dr = JournalLine code Dr (mkMoney 100000 :: Money "JPY")
-        cr = JournalLine code Cr (mkMoney 90000 :: Money "JPY")
+    let dr = JournalLine code Dr (mkMoney' 100000 :: Money "JPY")
+        cr = JournalLine code Cr (mkMoney' 90000 :: Money "JPY")
     case validateBalance [dr, cr] of
         Left (ImbalancedEntry _ _) -> pure ()
         other -> assertFailure ("期待: ImbalancedEntry, 実際: " <> show other)
@@ -94,8 +92,8 @@ case_recordImbalancedEntryFails :: Assertion
 case_recordImbalancedEntryFails = do
     eid <- sampleJournalEntryId
     code <- shouldRight "code" (mkAccountCode "1000")
-    let dr = JournalLine code Dr (mkMoney 100000 :: Money "JPY")
-        cr = JournalLine code Cr (mkMoney 80000 :: Money "JPY")
+    let dr = JournalLine code Dr (mkMoney' 100000 :: Money "JPY")
+        cr = JournalLine code Cr (mkMoney' 80000 :: Money "JPY")
         date = fromGregorian 2026 3 31
     case recordEntry eid date [dr, cr] OriginalEntry RiskLow "不一致" Nothing Nothing of
         Left (ImbalancedEntry _ _) -> pure ()
@@ -120,35 +118,30 @@ case_carryingAmountBridge = do
     let bridge =
             CarryingAmountBridge
                 { bridgeAccountCode = code
-                , bridgeCostBasis = mkMoney 1000000 :: Money "JPY"
-                , bridgeAccumDeprec = mkMoney 200000 :: Money "JPY"
-                , bridgeImpairmentLoss = mkMoney 50000 :: Money "JPY"
-                , bridgeFvAdjustment = mkMoney 30000 :: Money "JPY"
-                , bridgeEclAllowance = mkMoney 10000 :: Money "JPY"
+                , bridgeCostBasis = mkMoney' 1000000 :: Money "JPY"
+                , bridgeAccumDeprec = mkMoney' 200000 :: Money "JPY"
+                , bridgeImpairmentLoss = mkMoney' 50000 :: Money "JPY"
+                , bridgeFvAdjustment = mkMoney' 30000 :: Money "JPY"
+                , bridgeEclAllowance = mkMoney' 10000 :: Money "JPY"
                 }
-        expected = mkMoney 770000 :: Money "JPY"
+        expected = mkMoney' 770000 :: Money "JPY"
         actual = carryingAmount bridge
     assertEqual "帳簿価額算定" expected actual
     where
         carryingAmount b =
-            let Money cost = bridgeCostBasis b
-                Money deprec = bridgeAccumDeprec b
-                Money imp = bridgeImpairmentLoss b
-                Money fv = bridgeFvAdjustment b
-                Money ecl = bridgeEclAllowance b
-             in Money (cost - deprec - imp + fv - ecl)
+            M.dense' $
+                toRationalMoney (bridgeCostBasis b)
+                    - toRationalMoney (bridgeAccumDeprec b)
+                    - toRationalMoney (bridgeImpairmentLoss b)
+                    + toRationalMoney (bridgeFvAdjustment b)
+                    - toRationalMoney (bridgeEclAllowance b)
 
--- ─────────────────────────────────────────────────────────────────────────────
--- Hedgehog プロパティ
--- ─────────────────────────────────────────────────────────────────────────────
-
--- | 借方合計 = 貸方合計の仕訳は常に validateBalance が Right を返す
 prop_balancedEntryAlwaysSucceeds :: Property
 prop_balancedEntryAlwaysSucceeds = property $ do
-    amt <- forAll $ Gen.integral (Range.linear 1 1000000)
+    amt <- forAll $ Gen.integral (Range.linear 1 1000000 :: Range.Range Int)
     code <- case mkAccountCode "9999" of
         Right c -> pure c
         Left _ -> fail "fixture error"
-    let dr = JournalLine code Dr (mkMoney (fromIntegral amt) :: Money "JPY")
-        cr = JournalLine code Cr (mkMoney (fromIntegral amt) :: Money "JPY")
+    let dr = JournalLine code Dr (mkMoney' (fromIntegral amt) :: Money "JPY")
+        cr = JournalLine code Cr (mkMoney' (fromIntegral amt) :: Money "JPY")
     validateBalance [dr, cr] === Right ()

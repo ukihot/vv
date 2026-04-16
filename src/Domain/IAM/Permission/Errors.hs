@@ -8,6 +8,7 @@ data DomainError
     | InvalidPermissionName
     | InvalidPermissionCode
     | DuplicatePermissionCode
+    | IllegalTransition
     | RepositoryError String
     deriving stock (Show, Eq)
 
@@ -16,4 +17,5 @@ domainErrorMessage InvalidPermissionId = "Invalid permission ID"
 domainErrorMessage InvalidPermissionName = "Invalid permission name"
 domainErrorMessage InvalidPermissionCode = "Invalid permission code"
 domainErrorMessage DuplicatePermissionCode = "Permission code already exists"
+domainErrorMessage IllegalTransition = "Illegal state transition"
 domainErrorMessage (RepositoryError msg) = T.pack $ "Repository error: " ++ msg

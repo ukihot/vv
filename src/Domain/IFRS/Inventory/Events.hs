@@ -1,3 +1,5 @@
+{-# LANGUAGE StandaloneDeriving #-}
+
 module Domain.IFRS.Inventory.Events (
     InventoryEventPayload (..),
 )
@@ -7,7 +9,7 @@ import Data.Time (Day)
 import Domain.IFRS.Inventory (CostFormula)
 import Domain.IFRS.Inventory.ValueObjects.InventoryId (InventoryId)
 import Domain.Shared (Money)
-import GHC.TypeLits (Symbol)
+import GHC.TypeLits (KnownSymbol, Symbol)
 
 data InventoryEventPayload (currency :: Symbol)
     = -- | 棚卸資産受入 → DeferredTax集約
@@ -22,4 +24,6 @@ data InventoryEventPayload (currency :: Symbol)
       CostFormulaChanged InventoryId CostFormula Day
     | -- | 純実現可能価額再評価 → AuditTrail集約
       NetRealizableValueReassessed InventoryId (Money currency) Day
-    deriving stock (Show, Eq)
+
+deriving stock instance KnownSymbol currency => Show (InventoryEventPayload currency)
+deriving stock instance Eq (InventoryEventPayload currency)

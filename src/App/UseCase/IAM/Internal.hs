@@ -1,7 +1,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 {- | IAM ユースケース共通基盤
-#45, #46: 型クラス DI を廃止し、依存を Env レコードの値として渡す。
+#45, #46: 型クラス DI を廃止し、依存を Env レコードの値として渡す（Handle パターン）。
 依存の出所がコードに直接現れ、テスト時の差し替えも明示的になる。
 -}
 module App.UseCase.IAM.Internal (
@@ -32,6 +32,7 @@ import Domain.IAM.Permission.Errors qualified as PermError
 import Domain.IAM.Permission.ValueObjects.PermissionId (PermissionId)
 import Domain.IAM.Role (Role)
 import Domain.IAM.Role.Errors qualified as RoleError
+import Domain.IAM.Role.Events (RoleEventPayload)
 import Domain.IAM.Role.ValueObjects.RoleId (RoleId)
 import Domain.IAM.User (User)
 import Domain.IAM.User.Entities.Profile (UserProfile (..))
@@ -43,19 +44,21 @@ import Domain.IAM.User.ValueObjects.UserName (unUserName)
 import Domain.IAM.User.ValueObjects.UserState (UserState, userStateToText)
 
 -- ─────────────────────────────────────────────────────────────────────────────
--- Env レコード (#45, #46)
+-- IAMEnv: Handle パターン (#45, #46)
 -- フィールドが依存の一覧になる。何に依存しているかが一目で分かる。
+-- テスト時はモック関数を渡すだけで差し替えられる。
 -- ─────────────────────────────────────────────────────────────────────────────
 
 data IAMEnv m = IAMEnv
-    { -- User 集約
+    { -- User 集約ハンドル
       envLoadUser :: forall s. UserId -> m (Either DomainError (User s))
     , envSaveUser :: forall s. User s -> m (Either DomainError ())
     , envAppendUserEvent :: UserId -> UserEventPayload -> m (Either DomainError ())
-    , -- Role 集約
+    , -- Role 集約ハンドル
       envLoadRole :: forall s. RoleId -> m (Either RoleError.DomainError (Role s))
     , envSaveRole :: forall s. Role s -> m (Either RoleError.DomainError ())
-    , -- Permission 集約
+    , envAppendRoleEvent :: RoleId -> RoleEventPayload -> m (Either RoleError.DomainError ())
+    , -- Permission 集約ハンドル
       envLoadPermission :: forall s. PermissionId -> m (Either PermError.DomainError (Permission s))
     , -- 認証コンテキスト (#25: 誰が操作したかを監査証跡に含める)
       envCurrentActorId :: UserId
@@ -65,7 +68,7 @@ data IAMEnv m = IAMEnv
     }
 
 -- ─────────────────────────────────────────────────────────────────────────────
--- User ドメイン用モナドスタック（DomainError = User.DomainError）
+-- User ドメイン用モナドスタック
 -- ─────────────────────────────────────────────────────────────────────────────
 
 type UserAppM m = ExceptT DomainError (ReaderT (IAMEnv m) m)
@@ -81,7 +84,7 @@ liftUserDomain action = do
         Right val -> pure val
 
 -- ─────────────────────────────────────────────────────────────────────────────
--- Role ドメイン用モナドスタック（DomainError = Role.DomainError）
+-- Role ドメイン用モナドスタック
 -- ─────────────────────────────────────────────────────────────────────────────
 
 type RoleAppM m = ExceptT RoleError.DomainError (ReaderT (IAMEnv m) m)
@@ -100,7 +103,6 @@ liftRoleDomain action = do
 -- ヘルパー
 -- ─────────────────────────────────────────────────────────────────────────────
 
--- | User 集約 → 外部 DTO 変換（Adapter 層への橋渡し）
 toUserResponse :: UserId -> UserProfile -> UserState -> UserResponse
 toUserResponse uid profile state =
     UserResponse
@@ -108,7 +110,7 @@ toUserResponse uid profile state =
         , userResponseName = unUserName (profileName profile)
         , userResponseEmail = unEmail (profileEmail profile)
         , userResponseStatus = userStateToText state
-        , userResponseRoles = [] -- TODO: ロール情報を含める
+        , userResponseRoles = []
         , userResponseCreatedAt = undefined -- TODO: 実際の値
         , userResponseUpdatedAt = Nothing
         }

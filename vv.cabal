@@ -52,7 +52,13 @@ common lib-deps
         text,
         time,
         mtl,
-        transformers
+        transformers,
+        safe-money >= 0.9 && < 1,
+        persistent >= 2.14 && < 3,
+        persistent-sqlite >= 2.13 && < 3,
+        acid-state >= 0.16 && < 1,
+        safecopy >= 0.10 && < 1,
+        containers
 
 -- ────────────────────────────────────────────────────────────────────────────
 -- Internal library (src の唯一のオーナー)
@@ -339,12 +345,11 @@ library vv-internal
         -- Infra
         Infra.Drivers.FileSystem
         Infra.Drivers.Time
-        Infra.Persistence.SQLite.EventStore
-        Infra.Persistence.SQLite.Projection
-        Infra.Persistence.SQLite.Schema
-        Infra.Queries.SQLite.BalanceSheet
-        Infra.Queries.SQLite.GeneralLedger
-        Infra.Queries.SQLite.TrialBalance
+        Infra.Write.Schema
+        Infra.Write.EventStore
+        Infra.Write.Serialise
+        Infra.Write.Projection
+        Infra.Read.IAM
         Infra.Repositories.Accounting
         Infra.Repositories.Audit
         Infra.Repositories.IAM
@@ -400,6 +405,10 @@ test-suite vv-test
     hs-source-dirs:   test
     main-is:          Spec.hs
     other-modules:
+        App.IAM.Spec
+        App.IAM.ActivateUserSpec
+        App.IAM.RegisterUserSpec
+        App.IAM.DeactivateUserSpec
         Domain.IAM.Spec
         Domain.IAM.UserSpec
         Domain.IAM.RoleSpec
@@ -416,6 +425,7 @@ test-suite vv-test
         Domain.Shared.SharedSpec
         Support.Assert
         Support.IAM.Fixtures
+        Support.IAM.MockEnv
         Support.Accounting.Fixtures
         Support.Text
     build-depends:
@@ -427,9 +437,9 @@ test-suite vv-test
         hedgehog >= 1.4 && < 2,
         text,
         time,
-        Decimal,
-        safe-money,
-        containers
+        mtl,
+        containers,
+        safe-money >= 0.9 && < 1
 
 -- ────────────────────────────────────────────────────────────────────────────
 -- Benchmark

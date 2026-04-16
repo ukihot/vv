@@ -6,14 +6,21 @@ module Domain.IAM.Permission (
     getPermissionVersion,
     activatePermission,
     retirePermission,
+
+    -- * Event Sourcing
+    SomePermission (..),
+    applyPermissionEvent,
+    rehydratePermission,
 )
 where
 
-import Domain.IAM.Permission.Entities.Profile (PermissionProfile)
+import Control.Monad (foldM)
+import Domain.IAM.Permission.Entities.Profile (PermissionProfile (..))
+import Domain.IAM.Permission.Errors (DomainError (..))
 import Domain.IAM.Permission.Events (PermissionEventPayload (..))
 import Domain.IAM.Permission.ValueObjects.PermissionId (PermissionId)
 import Domain.IAM.Permission.ValueObjects.PermissionState (PermissionState (..))
-import Domain.IAM.Permission.ValueObjects.Version (Version, nextVersion)
+import Domain.IAM.Permission.ValueObjects.Version (Version, initialVersion, nextVersion)
 import Domain.IAM.User.ValueObjects.UserId (UserId)
 
 data Permission (s :: PermissionState) where
@@ -55,3 +62,28 @@ retirePermission ::
 retirePermission actorId (PermissionA permissionId profile version) =
     let nextV = nextVersion version
      in (PermissionR permissionId profile nextV, PermissionRetired actorId permissionId)
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- Event Sourcing
+-- ─────────────────────────────────────────────────────────────────────────────
+
+data SomePermission where
+    SomePermission :: Permission s -> SomePermission
+
+deriving stock instance Show SomePermission
+
+applyPermissionEvent ::
+    Maybe SomePermission -> PermissionEventPayload -> Either DomainError SomePermission
+applyPermissionEvent Nothing (PermissionDefined pid name code) =
+    Right $ SomePermission $ PermissionD pid (PermissionProfile name code) (nextVersion initialVersion)
+applyPermissionEvent (Just (SomePermission (PermissionD pid profile v))) (PermissionActivated _ _) =
+    Right $ SomePermission $ PermissionA pid profile (nextVersion v)
+applyPermissionEvent (Just (SomePermission (PermissionA pid profile v))) (PermissionRetired _ _) =
+    Right $ SomePermission $ PermissionR pid profile (nextVersion v)
+applyPermissionEvent _ _ = Left IllegalTransition
+
+rehydratePermission :: [PermissionEventPayload] -> Either DomainError SomePermission
+rehydratePermission [] = Left IllegalTransition
+rehydratePermission (e : es) = do
+    s0 <- applyPermissionEvent Nothing e
+    foldM (\s ev -> applyPermissionEvent (Just s) ev) s0 es

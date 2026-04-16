@@ -5,7 +5,7 @@ where
 
 import Domain.IFRS.Revenue.Entities.PerformanceObligation (PerformanceObligation (..))
 import Domain.IFRS.Revenue.Errors (RevenueError (..))
-import Domain.Shared (Money, scaleMoney, unMoney)
+import Domain.Shared (Money, scaleMoney, toRationalMoney)
 
 allocateTransactionPrice ::
     Money currency ->
@@ -15,8 +15,7 @@ allocateTransactionPrice txPrice pos
     | totalSSP == 0 = Left ZeroStandalonePrice
     | otherwise = Right (map allocate pos)
     where
-        -- mconcat が使えるのは Money が Monoid インスタンスを持つため（Domain.Shared §Semigroup）
-        totalSSP = unMoney (mconcat (map poStandalonePrice pos))
+        totalSSP = toRationalMoney (sum (map poStandalonePrice pos))
         allocate po =
-            let ratio = unMoney (poStandalonePrice po) / totalSSP
+            let ratio = toRationalMoney (poStandalonePrice po) / totalSSP
              in po {poAllocatedPrice = scaleMoney ratio txPrice}
