@@ -9,7 +9,7 @@ import Data.Text qualified as T
 import Domain.IFRS.Impairment.Errors (ImpairmentError (..))
 
 newtype ImpairmentTestId = ImpairmentTestId {unImpairmentTestId :: Text}
-    deriving (Show, Eq, Ord)
+    deriving stock (Show, Eq, Ord)
 
 mkImpairmentTestId :: Text -> Either ImpairmentError ImpairmentTestId
 mkImpairmentTestId t

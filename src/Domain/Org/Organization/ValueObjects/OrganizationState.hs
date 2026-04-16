@@ -10,4 +10,4 @@ data OrganizationState
       Active
     | -- | 休止中
       Inactive
-    deriving (Show, Eq, Ord, Enum, Bounded)
+    deriving stock (Show, Eq, Ord, Enum, Bounded)

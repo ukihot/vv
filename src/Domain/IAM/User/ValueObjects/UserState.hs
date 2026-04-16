@@ -7,7 +7,7 @@ data UserState
     | Active -- 承認済み
     | Suspended -- 凍結（照会のみ）
     | Inactive -- 無効
-    deriving (Show, Eq, Ord)
+    deriving stock (Show, Eq, Ord)
 
 -- | 状態の正規文字列表現。DTO や表示層はこれを使う。
 userStateToText :: UserState -> Text

@@ -19,7 +19,7 @@ data JournalLineRequest = JournalLineRequest
     , journalLineAmount :: Double
     , journalLineDrCr :: Text -- "Dr" or "Cr"
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)
 
 data RegisterJournalEntryRequest = RegisterJournalEntryRequest
     { regJournalTransactionDate :: Day
@@ -27,26 +27,26 @@ data RegisterJournalEntryRequest = RegisterJournalEntryRequest
     , regJournalDescription :: Text
     , regJournalEntryType :: Text -- 新規起票、取消、反対、追加、再分類、洗替、見積変更
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)
 
 data AttachEvidenceRequest = AttachEvidenceRequest
     { attachEvidenceEntryId :: Text
     , attachEvidenceEvidenceId :: Text
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)
 
 data CorrectJournalEntryRequest = CorrectJournalEntryRequest
     { correctJournalOriginalEntryId :: Text
     , correctJournalCorrections :: [JournalLineRequest]
     , correctJournalReason :: Text
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)
 
 data CancelJournalEntryRequest = CancelJournalEntryRequest
     { cancelJournalEntryId :: Text
     , cancelJournalReason :: Text
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)
 
 data RegisterAccrualRequest = RegisterAccrualRequest
     { regAccrualDate :: Day
@@ -54,7 +54,7 @@ data RegisterAccrualRequest = RegisterAccrualRequest
     , regAccrualAmount :: Double
     , regAccrualDescription :: Text
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)
 
 data RegisterDeferralRequest = RegisterDeferralRequest
     { regDeferralDate :: Day
@@ -62,7 +62,7 @@ data RegisterDeferralRequest = RegisterDeferralRequest
     , regDeferralAmount :: Double
     , regDeferralPeriods :: Int
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)
 
 data RegisterCashLogRequest = RegisterCashLogRequest
     { regCashLogDate :: Day
@@ -70,11 +70,11 @@ data RegisterCashLogRequest = RegisterCashLogRequest
     , regCashLogAmount :: Double
     , regCashLogDescription :: Text
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)
 
 data ReconcileBankStatementRequest = ReconcileBankStatementRequest
     { reconBankAccountId :: Text
     , reconDate :: Day
     , reconTransactions :: [(Text, Double)] -- (description, amount)
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

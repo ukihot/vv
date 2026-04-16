@@ -9,7 +9,7 @@ import Data.Text qualified as T
 import Domain.Ops.BankAccount.Errors (BankAccountError (..))
 
 newtype BankCode = BankCode {unBankCode :: Text}
-    deriving (Show, Eq, Ord)
+    deriving stock (Show, Eq, Ord)
 
 mkBankCode :: Text -> Either BankAccountError BankCode
 mkBankCode t

@@ -9,7 +9,7 @@ import Data.Text qualified as T
 import Domain.IFRS.FairValue.Errors (FairValueError (..))
 
 newtype FairValueMeasurementId = FairValueMeasurementId {unFairValueMeasurementId :: Text}
-    deriving (Show, Eq, Ord)
+    deriving stock (Show, Eq, Ord)
 
 mkFairValueMeasurementId :: Text -> Either FairValueError FairValueMeasurementId
 mkFairValueMeasurementId t

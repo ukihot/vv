@@ -10,4 +10,4 @@ data AccountClass
     | RevenueAccount
     | ExpenseAccount
     | OciAccount
-    deriving (Show, Eq, Ord, Enum, Bounded)
+    deriving stock (Show, Eq, Ord, Enum, Bounded)

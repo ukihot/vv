@@ -7,4 +7,4 @@ data InventoryError
     = InvalidInventoryId
     | NegativeQuantity
     | InvalidCostFormula
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

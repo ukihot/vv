@@ -12,4 +12,4 @@ data ApprovalState
       Approved
     | -- | 却下
       Rejected
-    deriving (Show, Eq, Ord, Enum, Bounded)
+    deriving stock (Show, Eq, Ord, Enum, Bounded)

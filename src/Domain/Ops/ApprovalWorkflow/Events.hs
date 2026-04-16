@@ -12,4 +12,4 @@ data ApprovalWorkflowEventPayload
     | WorkflowSubmitted ApprovalWorkflowId UserId
     | WorkflowApproved ApprovalWorkflowId UserId
     | WorkflowRejected ApprovalWorkflowId UserId Text
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

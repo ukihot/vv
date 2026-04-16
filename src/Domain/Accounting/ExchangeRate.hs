@@ -33,7 +33,7 @@ data ExchangeRate (from :: Symbol) (to :: Symbol) = ExchangeRate
     , rateDate :: Day
     , rateSource :: Text
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)
 
 mkExchangeRate ::
     Rational ->

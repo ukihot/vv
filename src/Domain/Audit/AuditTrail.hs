@@ -43,7 +43,7 @@ data AuditTrail = AuditTrail
     -- ^ 備考
     , auditVersion :: Version
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- ファクトリ

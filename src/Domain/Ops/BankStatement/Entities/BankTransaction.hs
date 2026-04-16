@@ -13,7 +13,7 @@ data TransactionType
     = Deposit
     | Withdrawal
     | Transfer
-    deriving (Show, Eq, Ord, Enum, Bounded)
+    deriving stock (Show, Eq, Ord, Enum, Bounded)
 
 data BankTransaction (currency :: Symbol) = BankTransaction
     { transactionDate :: Day
@@ -22,4 +22,4 @@ data BankTransaction (currency :: Symbol) = BankTransaction
     , transactionDescription :: Text
     , transactionReconciled :: Bool
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

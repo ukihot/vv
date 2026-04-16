@@ -9,10 +9,10 @@ data EconomicScenario
     = BaseScenario
     | OptimisticScenario
     | PessimisticScenario
-    deriving (Show, Eq, Ord, Enum, Bounded)
+    deriving stock (Show, Eq, Ord, Enum, Bounded)
 
 newtype ScenarioWeight = ScenarioWeight {unWeight :: Rational}
-    deriving (Show, Eq, Ord)
+    deriving stock (Show, Eq, Ord)
 
 data EclParameters = EclParameters
     { pd12Month :: Rational
@@ -21,4 +21,4 @@ data EclParameters = EclParameters
     , discountFactor :: Rational
     , scenarioWeights :: [(EconomicScenario, ScenarioWeight)]
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

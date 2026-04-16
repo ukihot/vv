@@ -10,4 +10,4 @@ import Domain.Audit.AuditTrail.ValueObjects.AuditTrailId (AuditTrailId)
 
 data AuditTrailEventPayload
     = AuditTrailRecorded AuditTrailId Text AuditAction UTCTime
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

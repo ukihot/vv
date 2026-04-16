@@ -11,17 +11,17 @@ import Domain.Shared (Money)
 import GHC.TypeLits (Symbol)
 
 newtype PerformanceObligationId = PerformanceObligationId {unPOId :: Text}
-    deriving (Show, Eq, Ord)
+    deriving stock (Show, Eq, Ord)
 
 data SatisfactionPattern
     = AtPointInTime
     | OverTime
-    deriving (Show, Eq, Ord, Enum, Bounded)
+    deriving stock (Show, Eq, Ord, Enum, Bounded)
 
 data ProgressMethod
     = InputMethod
     | OutputMethod
-    deriving (Show, Eq, Ord, Enum, Bounded)
+    deriving stock (Show, Eq, Ord, Enum, Bounded)
 
 data PerformanceObligation (currency :: Symbol) = PerformanceObligation
     { poId :: PerformanceObligationId
@@ -31,4 +31,4 @@ data PerformanceObligation (currency :: Symbol) = PerformanceObligation
     , poStandalonePrice :: Money currency
     , poAllocatedPrice :: Money currency
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

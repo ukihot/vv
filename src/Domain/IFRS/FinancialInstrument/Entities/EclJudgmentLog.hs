@@ -16,4 +16,4 @@ data EclJudgmentLog (currency :: Symbol) = EclJudgmentLog
     , ejlEclAmount :: Money currency
     , ejlMovementReason :: Text
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

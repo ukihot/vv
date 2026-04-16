@@ -50,7 +50,7 @@ data JournalEntry (currency :: Symbol) = JournalEntry
     , entryPriorRef :: Maybe JournalEntryId
     , entryVersion :: Version
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- ファクトリ

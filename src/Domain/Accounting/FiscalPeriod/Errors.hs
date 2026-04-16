@@ -7,4 +7,4 @@ data PeriodError
     = InvalidPeriodId
     | PeriodAlreadyLocked
     | PeriodNotLocked
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

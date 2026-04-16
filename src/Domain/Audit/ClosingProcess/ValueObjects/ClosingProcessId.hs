@@ -9,7 +9,7 @@ import Data.Text qualified as T
 import Domain.Audit.ClosingProcess.Errors (ClosingProcessError (..))
 
 newtype ClosingProcessId = ClosingProcessId {unClosingProcessId :: Text}
-    deriving (Show, Eq, Ord)
+    deriving stock (Show, Eq, Ord)
 
 mkClosingProcessId :: Text -> Either ClosingProcessError ClosingProcessId
 mkClosingProcessId t

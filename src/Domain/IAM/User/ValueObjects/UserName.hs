@@ -4,7 +4,7 @@ import Data.Text (Text)
 import Data.Text qualified as T
 import Domain.IAM.User.Errors (DomainError (InvalidUserName))
 
-newtype UserName = UserName {unUserName :: Text} deriving (Show, Eq)
+newtype UserName = UserName {unUserName :: Text} deriving stock (Show, Eq)
 
 mkUserName :: Text -> Either DomainError UserName
 mkUserName t

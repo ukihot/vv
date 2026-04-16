@@ -11,7 +11,7 @@ import GHC.TypeLits (Symbol)
 data VariableConsiderationMethod
     = ExpectedValueMethod
     | MostLikelyAmount
-    deriving (Show, Eq, Ord, Enum, Bounded)
+    deriving stock (Show, Eq, Ord, Enum, Bounded)
 
 data VariableConsideration (currency :: Symbol) = VariableConsideration
     { vcDescription :: Text
@@ -19,4 +19,4 @@ data VariableConsideration (currency :: Symbol) = VariableConsideration
     , vcEstimatedAmount :: Money currency
     , vcConstraintNote :: Text
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

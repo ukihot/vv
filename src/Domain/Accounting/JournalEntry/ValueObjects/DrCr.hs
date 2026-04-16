@@ -4,4 +4,4 @@ module Domain.Accounting.JournalEntry.ValueObjects.DrCr (
 where
 
 data DrCr = Dr | Cr
-    deriving (Show, Eq, Ord, Enum, Bounded)
+    deriving stock (Show, Eq, Ord, Enum, Bounded)

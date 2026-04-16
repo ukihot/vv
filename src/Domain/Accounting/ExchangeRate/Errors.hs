@@ -6,4 +6,4 @@ where
 data ExchangeRateError
     = NonPositiveRate
     | MissingRateSource
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

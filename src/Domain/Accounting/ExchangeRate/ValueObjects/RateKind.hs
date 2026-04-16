@@ -8,4 +8,4 @@ data RateKind
     | ClosingRate
     | HistoricalRate
     | AverageRate
-    deriving (Show, Eq, Ord, Enum, Bounded)
+    deriving stock (Show, Eq, Ord, Enum, Bounded)

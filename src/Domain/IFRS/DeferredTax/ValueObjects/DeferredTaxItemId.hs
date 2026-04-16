@@ -9,7 +9,7 @@ import Data.Text qualified as T
 import Domain.IFRS.DeferredTax.Errors (DeferredTaxError (..))
 
 newtype DeferredTaxItemId = DeferredTaxItemId {unDeferredTaxItemId :: Text}
-    deriving (Show, Eq, Ord)
+    deriving stock (Show, Eq, Ord)
 
 mkDeferredTaxItemId :: Text -> Either DeferredTaxError DeferredTaxItemId
 mkDeferredTaxItemId t

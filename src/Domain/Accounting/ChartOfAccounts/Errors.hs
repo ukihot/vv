@@ -6,4 +6,4 @@ where
 data ChartError
     = EmptyAccountCode
     | EmptyAccountName
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

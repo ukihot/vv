@@ -24,4 +24,4 @@ data TaxConfiguration = TaxConfiguration
     , taxConfigEffectiveTo :: Maybe Day
     , taxConfigVersion :: Version
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

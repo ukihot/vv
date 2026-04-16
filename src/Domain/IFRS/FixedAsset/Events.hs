@@ -28,4 +28,4 @@ data FixedAssetEventPayload (currency :: Symbol)
       UsefulLifeChanged FixedAssetId Int Day
     | -- | 除却・売却 → DeferredTax集約（一時差異解消）
       FixedAssetDisposed FixedAssetId (Money currency) Day
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

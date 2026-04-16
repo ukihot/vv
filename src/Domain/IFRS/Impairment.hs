@@ -24,7 +24,7 @@ data ImpairmentIndicator
     = ExternalIndicator Text
     | InternalIndicator Text
     | NoIndicator
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)
 
 data ImpairmentTest (currency :: Symbol) = ImpairmentTest
     { impairmentTestId :: ImpairmentTestId
@@ -40,4 +40,4 @@ data ImpairmentTest (currency :: Symbol) = ImpairmentTest
     , impairmentCashFlowProjection :: Text
     , impairmentVersion :: Version
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

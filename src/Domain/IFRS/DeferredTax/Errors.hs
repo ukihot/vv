@@ -7,4 +7,4 @@ data DeferredTaxError
     = InvalidDeferredTaxItemId
     | InvalidTaxRate
     | InvalidTemporaryDifference
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

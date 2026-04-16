@@ -13,4 +13,4 @@ data SegmentResult (currency :: Symbol) = SegmentResult
     , srRevenue :: Money currency
     , srCost :: Money currency
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

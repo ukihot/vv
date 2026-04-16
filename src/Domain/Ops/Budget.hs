@@ -24,4 +24,4 @@ data Budget (currency :: Symbol) = Budget
     , budgetActualAmount :: Money currency
     , budgetVersion :: Version
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

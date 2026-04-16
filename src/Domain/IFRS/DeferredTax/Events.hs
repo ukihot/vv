@@ -28,4 +28,4 @@ data DeferredTaxEventPayload (currency :: Symbol)
       RecoverabilityReassessed DeferredTaxItemId (Money currency) Text Day
     | -- | 一時差異解消
       TemporaryDifferenceReversed DeferredTaxItemId (Money currency) Day
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

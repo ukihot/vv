@@ -23,4 +23,4 @@ data RevenueEventPayload (currency :: Symbol)
       VariableConsiderationRemeasured ContractId (Money currency) Day
     | -- | 契約変更 → AuditTrail集約
       ContractModified ContractId Text Day
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

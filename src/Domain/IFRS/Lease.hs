@@ -44,7 +44,7 @@ data Lease (currency :: Symbol) = Lease
     , leaseAccumDeprec :: Money currency
     , leaseVersion :: Version
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 状態遷移

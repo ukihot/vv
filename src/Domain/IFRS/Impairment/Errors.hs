@@ -8,4 +8,4 @@ data ImpairmentError
     | InvalidCguId
     | NegativeRecoverableAmount
     | InvalidDiscountRate
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

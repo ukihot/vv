@@ -9,7 +9,7 @@ import Data.Text qualified as T
 import Domain.Audit.AuditTrail.Errors (AuditTrailError (..))
 
 newtype AuditTrailId = AuditTrailId {unAuditTrailId :: Text}
-    deriving (Show, Eq, Ord)
+    deriving stock (Show, Eq, Ord)
 
 mkAuditTrailId :: Text -> Either AuditTrailError AuditTrailId
 mkAuditTrailId t

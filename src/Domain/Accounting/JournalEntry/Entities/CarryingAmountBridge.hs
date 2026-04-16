@@ -17,7 +17,7 @@ data CarryingAmountBridge (currency :: Symbol) = CarryingAmountBridge
     , bridgeFvAdjustment :: Money currency
     , bridgeEclAllowance :: Money currency
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)
 
 carryingAmount :: CarryingAmountBridge currency -> Money currency
 carryingAmount b =

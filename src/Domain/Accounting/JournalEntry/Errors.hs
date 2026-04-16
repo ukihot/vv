@@ -8,4 +8,4 @@ data JournalError
     | ImbalancedEntry Rational Rational
     | EmptyLines
     | MissingEvidenceForNonAccrual
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

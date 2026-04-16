@@ -30,4 +30,4 @@ data BankAccount (currency :: Symbol) = BankAccount
     , bankAccountBalance :: Money currency
     , bankAccountVersion :: Version
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

@@ -9,7 +9,7 @@ import Data.Text qualified as T
 import Domain.IFRS.Impairment.Errors (ImpairmentError (..))
 
 newtype CguId = CguId {unCguId :: Text}
-    deriving (Show, Eq, Ord)
+    deriving stock (Show, Eq, Ord)
 
 mkCguId :: Text -> Either ImpairmentError CguId
 mkCguId t

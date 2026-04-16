@@ -16,7 +16,7 @@ data JournalLineResponse = JournalLineResponse
     , journalLineRespAmount :: Double
     , journalLineRespDrCr :: Text
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)
 
 data JournalEntryResponse = JournalEntryResponse
     { journalEntryRespId :: Text
@@ -31,7 +31,7 @@ data JournalEntryResponse = JournalEntryResponse
     , journalEntryRespApprovedBy :: Maybe Text
     , journalEntryRespApprovedAt :: Maybe UTCTime
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)
 
 data CashLogResponse = CashLogResponse
     { cashLogRespId :: Text
@@ -42,7 +42,7 @@ data CashLogResponse = CashLogResponse
     , cashLogRespDescription :: Text
     , cashLogRespBalance :: Double
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)
 
 data BankReconciliationResponse = BankReconciliationResponse
     { bankReconRespId :: Text
@@ -53,7 +53,7 @@ data BankReconciliationResponse = BankReconciliationResponse
     , bankReconRespDifference :: Double
     , bankReconRespStatus :: Text -- "pending", "reconciled", "discrepancy"
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)
 
 data JournalEntryListResponse = JournalEntryListResponse
     { journalEntryListItems :: [JournalEntryResponse]
@@ -61,4 +61,4 @@ data JournalEntryListResponse = JournalEntryListResponse
     , journalEntryListOffset :: Int
     , journalEntryListLimit :: Int
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

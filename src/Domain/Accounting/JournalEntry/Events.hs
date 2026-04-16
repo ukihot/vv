@@ -9,4 +9,4 @@ import Domain.Shared (JournalEntryKind)
 
 data JournalEntryEventPayload
     = JournalEntryRecorded JournalEntryId Day JournalEntryKind
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

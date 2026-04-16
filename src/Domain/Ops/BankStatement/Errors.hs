@@ -7,4 +7,4 @@ data BankStatementError
     = InvalidStatementId
     | InvalidStatementDate
     | DuplicateTransaction
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

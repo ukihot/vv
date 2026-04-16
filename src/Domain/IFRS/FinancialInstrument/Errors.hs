@@ -8,4 +8,4 @@ data FinancialInstrumentError
     | InvalidLgd
     | InvalidPd
     | NegativeEad
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

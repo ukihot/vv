@@ -12,4 +12,4 @@ data ClosingProcessEventPayload
     = ClosingProcessStarted ClosingProcessId FiscalYearMonth UserId
     | ClosingProcessStateChanged ClosingProcessId ClosingState UserId
     | ClosingProcessFinalized ClosingProcessId UserId
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

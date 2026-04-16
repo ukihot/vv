@@ -7,4 +7,4 @@ data BudgetError
     = InvalidBudgetId
     | InvalidBudgetAmount
     | BudgetExceeded
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

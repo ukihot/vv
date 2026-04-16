@@ -29,18 +29,18 @@ data AssetType
     = TangibleAsset
     | IntangibleAsset
     | RightOfUseAsset
-    deriving (Show, Eq, Ord, Enum, Bounded)
+    deriving stock (Show, Eq, Ord, Enum, Bounded)
 
 data MeasurementModel
     = CostModel
     | RevaluationModel
-    deriving (Show, Eq, Ord, Enum, Bounded)
+    deriving stock (Show, Eq, Ord, Enum, Bounded)
 
 data DepreciationMethod
     = StraightLine
     | DecliningBalance Rational
     | UnitsOfProduction
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)
 
 data FixedAsset (currency :: Symbol) = FixedAsset
     { faId :: FixedAssetId
@@ -60,4 +60,4 @@ data FixedAsset (currency :: Symbol) = FixedAsset
     , faCarryingAmount :: Money currency
     , faVersion :: Version
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

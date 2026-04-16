@@ -20,4 +20,4 @@ data RevenueJudgmentLog (currency :: Symbol) = RevenueJudgmentLog
     , rjlStep5ProgressMethod :: Maybe ProgressMethod
     , rjlJudgmentDate :: Day
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

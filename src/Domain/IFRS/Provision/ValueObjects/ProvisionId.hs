@@ -9,7 +9,7 @@ import Data.Text qualified as T
 import Domain.IFRS.Provision.Errors (ProvisionError (..))
 
 newtype ProvisionId = ProvisionId {unProvisionId :: Text}
-    deriving (Show, Eq, Ord)
+    deriving stock (Show, Eq, Ord)
 
 mkProvisionId :: Text -> Either ProvisionError ProvisionId
 mkProvisionId t

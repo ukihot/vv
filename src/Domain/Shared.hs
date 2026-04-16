@@ -92,7 +92,7 @@ scaleMoney r a = mkMoney (r * unMoney a)
 型レベル通貨タグと対応させて使用する。
 -}
 newtype CurrencyCode = CurrencyCode {unCurrencyCode :: Text}
-    deriving (Show, Eq, Ord)
+    deriving stock (Show, Eq, Ord)
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 会計期間
@@ -103,7 +103,7 @@ data FiscalYearMonth = FiscalYearMonth
     { fymYear :: Int
     , fymMonth :: Int -- 1–12
     }
-    deriving (Show, Eq, Ord)
+    deriving stock (Show, Eq, Ord)
 
 fiscalYearMonth :: Int -> Int -> Either Text FiscalYearMonth
 fiscalYearMonth y m
@@ -131,7 +131,7 @@ data JournalEntryKind
       ReclassEntry
     | -- | 洗替仕訳: 既存評価額を消去し再評価
       WashEntry
-    deriving (Show, Eq, Ord, Enum, Bounded)
+    deriving stock (Show, Eq, Ord, Enum, Bounded)
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- リスク分類 §3.2
@@ -146,7 +146,7 @@ data RiskClass
       RiskHigh
     | -- | 経営判断 / CFO承認
       RiskCritical
-    deriving (Show, Eq, Ord, Enum, Bounded)
+    deriving stock (Show, Eq, Ord, Enum, Bounded)
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 重要性判定 §3.1
@@ -157,7 +157,7 @@ data MaterialityResult
       Material
     | -- | 重要性なし → 修正任意
       Immaterial
-    deriving (Show, Eq, Ord)
+    deriving stock (Show, Eq, Ord)
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- バージョン（楽観的ロック #51, #52）

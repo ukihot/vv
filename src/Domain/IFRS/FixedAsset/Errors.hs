@@ -8,4 +8,4 @@ data FixedAssetError
     | InvalidComponentId
     | NegativeUsefulLife
     | InvalidDepreciationMethod
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

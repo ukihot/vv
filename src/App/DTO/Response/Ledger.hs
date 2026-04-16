@@ -19,7 +19,7 @@ data AccountBalanceResponse = AccountBalanceResponse
     , accountBalanceRespNetBalance :: Double
     , accountBalanceRespAsOfDate :: Day
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)
 
 data GeneralLedgerResponse = GeneralLedgerResponse
     { generalLedgerRespDate :: Day
@@ -27,7 +27,7 @@ data GeneralLedgerResponse = GeneralLedgerResponse
     , generalLedgerRespTotalDebit :: Double
     , generalLedgerRespTotalCredit :: Double
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)
 
 data LedgerTransactionResponse = LedgerTransactionResponse
     { ledgerTxnRespDate :: Day
@@ -37,7 +37,7 @@ data LedgerTransactionResponse = LedgerTransactionResponse
     , ledgerTxnRespBalance :: Double
     , ledgerTxnRespJournalEntryId :: Text
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)
 
 data SubsidiaryLedgerResponse = SubsidiaryLedgerResponse
     { subsidiaryLedgerRespAccountId :: Text
@@ -48,7 +48,7 @@ data SubsidiaryLedgerResponse = SubsidiaryLedgerResponse
     , subsidiaryLedgerRespPeriodFrom :: Day
     , subsidiaryLedgerRespPeriodTo :: Day
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)
 
 data ReconciliationResponse = ReconciliationResponse
     { reconRespAccountId :: Text
@@ -59,4 +59,4 @@ data ReconciliationResponse = ReconciliationResponse
     , reconRespStatus :: Text -- "matched", "discrepancy"
     , reconRespDiscrepancies :: [(Text, Double)]
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

@@ -10,4 +10,4 @@ data FiscalPeriodEvent
     = PeriodOpened FiscalPeriodId FiscalYearMonth
     | PeriodLocked FiscalPeriodId FiscalYearMonth
     | PeriodReopened FiscalPeriodId FiscalYearMonth
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

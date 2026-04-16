@@ -7,4 +7,4 @@ data ProvisionError
     = InvalidProvisionId
     | InvalidProbability
     | InvalidDiscountRate
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

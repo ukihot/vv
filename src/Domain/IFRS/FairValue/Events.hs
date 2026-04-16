@@ -27,4 +27,4 @@ data FairValueEventPayload (currency :: Symbol)
       ValuationTechniqueChanged FairValueMeasurementId ValuationTechnique Text Day
     | -- | 観察不能インプット使用 → AuditTrail集約（Level3）
       UnobservableInputsUsed FairValueMeasurementId Text Day
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

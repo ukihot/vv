@@ -9,7 +9,7 @@ import Data.Text qualified as T
 import Domain.IFRS.FixedAsset.Errors (FixedAssetError (..))
 
 newtype FixedAssetId = FixedAssetId {unFixedAssetId :: Text}
-    deriving (Show, Eq, Ord)
+    deriving stock (Show, Eq, Ord)
 
 mkFixedAssetId :: Text -> Either FixedAssetError FixedAssetId
 mkFixedAssetId t

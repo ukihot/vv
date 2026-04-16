@@ -9,7 +9,7 @@ import Data.Text qualified as T
 import Domain.Org.Organization.Errors (OrganizationError (..))
 
 newtype OrganizationName = OrganizationName {unOrganizationName :: Text}
-    deriving (Show, Eq, Ord)
+    deriving stock (Show, Eq, Ord)
 
 mkOrganizationName :: Text -> Either OrganizationError OrganizationName
 mkOrganizationName t

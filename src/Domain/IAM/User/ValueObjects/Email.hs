@@ -4,7 +4,7 @@ import Data.Text (Text)
 import Data.Text qualified as T
 import Domain.IAM.User.Errors (DomainError (InvalidEmail))
 
-newtype Email = Email {unEmail :: Text} deriving (Show, Eq)
+newtype Email = Email {unEmail :: Text} deriving stock (Show, Eq)
 
 mkEmail :: Text -> Either DomainError Email
 mkEmail t

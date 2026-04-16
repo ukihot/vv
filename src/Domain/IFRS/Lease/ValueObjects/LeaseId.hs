@@ -9,7 +9,7 @@ import Data.Text qualified as T
 import Domain.IFRS.Lease.Errors (LeaseError (..))
 
 newtype LeaseId = LeaseId {unLeaseId :: Text}
-    deriving (Show, Eq, Ord)
+    deriving stock (Show, Eq, Ord)
 
 mkLeaseId :: Text -> Either LeaseError LeaseId
 mkLeaseId t

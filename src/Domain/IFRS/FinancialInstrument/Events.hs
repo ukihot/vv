@@ -20,4 +20,4 @@ data FinancialInstrumentEventPayload (currency :: Symbol)
       FinancialAssetImpaired FinancialAssetId (Money currency) Day
     | -- | 金融資産除却 → DeferredTax集約（一時差異解消）
       FinancialAssetDerecognized FinancialAssetId Day
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

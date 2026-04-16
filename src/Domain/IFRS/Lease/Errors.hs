@@ -7,4 +7,4 @@ data LeaseError
     = InvalidLeaseId
     | NegativeLeaseTerm
     | NonPositiveDiscountRate
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

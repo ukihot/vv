@@ -7,4 +7,4 @@ data BankAccountError
     = InvalidBankAccountId
     | InvalidAccountNumber
     | InvalidBankCode
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

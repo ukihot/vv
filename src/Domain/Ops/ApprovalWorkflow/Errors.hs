@@ -7,4 +7,4 @@ data ApprovalWorkflowError
     = InvalidWorkflowId
     | InvalidStateTransition
     | UnauthorizedApprover
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

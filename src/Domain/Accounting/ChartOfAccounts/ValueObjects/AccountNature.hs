@@ -6,4 +6,4 @@ where
 data AccountNature
     = DebitNormal
     | CreditNormal
-    deriving (Show, Eq, Ord, Enum, Bounded)
+    deriving stock (Show, Eq, Ord, Enum, Bounded)

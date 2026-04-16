@@ -13,4 +13,4 @@ data Address = Address
     , addressStreet :: Text
     , addressBuilding :: Maybe Text
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

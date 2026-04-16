@@ -21,4 +21,4 @@ data ImpairmentEventPayload (currency :: Symbol)
       ImpairmentReversed ImpairmentTestId CguId (Money currency) Day
     | -- | 使用価値算定 → AuditTrail集約（割引率・CF予測）
       ValueInUseCalculated ImpairmentTestId (Money currency) Rational Day
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

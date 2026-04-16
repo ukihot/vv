@@ -17,4 +17,4 @@ data RevenueRecognitionResult (currency :: Symbol) = RevenueRecognitionResult
     , rrrRecognizedAt :: Day
     , rrrJudgmentLog :: RevenueJudgmentLog currency
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

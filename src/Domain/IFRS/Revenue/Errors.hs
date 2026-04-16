@@ -8,4 +8,4 @@ data RevenueError
     | ZeroStandalonePrice
     | CannotRecognizeOverTimeObligationAtPoint
     | ResidualApproachRequirementsNotMet
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

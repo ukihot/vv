@@ -9,7 +9,7 @@ import Data.Text qualified as T
 import Domain.Accounting.FiscalPeriod.Errors (PeriodError (..))
 
 newtype FiscalPeriodId = FiscalPeriodId {unFiscalPeriodId :: Text}
-    deriving (Show, Eq, Ord)
+    deriving stock (Show, Eq, Ord)
 
 mkFiscalPeriodId :: Text -> Either PeriodError FiscalPeriodId
 mkFiscalPeriodId t

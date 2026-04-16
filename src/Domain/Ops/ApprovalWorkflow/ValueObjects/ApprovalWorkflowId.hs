@@ -9,7 +9,7 @@ import Data.Text qualified as T
 import Domain.Ops.ApprovalWorkflow.Errors (ApprovalWorkflowError (..))
 
 newtype ApprovalWorkflowId = ApprovalWorkflowId {unApprovalWorkflowId :: Text}
-    deriving (Show, Eq, Ord)
+    deriving stock (Show, Eq, Ord)
 
 mkApprovalWorkflowId :: Text -> Either ApprovalWorkflowError ApprovalWorkflowId
 mkApprovalWorkflowId t

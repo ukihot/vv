@@ -7,4 +7,4 @@ data ClosingProcessError
     = InvalidClosingProcessId
     | InvalidStateTransition
     | PeriodNotLocked
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

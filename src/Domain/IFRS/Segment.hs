@@ -22,4 +22,4 @@ data Segment = Segment
     { segmentId :: SegmentId
     , segmentName :: Text
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

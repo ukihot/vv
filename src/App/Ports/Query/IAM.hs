@@ -25,25 +25,25 @@ import Data.Text (Text)
 data FindUserByIdRequest = FindUserByIdRequest
     { findUserByIdReqUserId :: Text
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)
 
 data FindUserByEmailRequest = FindUserByEmailRequest
     { findUserByEmailReqEmail :: Text
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)
 
 data ListUsersRequest = ListUsersRequest
     { listUsersReqFilter :: Maybe Text
     , listUsersReqOffset :: Int
     , listUsersReqLimit :: Int
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)
 
 data CheckPermissionRequest = CheckPermissionRequest
     { checkPermReqUserId :: Text
     , checkPermReqPermissionName :: Text
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)
 
 -- Query Use Cases
 class Monad m => FindUserByIdQuery m where

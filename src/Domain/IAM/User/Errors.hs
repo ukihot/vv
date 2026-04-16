@@ -12,7 +12,7 @@ data DomainError
     | AlreadyActivated
     | UserIsInactive -- #3: 無効化済みユーザーへの操作拒否
     | RepositoryError String
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)
 
 -- | エラーの表示用メッセージ
 domainErrorMessage :: DomainError -> Text

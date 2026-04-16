@@ -7,4 +7,4 @@ data FairValueError
     = InvalidFairValueMeasurementId
     | InvalidHierarchyLevel
     | MissingUnobservableInputs
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

@@ -603,7 +603,7 @@ data DomainError
 newtype UserId   = UserId Text   deriving Show
 newtype UserName = UserName Text deriving Show  -- ★ユーザ名も newtype（項目 #1, #11）
 newtype Email    = Email Text    deriving Show
-newtype Version  = Version Int   deriving (Show, Eq, Ord)
+newtype Version  = Version Int   deriving stock (Show, Eq, Ord)
 
 -- スマートコンストラクタ：不正な Email は作れない（項目 #2）
 mkEmail :: Text -> Either DomainError Email

@@ -7,4 +7,4 @@ data TaxConfigError
     = InvalidTaxConfigId
     | InvalidTaxRate
     | InvalidTaxType
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

@@ -9,7 +9,7 @@ import Data.Text qualified as T
 import Domain.Ops.Budget.Errors (BudgetError (..))
 
 newtype BudgetId = BudgetId {unBudgetId :: Text}
-    deriving (Show, Eq, Ord)
+    deriving stock (Show, Eq, Ord)
 
 mkBudgetId :: Text -> Either BudgetError BudgetId
 mkBudgetId t

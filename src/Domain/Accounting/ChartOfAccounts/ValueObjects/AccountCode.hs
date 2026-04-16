@@ -11,7 +11,7 @@ import Data.Text qualified as T
 import Domain.Accounting.ChartOfAccounts.Errors (ChartError (..))
 
 newtype AccountCode = AccountCode {unAccountCode :: Text}
-    deriving (Show, Eq, Ord)
+    deriving stock (Show, Eq, Ord)
 
 mkAccountCode :: Text -> Either ChartError AccountCode
 mkAccountCode t

@@ -22,4 +22,4 @@ data InventoryEventPayload (currency :: Symbol)
       CostFormulaChanged InventoryId CostFormula Day
     | -- | 純実現可能価額再評価 → AuditTrail集約
       NetRealizableValueReassessed InventoryId (Money currency) Day
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

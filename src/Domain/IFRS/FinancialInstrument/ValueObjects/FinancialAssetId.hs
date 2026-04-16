@@ -9,7 +9,7 @@ import Data.Text qualified as T
 import Domain.IFRS.FinancialInstrument.Errors (FinancialInstrumentError (..))
 
 newtype FinancialAssetId = FinancialAssetId {unFinancialAssetId :: Text}
-    deriving (Show, Eq, Ord)
+    deriving stock (Show, Eq, Ord)
 
 mkFinancialAssetId :: Text -> Either FinancialInstrumentError FinancialAssetId
 mkFinancialAssetId t

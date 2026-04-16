@@ -11,4 +11,4 @@ data AuditAction
     | Rejected
     | Locked
     | Unlocked
-    deriving (Show, Eq, Ord, Enum, Bounded)
+    deriving stock (Show, Eq, Ord, Enum, Bounded)

@@ -10,4 +10,4 @@ import GHC.TypeLits (Symbol)
 data BankAccountEventPayload (currency :: Symbol)
     = BankAccountCreated BankAccountId
     | BankAccountBalanceUpdated BankAccountId (Money currency)
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

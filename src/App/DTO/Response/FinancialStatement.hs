@@ -20,7 +20,7 @@ data BSLineItemResponse = BSLineItemResponse
     , bsLineItemAccountName :: Text
     , bsLineItemAmount :: Double
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)
 
 data BalanceSheetResponse = BalanceSheetResponse
     { balanceSheetRespId :: Text
@@ -33,7 +33,7 @@ data BalanceSheetResponse = BalanceSheetResponse
     , balanceSheetRespTotalEquity :: Double
     , balanceSheetRespGeneratedAt :: UTCTime
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)
 
 -- Income Statement
 data ISLineItemResponse = ISLineItemResponse
@@ -41,7 +41,7 @@ data ISLineItemResponse = ISLineItemResponse
     , isLineItemAccountName :: Text
     , isLineItemAmount :: Double
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)
 
 data IncomeStatementResponse = IncomeStatementResponse
     { incomeStatementRespId :: Text
@@ -56,7 +56,7 @@ data IncomeStatementResponse = IncomeStatementResponse
     , incomeStatementRespNetProfit :: Double
     , incomeStatementRespGeneratedAt :: UTCTime
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)
 
 -- Cash Flow Statement
 data CFLineItemResponse = CFLineItemResponse
@@ -64,7 +64,7 @@ data CFLineItemResponse = CFLineItemResponse
     , cfLineItemDescription :: Text
     , cfLineItemAmount :: Double
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)
 
 data CashFlowStatementResponse = CashFlowStatementResponse
     { cashFlowRespId :: Text
@@ -82,7 +82,7 @@ data CashFlowStatementResponse = CashFlowStatementResponse
     , cashFlowRespClosingCash :: Double
     , cashFlowRespGeneratedAt :: UTCTime
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)
 
 -- Equity Statement
 data EquityStatementResponse = EquityStatementResponse
@@ -96,7 +96,7 @@ data EquityStatementResponse = EquityStatementResponse
     , equityStatementRespClosingBalance :: Double
     , equityStatementRespGeneratedAt :: UTCTime
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)
 
 -- Complete Package
 data FinancialStatementPackageResponse = FinancialStatementPackageResponse
@@ -110,4 +110,4 @@ data FinancialStatementPackageResponse = FinancialStatementPackageResponse
     , fsPackageRespStatus :: Text -- "draft", "review", "approved", "published"
     , fsPackageRespGeneratedAt :: UTCTime
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

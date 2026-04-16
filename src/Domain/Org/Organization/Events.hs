@@ -11,4 +11,4 @@ data OrganizationEventPayload
     | OrganizationNameUpdated OrganizationId OrganizationName
     | OrganizationActivated OrganizationId
     | OrganizationDeactivated OrganizationId
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

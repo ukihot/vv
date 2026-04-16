@@ -15,4 +15,4 @@ data SegmentEventPayload (currency :: Symbol)
       SegmentResultRecorded SegmentId FiscalYearMonth (Money currency) (Money currency)
     | -- | セグメント再編 → AuditTrail集約
       SegmentReorganized SegmentId SegmentId Text
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

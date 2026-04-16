@@ -6,4 +6,4 @@ where
 data AuditTrailError
     = InvalidAuditTrailId
     | InvalidEntityId
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

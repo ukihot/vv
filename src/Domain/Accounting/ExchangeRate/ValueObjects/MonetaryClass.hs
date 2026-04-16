@@ -6,4 +6,4 @@ where
 data MonetaryClass
     = Monetary
     | NonMonetary
-    deriving (Show, Eq, Ord, Enum, Bounded)
+    deriving stock (Show, Eq, Ord, Enum, Bounded)

@@ -8,4 +8,4 @@ import Domain.Accounting.ExchangeRate.ValueObjects.RateKind (RateKind)
 
 data ExchangeRateEventPayload
     = ExchangeRateRecorded RateKind Day Rational
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

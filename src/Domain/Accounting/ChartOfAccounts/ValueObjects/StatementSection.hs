@@ -8,7 +8,7 @@ data CurrentNonCurrent
     = Current
     | NonCurrent
     | NotApplicable
-    deriving (Show, Eq, Ord, Enum, Bounded)
+    deriving stock (Show, Eq, Ord, Enum, Bounded)
 
 data StatementSection
     = SoFP_CurrentAsset
@@ -27,4 +27,4 @@ data StatementSection
     | PL_OtherExpense
     | PL_TaxExpense
     | OCI_Section
-    deriving (Show, Eq, Ord, Enum, Bounded)
+    deriving stock (Show, Eq, Ord, Enum, Bounded)

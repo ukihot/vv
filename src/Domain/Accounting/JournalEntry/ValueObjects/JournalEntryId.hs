@@ -9,7 +9,7 @@ import Data.Text qualified as T
 import Domain.Accounting.JournalEntry.Errors (JournalError (..))
 
 newtype JournalEntryId = JournalEntryId {unJournalEntryId :: Text}
-    deriving (Show, Eq, Ord)
+    deriving stock (Show, Eq, Ord)
 
 mkJournalEntryId :: Text -> Either JournalError JournalEntryId
 mkJournalEntryId t

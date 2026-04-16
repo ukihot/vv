@@ -5,4 +5,4 @@ where
 
 data SegmentError
     = InvalidSegmentId
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

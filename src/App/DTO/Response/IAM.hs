@@ -19,7 +19,7 @@ data LoginResponse = LoginResponse
     , loginResponseUserId :: Text
     , loginResponseExpiresAt :: UTCTime
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)
 
 data UserResponse = UserResponse
     { userResponseId :: Text
@@ -30,7 +30,7 @@ data UserResponse = UserResponse
     , userResponseCreatedAt :: UTCTime
     , userResponseUpdatedAt :: Maybe UTCTime
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)
 
 data RoleResponse = RoleResponse
     { roleResponseId :: Text
@@ -38,7 +38,7 @@ data RoleResponse = RoleResponse
     , roleResponseDescription :: Text
     , roleResponsePermissions :: [Text]
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)
 
 data PermissionResponse = PermissionResponse
     { permissionResponseId :: Text
@@ -47,7 +47,7 @@ data PermissionResponse = PermissionResponse
     , permissionResponseAction :: Text
     , permissionResponseDescription :: Maybe Text
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)
 
 data UserListResponse = UserListResponse
     { userListItems :: [UserResponse]
@@ -55,4 +55,4 @@ data UserListResponse = UserListResponse
     , userListOffset :: Int
     , userListLimit :: Int
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

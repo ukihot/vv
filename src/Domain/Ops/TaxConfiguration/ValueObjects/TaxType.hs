@@ -12,4 +12,4 @@ data TaxType
       CorporateTax
     | -- | 源泉所得税
       WithholdingTax
-    deriving (Show, Eq, Ord, Enum, Bounded)
+    deriving stock (Show, Eq, Ord, Enum, Bounded)

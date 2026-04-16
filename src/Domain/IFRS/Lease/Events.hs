@@ -19,4 +19,4 @@ data LeaseEventPayload (currency :: Symbol)
       LeaseLiabilityRemeasured LeaseId (Money currency) Day
     | -- | リース終了 → FixedAsset集約、DeferredTax集約
       LeaseTerminated LeaseId Day
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

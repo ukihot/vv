@@ -8,4 +8,4 @@ data UserProfile = UserProfile
     { profileName :: UserName
     , profileEmail :: Email
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

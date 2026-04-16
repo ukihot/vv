@@ -24,7 +24,7 @@ data ClosingStatusResponse = ClosingStatusResponse
     , closingStatusRespFinalizedBy :: Maybe Text
     , closingStatusRespFinalizedAt :: Maybe UTCTime
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)
 
 data TrialBalanceLineResponse = TrialBalanceLineResponse
     { trialBalanceLineAccountCode :: Text
@@ -32,7 +32,7 @@ data TrialBalanceLineResponse = TrialBalanceLineResponse
     , trialBalanceLineDebit :: Double
     , trialBalanceLineCredit :: Double
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)
 
 data TrialBalanceResponse = TrialBalanceResponse
     { trialBalanceRespId :: Text
@@ -44,7 +44,7 @@ data TrialBalanceResponse = TrialBalanceResponse
     , trialBalanceRespIsBalanced :: Bool
     , trialBalanceRespGeneratedAt :: UTCTime
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)
 
 data ChecklistItemResponse = ChecklistItemResponse
     { checklistItemRespName :: Text
@@ -53,14 +53,14 @@ data ChecklistItemResponse = ChecklistItemResponse
     , checklistItemRespCompletedBy :: Maybe Text
     , checklistItemRespCompletedAt :: Maybe UTCTime
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)
 
 data ClosingChecklistResponse = ClosingChecklistResponse
     { closingChecklistRespClosingId :: Text
     , closingChecklistRespItems :: [ChecklistItemResponse]
     , closingChecklistRespCompletionRate :: Double -- 0.0 to 1.0
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)
 
 data ClosingTaskResponse = ClosingTaskResponse
     { closingTaskRespId :: Text
@@ -70,7 +70,7 @@ data ClosingTaskResponse = ClosingTaskResponse
     , closingTaskRespStatus :: Text -- "pending", "in_progress", "completed", "blocked"
     , closingTaskRespCompletedAt :: Maybe UTCTime
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)
 
 data ClosingCalendarResponse = ClosingCalendarResponse
     { closingCalendarRespId :: Text
@@ -79,7 +79,7 @@ data ClosingCalendarResponse = ClosingCalendarResponse
     , closingCalendarRespTasks :: [ClosingTaskResponse]
     , closingCalendarRespCreatedAt :: UTCTime
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)
 
 data PeriodLockResponse = PeriodLockResponse
     { periodLockRespYear :: Int
@@ -91,4 +91,4 @@ data PeriodLockResponse = PeriodLockResponse
     , periodLockRespUnlockedAt :: Maybe UTCTime
     , periodLockRespUnlockReason :: Maybe Text
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

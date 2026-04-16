@@ -13,4 +13,4 @@ data JournalLine (currency :: Symbol) = JournalLine
     , lineDrCr :: DrCr
     , lineAmount :: Money currency
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

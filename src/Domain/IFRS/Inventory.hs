@@ -20,7 +20,7 @@ import GHC.TypeLits (Symbol)
 data CostFormula
     = FIFO
     | WeightedAverage
-    deriving (Show, Eq, Ord, Enum, Bounded)
+    deriving stock (Show, Eq, Ord, Enum, Bounded)
 
 data Inventory (currency :: Symbol) = Inventory
     { inventoryId :: InventoryId
@@ -32,4 +32,4 @@ data Inventory (currency :: Symbol) = Inventory
     , inventoryCostFormula :: CostFormula
     , inventoryVersion :: Version
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

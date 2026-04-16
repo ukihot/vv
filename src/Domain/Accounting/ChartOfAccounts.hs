@@ -33,4 +33,4 @@ data Account = Account
     , accountSection :: StatementSection
     , accountCNC :: CurrentNonCurrent
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

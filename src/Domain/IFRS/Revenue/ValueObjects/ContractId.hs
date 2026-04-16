@@ -9,7 +9,7 @@ import Data.Text qualified as T
 import Domain.IFRS.Revenue.Errors (RevenueError (..))
 
 newtype ContractId = ContractId {unContractId :: Text}
-    deriving (Show, Eq, Ord)
+    deriving stock (Show, Eq, Ord)
 
 mkContractId :: Text -> Either RevenueError ContractId
 mkContractId t

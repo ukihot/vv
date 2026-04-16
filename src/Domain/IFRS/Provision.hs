@@ -24,7 +24,7 @@ data ProvisionType
     | LitigationProvision
     | EnvironmentalProvision
     | OneroContractProvision
-    deriving (Show, Eq, Ord, Enum, Bounded)
+    deriving stock (Show, Eq, Ord, Enum, Bounded)
 
 data Provision (currency :: Symbol) = Provision
     { provisionId :: ProvisionId
@@ -37,4 +37,4 @@ data Provision (currency :: Symbol) = Provision
     , provisionDescription :: Text
     , provisionVersion :: Version
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

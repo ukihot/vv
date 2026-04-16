@@ -12,4 +12,4 @@ data ClosingState
       Approved
     | -- | 確定済み
       Finalized
-    deriving (Show, Eq, Ord, Enum, Bounded)
+    deriving stock (Show, Eq, Ord, Enum, Bounded)

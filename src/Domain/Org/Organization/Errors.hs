@@ -7,4 +7,4 @@ data OrganizationError
     = InvalidOrganizationId
     | InvalidOrganizationName
     | InvalidTaxId
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

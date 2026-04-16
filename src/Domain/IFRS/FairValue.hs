@@ -23,13 +23,13 @@ data FairValueHierarchy
     = Level1
     | Level2
     | Level3
-    deriving (Show, Eq, Ord, Enum, Bounded)
+    deriving stock (Show, Eq, Ord, Enum, Bounded)
 
 data ValuationTechnique
     = MarketApproach
     | IncomeApproach
     | CostApproach
-    deriving (Show, Eq, Ord, Enum, Bounded)
+    deriving stock (Show, Eq, Ord, Enum, Bounded)
 
 data FairValueMeasurement (currency :: Symbol) = FairValueMeasurement
     { fvmId :: FairValueMeasurementId
@@ -42,4 +42,4 @@ data FairValueMeasurement (currency :: Symbol) = FairValueMeasurement
     , fvmUnobservableInputs :: Maybe Text
     , fvmVersion :: Version
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

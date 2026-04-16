@@ -21,7 +21,7 @@ import GHC.TypeLits (Symbol)
 data TemporaryDifferenceType
     = DeductibleTemporaryDifference
     | TaxableTemporaryDifference
-    deriving (Show, Eq, Ord, Enum, Bounded)
+    deriving stock (Show, Eq, Ord, Enum, Bounded)
 
 data DeferredTaxItem (currency :: Symbol) = DeferredTaxItem
     { dtiId :: DeferredTaxItemId
@@ -36,4 +36,4 @@ data DeferredTaxItem (currency :: Symbol) = DeferredTaxItem
     , dtiRecoverabilityAssessment :: Text
     , dtiVersion :: Version
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

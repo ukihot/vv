@@ -27,4 +27,4 @@ data BankStatement (currency :: Symbol) = BankStatement
     , bankStatementTransactions :: [BankTransaction currency]
     , bankStatementVersion :: Version
     }
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

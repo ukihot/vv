@@ -9,7 +9,7 @@ import Data.Text qualified as T
 import Domain.IFRS.Inventory.Errors (InventoryError (..))
 
 newtype InventoryId = InventoryId {unInventoryId :: Text}
-    deriving (Show, Eq, Ord)
+    deriving stock (Show, Eq, Ord)
 
 mkInventoryId :: Text -> Either InventoryError InventoryId
 mkInventoryId t

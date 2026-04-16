@@ -9,4 +9,4 @@ import Domain.Ops.BankStatement.ValueObjects.BankStatementId (BankStatementId)
 data BankStatementEventPayload
     = BankStatementImported BankStatementId Day
     | TransactionReconciled BankStatementId Int
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)

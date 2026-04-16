@@ -7,4 +7,4 @@ data EclStage
     = Stage1
     | Stage2
     | Stage3
-    deriving (Show, Eq, Ord, Enum, Bounded)
+    deriving stock (Show, Eq, Ord, Enum, Bounded)

@@ -6,4 +6,4 @@ where
 data PeriodState
     = Open
     | Locked
-    deriving (Show, Eq, Ord, Enum, Bounded)
+    deriving stock (Show, Eq, Ord, Enum, Bounded)

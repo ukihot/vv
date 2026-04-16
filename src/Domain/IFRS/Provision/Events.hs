@@ -23,4 +23,4 @@ data ProvisionEventPayload (currency :: Symbol)
       ProvisionReversed ProvisionId (Money currency) Day
     | -- | 発生確率変更 → AuditTrail集約
       ProvisionProbabilityChanged ProvisionId Rational Day
-    deriving (Show, Eq)
+    deriving stock (Show, Eq)
