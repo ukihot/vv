@@ -33,6 +33,3 @@ simplify-parentheses: true
 
 # newtype/derivingの扱い
 respectful: true
-
-# Explicitly tell fourmolu to read cabal file
-cabal: true
