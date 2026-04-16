@@ -69,7 +69,7 @@ mkUserHandle env =
           saveUser = \_ -> pure $ Right ()
         , appendUserEvent = \uid payload -> do
             events <- liftIO $ ES.loadUserEvents (envPool env) uid
-            let nextVer = length events
+            let nextVer = length events + 1 -- 1から始まるように修正
             result <- liftIO $ ES.appendUserEvent (envPool env) (envProjectionQueue env) uid nextVer payload
             pure $ either (Left . RepositoryError . show) Right result
         }
@@ -91,7 +91,7 @@ mkRoleHandle env =
         , saveRole = \_ -> pure $ Right ()
         , appendRoleEvent = \rid payload -> do
             events <- liftIO $ ES.loadRoleEvents (envPool env) rid
-            let nextVer = length events
+            let nextVer = length events + 1 -- 1から始まるように修正
             result <- liftIO $ ES.appendRoleEvent (envPool env) (envProjectionQueue env) rid nextVer payload
             pure $ either (Left . RoleErr.RepositoryError . show) Right result
         }
@@ -113,7 +113,7 @@ mkPermissionHandle env =
         , savePermission = \_ -> pure $ Right ()
         , appendPermissionEvent = \pid payload -> do
             events <- liftIO $ ES.loadPermissionEvents (envPool env) pid
-            let nextVer = length events
+            let nextVer = length events + 1 -- 1から始まるように修正
             result <-
                 liftIO $ ES.appendPermissionEvent (envPool env) (envProjectionQueue env) pid nextVer payload
             pure $ either (Left . PermErr.RepositoryError . show) Right result

@@ -8,7 +8,7 @@
 module App.UseCase.IAM.RegisterUser (executeRegisterUser, executeRegisterUserPure) where
 
 import App.DTO.Request.IAM (RegisterUserRequest (..))
-import App.DTO.Response.IAM (UserResponse)
+import App.DTO.Response.IAM (UserResponse (..))
 import App.UseCase.IAM.Internal (IAMEnv (..), UserAppM, liftUserDomain, runUserAppM, toUserResponse)
 import Control.Monad.Except (liftEither)
 import Control.Monad.IO.Class (MonadIO, liftIO)

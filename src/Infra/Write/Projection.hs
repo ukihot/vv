@@ -101,19 +101,33 @@ startIamProjector acidSt queue = do
         runProjector = forever $ do
             event <- atomically $ readTBQueue queue
             applyProjectionEvent acidSt event
-                `catch` \(e :: SomeException) -> do
+                `catch` \(_ :: SomeException) -> do
                     -- 例外をログに出力してスレッドを継続（静かに終了させない）
-                    putStrLn $ "[Projector] ERROR applying event: " <> show e
+                    -- putStrLn は UI を崩すため削除
+                    -- TODO: 適切なログシステムに置き換え
                     -- 短いバックオフ後に次のイベントへ
                     threadDelay 100000 -- 100ms
 
 -- | キューから受け取ったイベントを acid-state に適用する
 applyProjectionEvent :: AcidState IamReadModel -> ProjectionEvent -> IO ()
-applyProjectionEvent acidSt (UserEventAppended seq' evType payload) =
+applyProjectionEvent acidSt (UserEventAppended seq' evType payload) = do
+    -- ファイルにデバッグログを出力（UIを崩さない）
+    appendFile "data/projection.log" $
+        "[Projector] Applying UserEvent: seq="
+            <> show seq'
+            <> " type="
+            <> show evType
+            <> " payload="
+            <> show payload
+            <> "\n"
     update acidSt (ApplyUserEvent seq' evType payload)
-applyProjectionEvent acidSt (RoleEventAppended seq' evType payload) =
+applyProjectionEvent acidSt (RoleEventAppended seq' evType payload) = do
+    appendFile "data/projection.log" $
+        "[Projector] Applying RoleEvent: seq=" <> show seq' <> " type=" <> show evType <> "\n"
     update acidSt (ApplyRoleEvent seq' evType payload)
-applyProjectionEvent acidSt (PermissionEventAppended seq' evType payload) =
+applyProjectionEvent acidSt (PermissionEventAppended seq' evType payload) = do
+    appendFile "data/projection.log" $
+        "[Projector] Applying PermissionEvent: seq=" <> show seq' <> " type=" <> show evType <> "\n"
     update acidSt (ApplyPermissionEvent seq' evType payload)
 
 -- ─────────────────────────────────────────────────────────────────────────────

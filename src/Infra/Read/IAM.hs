@@ -15,6 +15,8 @@ module Infra.Read.IAM (
 
     -- * acid-state トランザクション
     GetUserRecord (..),
+    GetAllUsers (..),
+    GetUsersByFilter (..),
     GetRoleRecord (..),
     GetPermissionRecord (..),
     ApplyUserEvent (..),
@@ -103,6 +105,20 @@ $(deriveSafeCopy 0 'base ''IamReadModel)
 
 getUserRecord :: Text -> Query IamReadModel (Maybe UserRecord)
 getUserRecord uid = Map.lookup uid . irmUsers <$> ask
+
+getAllUsers :: Query IamReadModel [UserRecord]
+getAllUsers = Map.elems . irmUsers <$> ask
+
+getUsersByFilter :: Text -> Query IamReadModel [UserRecord]
+getUsersByFilter filterText = do
+    users <- Map.elems . irmUsers <$> ask
+    pure $ filter (matchesFilter filterText) users
+    where
+        matchesFilter :: Text -> UserRecord -> Bool
+        matchesFilter txt ur =
+            T.isInfixOf (T.toLower txt) (T.toLower (urName ur))
+                || T.isInfixOf (T.toLower txt) (T.toLower (urEmail ur))
+                || T.isInfixOf (T.toLower txt) (T.toLower (urStatus ur))
 
 getRoleRecord :: Text -> Query IamReadModel (Maybe RoleRecord)
 getRoleRecord rid = Map.lookup rid . irmRoles <$> ask
@@ -244,6 +260,8 @@ applyToPermissionsRaw m eventType payload =
 $( makeAcidic
     ''IamReadModel
     [ 'getUserRecord
+    , 'getAllUsers
+    , 'getUsersByFilter
     , 'getRoleRecord
     , 'getPermissionRecord
     , 'getLastUserSeq

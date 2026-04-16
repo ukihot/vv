@@ -14,6 +14,7 @@ module Adapter.View.Brick.Widgets (
     renderBackButton,
     renderLogPanel,
     renderKeyMapHelp,
+    renderKeyBinding,
 )
 where
 
@@ -152,27 +153,25 @@ renderScreenItem selectedIndex index info =
 -- ─────────────────────────────────────────────────────────────────────────────
 
 renderStatusBar :: UiState -> Bool -> Widget Name
-renderStatusBar st canGoBack =
+renderStatusBar _st canGoBack =
     withAttr (attrName "statusBar") $
         padLeft (Pad 1) $
             padRight (Pad 1) $
                 hBox
-                    [ -- 左側：ログ
-                      renderCompactLog st
-                    , txt "  "
-                    , -- 中央：キーマップ
-                      hLimit 60 $
-                        hBox
-                            [ renderKeyBinding "q" "Quit"
-                            , txt " "
-                            , renderKeyBinding "h" "Help"
-                            , txt " "
-                            , renderKeyBinding "n" "Nav"
-                            , txt " "
-                            , if canGoBack
-                                then renderKeyBinding "Esc" "Back"
-                                else withAttr (attrName "hint") $ txt "[Esc:Back]"
-                            ]
+                    [ -- キーマップのみ表示（ログは右側のログビューワーに統合）
+                      hBox
+                        [ renderKeyBinding "q" "Quit"
+                        , txt " "
+                        , renderKeyBinding "h" "Help"
+                        , txt " "
+                        , renderKeyBinding "n" "Nav"
+                        , txt " "
+                        , if canGoBack
+                            then renderKeyBinding "Esc" "Back"
+                            else withAttr (attrName "hint") $ txt "[Esc:Back]"
+                        , txt " "
+                        , renderKeyBinding "r" "Refresh"
+                        ]
                     ]
 
 renderKeyBinding :: Text -> Text -> Widget Name
@@ -182,12 +181,6 @@ renderKeyBinding key label =
         <+> withAttr (attrName "keyMapSep") (txt ":")
         <+> withAttr (attrName "keyMap") (txt label)
         <+> withAttr (attrName "keyMapSep") (txt "]")
-
-renderCompactLog :: UiState -> Widget Name
-renderCompactLog st =
-    let logs = readLogsSync st
-        latestLog = if null logs then "Ready" else last logs
-     in withAttr (attrName "hint") $ txt ("💬 " <> latestLog)
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- Key Map Help (キーマップヘルプ)

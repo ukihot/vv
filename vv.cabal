@@ -123,6 +123,7 @@ library vv-internal
         App.UseCase.IAM.DeactivateUser
         App.UseCase.IAM.GrantPermission
         App.UseCase.IAM.Internal
+        App.UseCase.IAM.ListUsers
         App.UseCase.IAM.Login
         App.UseCase.IAM.Logout
         App.UseCase.IAM.RegisterUser
@@ -368,16 +369,23 @@ executable vv
         Adapter.Env
         Adapter.Controller.IAM
         Adapter.Presenter.IAM
+        Adapter.Presenter.Query
         Adapter.View.Components.Form
         Adapter.View.Components.Table
         Adapter.View.Components.Button
         Adapter.View.Components.Layout
         Adapter.View.Components.Modal
+        Adapter.View.Components.LogViewer
         Adapter.View.Brick.App
         Adapter.View.Brick.Types
         Adapter.View.Brick.Navigation
         Adapter.View.Brick.Widgets
         Adapter.View.Brick.Screens
+        Adapter.View.Brick.Screen.Home
+        Adapter.View.Brick.Screen.IAM.UserActivate
+        Adapter.View.Brick.Screen.IAM.UserList
+        Adapter.View.Brick.Screen.IAM.UserRegister
+        Adapter.View.Brick.Screen.Placeholder
     build-depends:
         base,
         vv:vv-internal,
@@ -387,10 +395,11 @@ executable vv
         stm,
         text,
         mtl,
-        containers,
-        uuid >= 1.3 && < 2,
         acid-state >= 0.16 && < 1,
-        persistent-sqlite >= 2.13 && < 3
+        persistent-sqlite >= 2.13 && < 3,
+        monad-logger >= 0.3 && < 1,
+        directory >= 1.3 && < 2,
+        time >= 1.9 && < 2
     ghc-options:
         -threaded
         -rtsopts

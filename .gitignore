@@ -26,6 +26,8 @@ cabal.sandbox.config
 # --- OS ---
 .DS_Store
 Thumbs.db
+/data
+/state
 
 # --- Test / Logs ---
 *.log

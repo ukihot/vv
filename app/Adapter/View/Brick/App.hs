@@ -24,7 +24,7 @@ Controllerに生データを渡す。
 -}
 module Adapter.View.Brick.App (runTuiApp) where
 
-import Adapter.Controller.IAM (handleActivateUser, handleRegisterUser)
+import Adapter.Controller.IAM (handleActivateUser, handleListUsers, handleRegisterUser)
 import Adapter.Env (mkEnv, runAppM)
 import Adapter.View.Brick.Navigation (
     getBreadcrumbs,
@@ -48,16 +48,26 @@ import Adapter.View.Brick.Types (
 import Adapter.View.Brick.Widgets (
     renderBreadcrumbs,
     renderHeader,
+    renderKeyBinding,
     renderKeyMapHelp,
     renderNavigationMenu,
     renderStatusBar,
     renderTabBar,
  )
+import Adapter.View.Components.LogViewer (
+    LogEntry (..),
+    LogLevel (..),
+    LogViewerState (..),
+    initialLogViewerState,
+ )
+import App.DTO.Response.IAM (UserListResponse (..))
 import Brick (
     App (..),
     AttrMap,
+    AttrName,
     BrickEvent (VtyEvent),
     EventM,
+    Padding (Pad),
     Widget,
     attrMap,
     attrName,
@@ -68,9 +78,13 @@ import Brick (
     halt,
     on,
     padAll,
+    padLeft,
+    padRight,
     showFirstCursor,
+    str,
     txt,
     vBox,
+    vLimit,
     withAttr,
  )
 import Brick.Widgets.Border qualified as Border
@@ -80,12 +94,14 @@ import Brick.Widgets.Edit (
     editorText,
     getEditContents,
  )
-import Control.Concurrent.STM (atomically, modifyTVar', newTVarIO)
+import Control.Concurrent.STM (atomically, modifyTVar', newTVarIO, readTVar)
+import Control.Monad (void)
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.State qualified
 import Data.Text (Text)
 import Data.Text qualified as T
 import Data.Text.Zipper qualified as Z
+import Data.Time (UTCTime, getCurrentTime)
 import Graphics.Vty qualified as V
 
 -- ─────────────────────────────────────────────────────────────────────────────
@@ -104,18 +120,19 @@ runTuiApp = do
             UiState
                 { uiEnv = env
                 , uiLogs = logsVar
+                , uiLogViewer = initialLogViewerState
                 , uiNavigation = initialNavigation
                 , uiUserIdEditor = emptyEditor UserIdField
                 , uiUserNameEditor = emptyEditor UserNameField
                 , uiUserEmailEditor = emptyEditor UserEmailField
                 , uiUserRoleEditor = emptyEditor UserRoleField
+                , uiUserList = Nothing -- 初期状態では未読み込み
                 , uiCurrentFocus = UserNameField -- 初期フォーカス
                 , uiShowHelp = False
                 , uiNavSelectedIndex = 0
                 }
 
-    _ <- defaultMain brickApp initialState
-    pure ()
+    void $ defaultMain brickApp initialState
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- Event Handling
@@ -125,7 +142,10 @@ handleEvent :: BrickEvent Name e -> EventM Name UiState ()
 handleEvent ev = do
     st <- Control.Monad.State.get
     case ev of
-        VtyEvent vtyEv ->
+        VtyEvent vtyEv -> do
+            -- ログビューワーを更新（キー入力時に）
+            updateLogViewer st
+
             case vtyEv of
                 -- 終了
                 V.EvKey (V.KChar 'q') [] -> halt
@@ -182,8 +202,22 @@ handleGlobalEvent vtyEv st = case vtyEv of
                         ScreenUserRegister -> UserNameField
                         ScreenUserActivate -> UserIdField
                         _ -> UserNameField
+
+                -- ユーザー一覧画面の場合はデータを読み込み
+                newState <-
+                    if selectedScreen == ScreenUserList
+                        then do
+                            -- ログをクリア（画面遷移時）
+                            liftIO $ atomically $ modifyTVar' (uiLogs st) (const ["[INFO] Loading user list..."])
+                            userListResp <- liftIO $ runAppM (uiEnv st) (handleListUsers Nothing 0 100)
+                            pure st {uiUserList = Just userListResp}
+                        else do
+                            -- 他の画面遷移時もログをクリア
+                            liftIO $ atomically $ modifyTVar' (uiLogs st) (const ["[INFO] Screen changed"])
+                            pure st
+
                 Control.Monad.State.put
-                    st
+                    newState
                         { uiNavigation = nav'
                         , uiCurrentFocus = newFocus
                         }
@@ -215,6 +249,11 @@ handleGlobalEvent vtyEv st = case vtyEv of
     V.EvKey (V.KChar '4') [] -> switchToTab TabOps st
     V.EvKey (V.KChar '5') [] -> switchToTab TabAudit st
     V.EvKey (V.KChar '6') [] -> switchToTab TabOrg st
+    -- ユーザー一覧画面でのリフレッシュ（r）
+    V.EvKey (V.KChar 'r') [] | navCurrentScreen (uiNavigation st) == ScreenUserList -> do
+        liftIO $ atomically $ modifyTVar' (uiLogs st) (const ["[INFO] Refreshing user list..."])
+        userListResp <- liftIO $ runAppM (uiEnv st) (handleListUsers Nothing 0 100)
+        Control.Monad.State.put st {uiUserList = Just userListResp}
     _ -> pure ()
 
 -- タブへ直接切り替え
@@ -415,20 +454,20 @@ drawUi st =
             , -- パンくずリスト
               renderBreadcrumbs breadcrumbs
             , Border.hBorder
-            , -- メインコンテンツ
+            , -- メインコンテンツ（ログビューワーなし）
               if uiShowHelp st
                 then renderHelpScreen
                 else
                     if navShowNavigation nav
                         then renderWithNavigation st
                         else padAll 1 $ renderMainContent st
-            , -- ステータスバー
+            , -- ステータスバー（ログ統合）
               Border.hBorder
-            , renderStatusBar st canGoBack
+            , renderStatusBarWithLogs st canGoBack
             ]
         ]
 
--- ナビゲーションメニュー付きレイアウト
+-- ナビゲーションメニュー付きレイアウト（ログビューワーなし）
 renderWithNavigation :: UiState -> Widget Name
 renderWithNavigation st =
     hBox
@@ -495,8 +534,101 @@ renderMainContent st =
     let currentScreen = navCurrentScreen (uiNavigation st)
      in renderScreen currentScreen st
 
+-- ログ統合ステータスバー
+renderStatusBarWithLogs :: UiState -> Bool -> Widget Name
+renderStatusBarWithLogs st canGoBack =
+    withAttr (attrName "statusBar") $
+        padLeft (Pad 1) $
+            padRight (Pad 1) $
+                hBox
+                    [ -- 左側：ログビューワー（コンパクト版）
+                      renderCompactLogViewer (uiLogViewer st)
+                    , -- 中央：スペーサー
+                      txt "  "
+                    , -- 右側：キーマップ
+                      hBox
+                        [ renderKeyBinding "q" "Quit"
+                        , txt " "
+                        , renderKeyBinding "h" "Help"
+                        , txt " "
+                        , renderKeyBinding "n" "Nav"
+                        , txt " "
+                        , if canGoBack
+                            then renderKeyBinding "Esc" "Back"
+                            else withAttr (attrName "hint") $ txt "[Esc:Back]"
+                        , txt " "
+                        , renderKeyBinding "r" "Refresh"
+                        ]
+                    ]
+
+-- コンパクトログビューワー（ステータスバー用）
+renderCompactLogViewer :: LogViewerState -> Widget Name
+renderCompactLogViewer state =
+    hBox $ -- 横並びに変更
+        case reverse $ lvCompletedLogs state of
+            [] -> [withAttr (attrName "hint") $ txt "Ready"]
+            (latest : _) -> [renderInlineLogEntry latest]
+
+-- インライン表示用のログエントリ
+renderInlineLogEntry :: LogEntry -> Widget Name
+renderInlineLogEntry entry =
+    hBox
+        [ withAttr (logLevelAttr (logLevel entry)) $
+            str (logLevelPrefix (logLevel entry))
+        , txt " "
+        , txt (logMessage entry)
+        ]
+
+-- ログレベル属性とプレフィックス（LogViewerから移植）
+logLevelPrefix :: LogLevel -> String
+logLevelPrefix LogInfo = "[INFO]"
+logLevelPrefix LogSuccess = "[OK]  "
+logLevelPrefix LogWarning = "[WARN]"
+logLevelPrefix LogError = "[ERR] "
+logLevelPrefix LogDebug = "[DBG] "
+
+logLevelAttr :: LogLevel -> AttrName
+logLevelAttr LogInfo = attrName "logInfo"
+logLevelAttr LogSuccess = attrName "logSuccess"
+logLevelAttr LogWarning = attrName "logWarning"
+logLevelAttr LogError = attrName "logError"
+logLevelAttr LogDebug = attrName "logDebug"
+
 emptyEditor :: Name -> Editor Text Name
 emptyEditor name = editorText name (Just 1) ""
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- ログ変換ヘルパー
+-- ─────────────────────────────────────────────────────────────────────────────
+
+updateLogViewer :: UiState -> EventM Name UiState ()
+updateLogViewer st = do
+    -- 新しいログをチェックしてログビューワーに追加
+    logs <- liftIO $ atomically $ readTVar (uiLogs st)
+    currentTime <- liftIO getCurrentTime
+
+    -- 新しいログをLogEntryに変換して直接完了リストに追加（タイプライター効果なし）
+    let newEntries = map (textToLogEntry currentTime) logs
+        updatedLogViewer = foldr addLogEntryDirect (uiLogViewer st) newEntries
+
+    -- ログをクリア（処理済みなので）
+    liftIO $ atomically $ modifyTVar' (uiLogs st) (const [])
+
+    Control.Monad.State.put st {uiLogViewer = updatedLogViewer}
+    where
+        -- ログを直接完了リストに追加（タイプライター効果をスキップ）
+        addLogEntryDirect :: LogEntry -> LogViewerState -> LogViewerState
+        addLogEntryDirect entry state =
+            let completedLogs' = take (lvMaxDisplayLogs state) (entry : lvCompletedLogs state)
+             in state {lvCompletedLogs = completedLogs'}
+
+textToLogEntry :: UTCTime -> Text -> LogEntry
+textToLogEntry timestamp logText
+    | "[ERROR]" `T.isInfixOf` logText = LogEntry LogError logText timestamp
+    | "[WARN]" `T.isInfixOf` logText = LogEntry LogWarning logText timestamp
+    | "[SUCCESS]" `T.isInfixOf` logText = LogEntry LogSuccess logText timestamp
+    | "[DEBUG]" `T.isInfixOf` logText = LogEntry LogDebug logText timestamp
+    | otherwise = LogEntry LogInfo logText timestamp
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- Attributes
@@ -538,4 +670,13 @@ theMap =
         , -- コンポーネント
           (attrName "cardBorder", fg V.cyan)
         , (attrName "sectionTitle", fg V.brightCyan `V.withStyle` V.bold)
+        , -- ログビューワー
+          (attrName "logInfo", fg V.brightBlue)
+        , (attrName "logSuccess", fg V.brightGreen)
+        , (attrName "logWarning", fg V.brightYellow)
+        , (attrName "logError", fg V.brightRed)
+        , (attrName "logDebug", fg V.brightBlack)
+        , (attrName "timestamp", fg V.brightBlack)
+        , (attrName "cursor", fg V.brightWhite `V.withStyle` V.blink)
+        , (attrName "pending", fg V.brightBlack `V.withStyle` V.italic)
         ]

@@ -8,14 +8,21 @@
 module Adapter.Controller.IAM (
     handleRegisterUser,
     handleActivateUser,
+    handleListUsers,
 )
 where
 
 import Adapter.Env (AppM, Env (..), runAppM)
 import Adapter.Presenter.IAM (presentRegisterUserFailure, presentRegisterUserSuccess)
+import Adapter.Presenter.Query (
+    presentListUsersProgress,
+    presentListUsersSuccess,
+ )
 import App.DTO.Request (ActivateUserRequest (..), RegisterUserRequest (..))
-import App.DTO.Response.IAM (UserResponse (..))
+import App.DTO.Response.IAM (UserListResponse)
+import App.Ports.Query.IAM (ListUsersRequest (..))
 import App.UseCase.IAM.Internal qualified
+import App.UseCase.IAM.ListUsers (ListUsersEnv (..), executeListUsers)
 import App.UseCase.IAM.RegisterUser (executeRegisterUser)
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Reader (ask)
@@ -24,7 +31,7 @@ import Domain.IAM.Permission.Errors qualified as PermError
 import Domain.IAM.Role.Errors qualified as RoleError
 import Domain.IAM.User (User, activateUser)
 import Domain.IAM.User.Errors (DomainError)
-import Domain.IAM.User.ValueObjects.UserId (UserId (..), mkUserId)
+import Domain.IAM.User.ValueObjects.UserId (mkUserId)
 import Domain.IAM.User.ValueObjects.UserState (UserState (..))
 
 -- ─────────────────────────────────────────────────────────────────────────────
@@ -128,3 +135,44 @@ executeActivateUserStub (ActivateUserRequest rawId) = do
                     -- Repository保存（スタブ）
                     _saved <- liftIO $ envSaveUser env activeUser
                     pure ()
+
+{- | ユーザー一覧取得コントローラ
+責務:
+  1. クエリパラメータを受け取る
+  2. DTOに変換
+  3. QueryUseCaseを実行
+  4. 結果をPresenterに委譲
+
+禁止事項:
+  - ビジネスロジック
+  - Writeモデルへのアクセス（ReadModelのみ）
+  - 出力・表示処理（Presenterの責務）
+-}
+handleListUsers :: Maybe Text -> Int -> Int -> AppM UserListResponse
+handleListUsers mFilter offset limit = do
+    -- 進捗報告
+    presentListUsersProgress "Loading users..."
+
+    -- クエリパラメータをDTOに変換
+    let request = ListUsersRequest mFilter offset limit
+
+    -- QueryEnvを構築してUseCaseを実行
+    env <- ask
+    let queryEnv = mkListUsersEnv env
+    result <- liftIO $ executeListUsers queryEnv request
+
+    -- 結果をPresenterに報告
+    presentListUsersSuccess result
+
+    pure result
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- ListUsersEnv構築: Adapter.Env → App.UseCase.IAM.ListUsers.ListUsersEnv
+-- ─────────────────────────────────────────────────────────────────────────────
+
+mkListUsersEnv :: Env -> ListUsersEnv IO
+mkListUsersEnv env =
+    ListUsersEnv
+        { envQueryAllUsers = Adapter.Env.envQueryAllUsers env
+        , envQueryUsersByFilter = Adapter.Env.envQueryUsersByFilter env
+        }

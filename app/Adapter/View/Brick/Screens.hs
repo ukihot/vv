@@ -1,52 +1,36 @@
 {-# LANGUAGE ImportQualifiedPost #-}
 
-{- | 画面レンダリング
-各画面の描画ロジックを定義する。
-新しい画面を追加する際は、ここに描画関数を追加する。
+{- | 画面レンダリング（ファサード）
+各画面の描画ロジックを個別モジュールに委譲する。
+新しい画面を追加する際は、Screen/以下にモジュールを作成し、ここでimportして委譲する。
 
-Components層の再利用可能なコンポーネントを組み合わせて画面を構築する。
+ファサードパターンにより、画面ごとの責務を分離し、保守性を向上させる。
 -}
 module Adapter.View.Brick.Screens (
     renderScreen,
 )
 where
 
+import Adapter.View.Brick.Screen.Home (renderHomeScreen)
+import Adapter.View.Brick.Screen.IAM.UserActivate (renderUserActivateScreen)
+import Adapter.View.Brick.Screen.IAM.UserList (renderUserListScreen)
+import Adapter.View.Brick.Screen.IAM.UserRegister (renderUserRegisterScreen)
+import Adapter.View.Brick.Screen.Placeholder (renderPlaceholderScreen)
 import Adapter.View.Brick.Types (
     Name (..),
     Screen (..),
     UiState (..),
  )
-import Adapter.View.Components.Button (
-    renderPrimaryButton,
- )
-import Adapter.View.Components.Form (
-    renderTextInput,
- )
-import Adapter.View.Components.Layout (
-    renderCard,
-    renderSection,
-    renderSpacer,
- )
-import Brick (
-    Padding (Pad),
-    Widget,
-    attrName,
-    padTop,
-    txt,
-    vBox,
-    withAttr,
- )
-import Data.Text qualified as T
+import Brick (Widget)
 
 -- ─────────────────────────────────────────────────────────────────────────────
--- Screen Rendering Dispatcher
+-- Screen Rendering Dispatcher (ファサード)
 -- ─────────────────────────────────────────────────────────────────────────────
 
 renderScreen :: Screen -> UiState -> Widget Name
 renderScreen ScreenHome = renderHomeScreen
 renderScreen ScreenUserActivate = renderUserActivateScreen
-renderScreen ScreenUserList = renderPlaceholderScreen "User List" "ユーザー一覧画面（未実装）"
-renderScreen ScreenUserCreate = renderPlaceholderScreen "Create User" "ユーザー作成画面（未実装）"
+renderScreen ScreenUserList = renderUserListScreen
 renderScreen ScreenUserRegister = renderUserRegisterScreen
 renderScreen ScreenRoleList = renderPlaceholderScreen "Role List" "ロール一覧画面（未実装）"
 renderScreen ScreenRoleCreate = renderPlaceholderScreen "Create Role" "ロール作成画面（未実装）"
@@ -66,72 +50,3 @@ renderScreen ScreenApprovalWorkflow = renderPlaceholderScreen "Approval Workflow
 renderScreen ScreenAuditTrail = renderPlaceholderScreen "Audit Trail" "監査証跡画面（未実装）"
 renderScreen ScreenClosingProcess = renderPlaceholderScreen "Closing Process" "決算処理画面（未実装）"
 renderScreen ScreenOrganizationSettings = renderPlaceholderScreen "Organization Settings" "組織設定画面（未実装）"
-
--- ─────────────────────────────────────────────────────────────────────────────
--- Home Screen (Components使用例)
--- ─────────────────────────────────────────────────────────────────────────────
-
-renderHomeScreen :: UiState -> Widget Name
-renderHomeScreen _st =
-    renderCard (Just "Home") $
-        vBox
-            [ renderSection "Welcome to VV!" $
-                vBox
-                    [ txt "IFRS-based Accounting System"
-                    , renderSpacer 1
-                    , txt "Built with Haskell + Event Sourcing + CQRS"
-                    ]
-            , renderSpacer 1
-            , renderSection "Quick Start" $
-                vBox
-                    [ txt "• Press 'n' to open navigation menu"
-                    , txt "• Press 'Tab' to switch domain tabs"
-                    , txt "• Press 'Esc' to go back"
-                    , txt "• Press 'q' to quit"
-                    ]
-            ]
-
--- ─────────────────────────────────────────────────────────────────────────────
--- User Activate Screen (Components使用例)
--- ─────────────────────────────────────────────────────────────────────────────
-
-renderUserActivateScreen :: UiState -> Widget Name
-renderUserActivateScreen st =
-    renderCard (Just "User Activation") $
-        vBox
-            [ renderTextInput "User ID" (uiUserIdEditor st) True
-            , padTop (Pad 1) $
-                renderPrimaryButton "Activate" "Enter"
-            ]
-
--- ─────────────────────────────────────────────────────────────────────────────
--- User Register Screen (ユーザ登録画面)
--- ─────────────────────────────────────────────────────────────────────────────
-
-renderUserRegisterScreen :: UiState -> Widget Name
-renderUserRegisterScreen st =
-    renderCard (Just "User Registration") $
-        vBox
-            [ renderTextInput "Name" (uiUserNameEditor st) (uiCurrentFocus st == UserNameField)
-            , renderSpacer 1
-            , renderTextInput "Email" (uiUserEmailEditor st) (uiCurrentFocus st == UserEmailField)
-            , renderSpacer 1
-            , renderTextInput "Role" (uiUserRoleEditor st) (uiCurrentFocus st == UserRoleField)
-            , padTop (Pad 2) $
-                renderPrimaryButton "Register User" "Enter"
-            , renderSpacer 1
-            , withAttr (attrName "hint") $ txt "Tab/Shift+Tab: Navigate fields, Enter: Register"
-            ]
-
--- ─────────────────────────────────────────────────────────────────────────────
--- Placeholder Screen (未実装画面用)
--- ─────────────────────────────────────────────────────────────────────────────
-
-renderPlaceholderScreen :: String -> String -> UiState -> Widget Name
-renderPlaceholderScreen title description _st =
-    renderCard (Just (T.pack title)) $
-        vBox
-            [ txt (T.pack description)
-            , renderSpacer 1
-            , withAttr (attrName "hint") $ txt "This screen is not yet implemented."
-            ]

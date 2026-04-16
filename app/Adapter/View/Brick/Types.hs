@@ -22,6 +22,8 @@ module Adapter.View.Brick.Types (
 where
 
 import Adapter.Env (Env)
+import Adapter.View.Components.LogViewer (LogViewerState, initialLogViewerState)
+import App.DTO.Response.IAM (UserListResponse)
 import Brick.Widgets.Edit (Editor)
 import Control.Concurrent.STM (TVar)
 import Data.Text (Text)
@@ -107,7 +109,6 @@ screenRegistry =
     [ -- IAM
       ScreenInfo ScreenUserList "User List" TabIAM "ユーザー一覧"
     , ScreenInfo ScreenUserActivate "User Activation" TabIAM "ユーザー有効化"
-    , ScreenInfo ScreenUserCreate "Create User" TabIAM "ユーザー作成"
     , ScreenInfo ScreenUserRegister "Register User" TabIAM "ユーザー登録"
     , ScreenInfo ScreenRoleList "Role List" TabIAM "ロール一覧"
     , ScreenInfo ScreenRoleCreate "Create Role" TabIAM "ロール作成"
@@ -163,6 +164,8 @@ data UiState = UiState
       uiEnv :: Env
     , -- ログ（Presenterが更新）
       uiLogs :: TVar [Text]
+    , -- ログビューワー状態
+      uiLogViewer :: LogViewerState
     , -- ナビゲーション
       uiNavigation :: NavigationState
     , -- 画面固有の状態
@@ -170,6 +173,8 @@ data UiState = UiState
     , uiUserNameEditor :: Editor Text Name
     , uiUserEmailEditor :: Editor Text Name
     , uiUserRoleEditor :: Editor Text Name
+    , -- ユーザー一覧データ
+      uiUserList :: Maybe UserListResponse
     , -- フォーカス管理
       uiCurrentFocus :: Name
     , -- ヘルプ表示フラグ
