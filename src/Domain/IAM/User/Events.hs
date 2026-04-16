@@ -12,6 +12,8 @@ module Domain.IAM.User.Events (
 )
 where
 
+import Data.Text (Text)
+import Domain.IAM.Role.ValueObjects.RoleId (RoleId)
 import Domain.IAM.User.ValueObjects.Email (Email)
 import Domain.IAM.User.ValueObjects.UserId (UserId)
 import Domain.IAM.User.ValueObjects.UserName (UserName)
@@ -22,13 +24,15 @@ data UserEventPayloadV1
     | UserActivated UserId
     deriving (Show, Eq)
 
--- | V2: 拡張スキーマ（凍結・解除・無効化・訂正）
+-- | V2: 拡張スキーマ（凍結・解除・無効化・訂正・ロール操作）
 data UserEventPayloadV2
     = UserSuspended UserId
     | UserUnsuspended UserId
-    | UserDeactivated UserId
+    | UserDeactivated UserId Text -- #40: reason を監査証跡として記録
     | UserEmailCorrected UserId Email
     | UserNameCorrected UserId UserName
+    | UserRoleAssigned UserId RoleId -- #8: User 集約内でロール関連付けを記録
+    | UserRoleRevoked UserId RoleId -- #8: User 集約内でロール剥奪を記録
     deriving (Show, Eq)
 
 -- | バージョンタグ付き統合ペイロード (#27)

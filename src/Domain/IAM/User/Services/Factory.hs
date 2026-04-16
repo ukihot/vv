@@ -18,8 +18,6 @@ import Domain.IAM.User.ValueObjects.Version (initialVersion)
 registerUser :: UserId -> UserName -> Email -> (User 'Pending, UserEventPayload)
 registerUser uid name email =
     let profile = UserProfile name email
-        -- Version 0 ではなく初期定義を使用し、知識を結合させない
-        user = UserP uid profile initialVersion
-        -- 事実を記録
+        user = UserP uid profile [] initialVersion
         event = V1 (UserRegistered uid name email)
      in (user, event)

@@ -45,22 +45,6 @@ common common-options
         -Wredundant-constraints
         -Wunused-packages
         -fhide-source-paths
-    -- Haddock options to support language extensions
-    haddock-options:
-        --optghc=-XImportQualifiedPost
-        --optghc=-XLambdaCase
-        --optghc=-XMultiWayIf
-        --optghc=-XOverloadedStrings
-        --optghc=-XOverloadedRecordDot
-        --optghc=-XRecordWildCards
-        --optghc=-XDerivingStrategies
-        --optghc=-XDeriveAnyClass
-        --optghc=-XDataKinds
-        --optghc=-XTypeFamilies
-        --optghc=-XGADTs
-        --optghc=-XViewPatterns
-        --optghc=-XPatternSynonyms
-        --optghc=-XStrictData
 
 -- ────────────────────────────────────────────────────────────────────────────
 -- Library
@@ -146,6 +130,16 @@ library
         App.DTO.Response
         App.DTO.Request
         App.UseCase.IAM
+        App.UseCase.IAM.Internal
+        App.UseCase.IAM.Login
+        App.UseCase.IAM.Logout
+        App.UseCase.IAM.RegisterUser
+        App.UseCase.IAM.ActivateUser
+        App.UseCase.IAM.DeactivateUser
+        App.UseCase.IAM.AssignRole
+        App.UseCase.IAM.RevokeRole
+        App.UseCase.IAM.GrantPermission
+        App.UseCase.IAM.RevokePermission
         Infra.Persistence.SQLite.EventStore
         Infra.Persistence.SQLite.Schema
         Infra.Persistence.SQLite.Projection
@@ -238,6 +232,16 @@ library vv-internal
         App.DTO.Response
         App.DTO.Request
         App.UseCase.IAM
+        App.UseCase.IAM.Internal
+        App.UseCase.IAM.Login
+        App.UseCase.IAM.Logout
+        App.UseCase.IAM.RegisterUser
+        App.UseCase.IAM.ActivateUser
+        App.UseCase.IAM.DeactivateUser
+        App.UseCase.IAM.AssignRole
+        App.UseCase.IAM.RevokeRole
+        App.UseCase.IAM.GrantPermission
+        App.UseCase.IAM.RevokePermission
         Infra.Persistence.SQLite.EventStore
         Infra.Persistence.SQLite.Schema
         Infra.Persistence.SQLite.Projection

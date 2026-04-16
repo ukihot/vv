@@ -108,16 +108,16 @@ data StoredUser
     | StoredInactive (User 'Inactive)
 
 toStoredUser :: User s -> StoredUser
-toStoredUser user@(UserP _ _ _) = StoredPending user
-toStoredUser user@(UserA _ _ _) = StoredActive user
-toStoredUser user@(UserS _ _ _) = StoredSuspended user
-toStoredUser user@(UserI _ _ _) = StoredInactive user
+toStoredUser user@(UserP _ _ _ _) = StoredPending user
+toStoredUser user@(UserA _ _ _ _) = StoredActive user
+toStoredUser user@(UserS _ _ _ _) = StoredSuspended user
+toStoredUser user@(UserI _ _ _ _) = StoredInactive user
 
 getUserId :: User s -> UserId
-getUserId (UserP uid _ _) = uid
-getUserId (UserA uid _ _) = uid
-getUserId (UserS uid _ _) = uid
-getUserId (UserI uid _ _) = uid
+getUserId (UserP uid _ _ _) = uid
+getUserId (UserA uid _ _ _) = uid
+getUserId (UserS uid _ _ _) = uid
+getUserId (UserI uid _ _ _) = uid
 
 formatError :: DomainError -> Text
 formatError err = case err of

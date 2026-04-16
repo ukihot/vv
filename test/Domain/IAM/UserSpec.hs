@@ -98,28 +98,29 @@ case_deactivateAcceptsActiveAndSuspended :: Assertion
 case_deactivateAcceptsActiveAndSuspended = do
     pendingUser <- samplePendingUser
     let (activeUser, _) = activateUser pendingUser
-    inactiveFromActive <- assertRight "deactivate active" (deactivateUser activeUser)
+    inactiveFromActive <- assertRight "deactivate active" (deactivateUser "test reason" activeUser)
     assertEqual "inactive version from active" (Version 2) (getUserVersion (fst inactiveFromActive))
     assertEqual
         "inactive event from active"
-        (V2 (UserDeactivated (getUserId activeUser)))
+        (V2 (UserDeactivated (getUserId activeUser) "test reason"))
         (snd inactiveFromActive)
 
     let (suspendedUser, _) = suspendUser activeUser
-    inactiveFromSuspended <- assertRight "deactivate suspended" (deactivateUser suspendedUser)
+    inactiveFromSuspended <-
+        assertRight "deactivate suspended" (deactivateUser "test reason" suspendedUser)
     assertEqual
         "inactive version from suspended"
         (Version 3)
         (getUserVersion (fst inactiveFromSuspended))
     assertEqual
         "inactive event from suspended"
-        (V2 (UserDeactivated (getUserId suspendedUser)))
+        (V2 (UserDeactivated (getUserId suspendedUser) "test reason"))
         (snd inactiveFromSuspended)
 
 case_deactivateRejectsPending :: Assertion
 case_deactivateRejectsPending = do
     pendingUser <- samplePendingUser
-    case deactivateUser pendingUser of
+    case deactivateUser "test reason" pendingUser of
         Left IllegalTransition -> pure ()
         Left err -> assertFailure ("予期しないエラー: " <> show err)
         Right _ -> assertFailure "expected pending deactivation to fail"
@@ -144,7 +145,7 @@ prop_lifecyclePreservesInvariant = property $ do
         (activeUser, activeEvent) = activateUser pendingUser
         (suspendedUser, suspendedEvent) = suspendUser activeUser
         (reactivatedUser, unsuspendedEvent) = unsuspendUser suspendedUser
-        deactivated = deactivateUser reactivatedUser
+        deactivated = deactivateUser "test reason" reactivatedUser
     case deactivated of
         Left err -> fail ("expected deactivation to succeed in lifecycle property: " <> show err)
         Right (inactiveUser, deactivatedEvent) -> do
@@ -163,4 +164,4 @@ prop_lifecyclePreservesInvariant = property $ do
             activeEvent === V1 (UserActivated uid)
             suspendedEvent === V2 (UserSuspended uid)
             unsuspendedEvent === V2 (UserUnsuspended uid)
-            deactivatedEvent === V2 (UserDeactivated uid)
+            deactivatedEvent === V2 (UserDeactivated uid "test reason")

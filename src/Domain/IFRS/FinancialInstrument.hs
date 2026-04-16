@@ -8,6 +8,21 @@ module Domain.IFRS.FinancialInstrument (
     EclStage (..),
     SomeFinancialAsset (..),
 
+    -- * 値オブジェクト
+    FinancialAssetId (..),
+    mkFinancialAssetId,
+
+    -- * ECL パラメータ
+    EclParameters (..),
+    EconomicScenario (..),
+    ScenarioWeight (..),
+
+    -- * エラー
+    FinancialInstrumentError (..),
+
+    -- * 判断ログ
+    EclJudgmentLog (..),
+
     -- * ゲッター
     faId,
     faGrossCarrying,
@@ -22,12 +37,26 @@ module Domain.IFRS.FinancialInstrument (
     promoteToStage3,
     demoteToStage1,
     updateEclStage,
+
+    -- * サービス
+    classifyStage,
+    computeEcl,
 )
 where
 
 import Domain.IFRS.FinancialInstrument.Entities.EclJudgmentLog (EclJudgmentLog (..))
+import Domain.IFRS.FinancialInstrument.Entities.EclParameters (
+    EclParameters (..),
+    EconomicScenario (..),
+    ScenarioWeight (..),
+ )
+import Domain.IFRS.FinancialInstrument.Errors (FinancialInstrumentError (..))
+import Domain.IFRS.FinancialInstrument.Services.EclCalculation (classifyStage, computeEcl)
 import Domain.IFRS.FinancialInstrument.ValueObjects.EclStage (EclStage (..))
-import Domain.IFRS.FinancialInstrument.ValueObjects.FinancialAssetId (FinancialAssetId)
+import Domain.IFRS.FinancialInstrument.ValueObjects.FinancialAssetId (
+    FinancialAssetId (..),
+    mkFinancialAssetId,
+ )
 import Domain.IFRS.FinancialInstrument.ValueObjects.Version (Version, initialVersion, nextVersion)
 import Domain.Shared (Money, zeroMoney)
 import GHC.TypeLits (Symbol)

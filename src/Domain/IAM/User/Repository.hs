@@ -2,6 +2,7 @@ module Domain.IAM.User.Repository where
 
 import Domain.IAM.User (User)
 import Domain.IAM.User.Errors (DomainError)
+import Domain.IAM.User.Events (UserEventPayload)
 import Domain.IAM.User.ValueObjects.UserId (UserId)
 
 {- | #14, #16: 集約の復元と保存のみを責務とするリポジトリ
@@ -18,3 +19,8 @@ class Monad m => UserRepository m where
     状態(s)に関わらず、保存の責務を果たす
     -}
     saveUser :: User s -> m (Either DomainError ())
+
+    {- | イベントを append-only で永続化する (#21, #22, #25)
+    現在値の上書きではなく、発生した事実をイベントストアに積む。
+    -}
+    appendUserEvent :: UserId -> UserEventPayload -> m (Either DomainError ())

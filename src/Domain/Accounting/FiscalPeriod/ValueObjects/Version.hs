@@ -1,3 +1,4 @@
+-- | Domain.Shared.Version の再エクスポート。
 module Domain.Accounting.FiscalPeriod.ValueObjects.Version (
     Version (..),
     initialVersion,
@@ -5,11 +6,4 @@ module Domain.Accounting.FiscalPeriod.ValueObjects.Version (
 )
 where
 
-newtype Version = Version {unVersion :: Int}
-    deriving (Show, Eq, Ord)
-
-initialVersion :: Version
-initialVersion = Version 0
-
-nextVersion :: Version -> Version
-nextVersion (Version n) = Version (n + 1)
+import Domain.Shared (Version (..), initialVersion, nextVersion)

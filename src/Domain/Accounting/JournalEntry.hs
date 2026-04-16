@@ -7,6 +7,9 @@ module Domain.Accounting.JournalEntry (
     JournalEntry (..),
     recordEntry,
 
+    -- * エラー
+    JournalError (..),
+
     -- * エンティティ
     module Domain.Accounting.JournalEntry.Entities.JournalLine,
     module Domain.Accounting.JournalEntry.Entities.CarryingAmountBridge,
@@ -14,6 +17,9 @@ module Domain.Accounting.JournalEntry (
     -- * 値オブジェクト
     module Domain.Accounting.JournalEntry.ValueObjects.JournalEntryId,
     module Domain.Accounting.JournalEntry.ValueObjects.DrCr,
+
+    -- * サービス
+    validateBalance,
 )
 where
 
@@ -21,7 +27,7 @@ import Data.Text (Text)
 import Data.Time (Day)
 import Domain.Accounting.JournalEntry.Entities.CarryingAmountBridge
 import Domain.Accounting.JournalEntry.Entities.JournalLine
-import Domain.Accounting.JournalEntry.Errors (JournalError)
+import Domain.Accounting.JournalEntry.Errors (JournalError (..))
 import Domain.Accounting.JournalEntry.Services.Validation (validateBalance)
 import Domain.Accounting.JournalEntry.ValueObjects.DrCr
 import Domain.Accounting.JournalEntry.ValueObjects.JournalEntryId

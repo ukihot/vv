@@ -6,14 +6,26 @@ module Domain.IFRS.Lease (
     -- * 集約
     Lease (..),
 
+    -- * 値オブジェクト
+    LeaseId (..),
+    mkLeaseId,
+
+    -- * エラー
+    LeaseError (..),
+
     -- * 状態遷移
     recordLease,
     applyLeasePayment,
+
+    -- * サービス
+    computePeriodInterest,
+    computePeriodDepreciation,
 )
 where
 
 import Data.Time (Day)
-import Domain.IFRS.Lease.ValueObjects.LeaseId (LeaseId)
+import Domain.IFRS.Lease.Errors (LeaseError (..))
+import Domain.IFRS.Lease.ValueObjects.LeaseId (LeaseId (..), mkLeaseId)
 import Domain.IFRS.Lease.ValueObjects.Version (Version, initialVersion, nextVersion)
 import Domain.Shared (Money, scaleMoney, subMoney, zeroMoney)
 import GHC.TypeLits (Symbol)
@@ -69,3 +81,15 @@ applyLeasePayment l payment =
             { leaseLiability = newLiability
             , leaseVersion = nextVersion (leaseVersion l)
             }
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- サービス（循環インポート回避のためファサードに直接定義）
+-- ─────────────────────────────────────────────────────────────────────────────
+
+computePeriodInterest :: Lease currency -> Money currency
+computePeriodInterest l =
+    scaleMoney (leaseDiscountRate l / 12) (leaseLiability l)
+
+computePeriodDepreciation :: Lease currency -> Money currency
+computePeriodDepreciation l =
+    scaleMoney (1 / fromIntegral (leaseTerm l)) (leaseRouAsset l)

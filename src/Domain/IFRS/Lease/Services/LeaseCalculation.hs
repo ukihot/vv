@@ -1,16 +1,6 @@
-module Domain.IFRS.Lease.Services.LeaseCalculation (
-    computePeriodInterest,
-    computePeriodDepreciation,
-)
+{- | リース計算サービス
+実装は循環インポート回避のため Domain.IFRS.Lease ファサードに直接定義している。
+呼び出し元は Domain.IFRS.Lease を直接インポートすること。
+-}
+module Domain.IFRS.Lease.Services.LeaseCalculation
 where
-
-import Domain.IFRS.Lease (Lease (..))
-import Domain.Shared (Money, scaleMoney)
-
-computePeriodInterest :: Lease currency -> Money currency
-computePeriodInterest l =
-    scaleMoney (leaseDiscountRate l / 12) (leaseLiability l)
-
-computePeriodDepreciation :: Lease currency -> Money currency
-computePeriodDepreciation l =
-    scaleMoney (1 / fromIntegral (leaseTerm l)) (leaseRouAsset l)

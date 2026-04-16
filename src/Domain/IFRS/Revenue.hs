@@ -12,6 +12,13 @@ module Domain.IFRS.Revenue (
     -- * 値オブジェクト
     module Domain.IFRS.Revenue.ValueObjects.ContractId,
     module Domain.IFRS.Revenue.ValueObjects.AllocationMethod,
+
+    -- * エラー
+    RevenueError (..),
+
+    -- * サービス
+    allocateTransactionPrice,
+    recognizeRevenue,
 )
 where
 
@@ -19,5 +26,8 @@ import Domain.IFRS.Revenue.Entities.PerformanceObligation
 import Domain.IFRS.Revenue.Entities.RevenueJudgmentLog
 import Domain.IFRS.Revenue.Entities.RevenueRecognitionResult
 import Domain.IFRS.Revenue.Entities.VariableConsideration
+import Domain.IFRS.Revenue.Errors (RevenueError (..))
+import Domain.IFRS.Revenue.Services.PriceAllocation (allocateTransactionPrice)
+import Domain.IFRS.Revenue.Services.RevenueRecognition (recognizeRevenue)
 import Domain.IFRS.Revenue.ValueObjects.AllocationMethod
 import Domain.IFRS.Revenue.ValueObjects.ContractId

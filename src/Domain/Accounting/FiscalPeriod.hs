@@ -8,6 +8,9 @@ module Domain.Accounting.FiscalPeriod (
     PeriodState (..),
     SomeFiscalPeriod (..),
 
+    -- * イベント
+    FiscalPeriodEvent (..),
+
     -- * 値オブジェクト
     module Domain.Accounting.FiscalPeriod.ValueObjects.FiscalPeriodId,
 

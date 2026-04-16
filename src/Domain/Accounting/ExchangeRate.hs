@@ -7,9 +7,15 @@ module Domain.Accounting.ExchangeRate (
     ExchangeRate (..),
     mkExchangeRate,
 
+    -- * エラー
+    ExchangeRateError (..),
+
     -- * 値オブジェクト
     module Domain.Accounting.ExchangeRate.ValueObjects.RateKind,
     module Domain.Accounting.ExchangeRate.ValueObjects.MonetaryClass,
+
+    -- * サービス
+    translateMoney,
 )
 where
 
@@ -18,6 +24,7 @@ import Data.Time (Day)
 import Domain.Accounting.ExchangeRate.Errors (ExchangeRateError (..))
 import Domain.Accounting.ExchangeRate.ValueObjects.MonetaryClass
 import Domain.Accounting.ExchangeRate.ValueObjects.RateKind
+import Domain.Shared (Money, mkMoney, unMoney)
 import GHC.TypeLits (Symbol)
 
 data ExchangeRate (from :: Symbol) (to :: Symbol) = ExchangeRate
@@ -37,3 +44,13 @@ mkExchangeRate ::
 mkExchangeRate r k d src
     | r <= 0 = Left NonPositiveRate
     | otherwise = Right (ExchangeRate r k d src)
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- サービス（循環インポート回避のためファサードに直接定義）
+-- ─────────────────────────────────────────────────────────────────────────────
+
+translateMoney ::
+    ExchangeRate from to ->
+    Money from ->
+    Money to
+translateMoney er m = mkMoney (unMoney m * rateValue er)
