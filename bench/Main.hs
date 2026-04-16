@@ -63,15 +63,14 @@ import Domain.IFRS.Revenue (
     SatisfactionPattern (..),
     allocateTransactionPrice,
  )
-import Domain.Shared (Money (..), Version (..), mkMoney, zeroMoney)
+import Domain.Shared (Money (..), Version (..), mkMoney, mkMoney', zeroMoney)
 import Test.Tasty.Bench
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- NFData インスタンス（deepseq で完全評価するために必要）
 -- ─────────────────────────────────────────────────────────────────────────────
 
-instance NFData (Money c) where
-    rnf (Money r) = rnf r
+-- Note: Money (Money.Dense) already has NFData instance from safe-money
 
 instance NFData EclStage where
     rnf s = s `seq` ()
@@ -139,7 +138,7 @@ eclParams =
         }
 
 ead :: Money "JPY"
-ead = mkMoney 1000000
+ead = mkMoney' 1000000
 
 usdJpyRate :: ExchangeRate "USD" "JPY"
 usdJpyRate =
@@ -158,8 +157,8 @@ makeLines :: Int -> [JournalLine "JPY"]
 makeLines n =
     let code = case mkAccountCode "1000" of Right c -> c; Left _ -> error "fixture"
         half = n `div` 2
-        drs = replicate half (JournalLine code Dr (mkMoney (fromIntegral half)))
-        crs = replicate half (JournalLine code Cr (mkMoney (fromIntegral half)))
+        drs = replicate half (JournalLine code Dr (mkMoney' (fromIntegral half)))
+        crs = replicate half (JournalLine code Cr (mkMoney' (fromIntegral half)))
      in drs <> crs
 
 -- N個の履行義務リストを生成（均等 SSP）
@@ -170,7 +169,7 @@ makeObligations n =
         , poDescription = "obligation"
         , poPattern = AtPointInTime
         , poProgressMethod = Nothing
-        , poStandalonePrice = mkMoney 100000
+        , poStandalonePrice = mkMoney' 100000
         , poAllocatedPrice = zeroMoney
         }
     | i <- [1 .. n]
@@ -218,10 +217,10 @@ main =
                 "promoteToStage2"
                 [ bench "single" $
                     let fa = recordFinancialAsset sampleFaId ead 0.05
-                     in nf (promoteToStage2 fa) (mkMoney 4500 :: Money "JPY")
+                     in nf (promoteToStage2 fa) (mkMoney' 4500 :: Money "JPY")
                 , bench "chain Stage1→2→3" $
                     let fa0 = recordFinancialAsset sampleFaId ead 0.05
-                        ecl = mkMoney 21375 :: Money "JPY"
+                        ecl = mkMoney' 21375 :: Money "JPY"
                      in nf
                             ( \e ->
                                 let (fa1, _) = promoteToStage2 fa0 e
@@ -233,9 +232,9 @@ main =
         , bgroup
             "IAS 21 / ExchangeRate"
             [ bench "translateMoney single" $
-                nf (translateMoney usdJpyRate) (mkMoney 1000 :: Money "USD")
+                nf (translateMoney usdJpyRate) (mkMoney' 1000 :: Money "USD")
             , bench "translateMoney 10,000 calls" $
-                nf (map (translateMoney usdJpyRate . mkMoney . fromIntegral)) [1 .. 10000 :: Int]
+                nf (map (translateMoney usdJpyRate . mkMoney' . fromIntegral)) [1 .. 10000 :: Int]
             ]
         , bgroup
             "Accounting / JournalEntry"
@@ -249,11 +248,11 @@ main =
         , bgroup
             "IFRS 15 / Revenue allocation"
             [ bench "allocate 2 obligations" $
-                nf (allocateTransactionPrice (mkMoney 1000000 :: Money "JPY")) (makeObligations 2)
+                nf (allocateTransactionPrice (mkMoney' 1000000 :: Money "JPY")) (makeObligations 2)
             , bench "allocate 10 obligations" $
-                nf (allocateTransactionPrice (mkMoney 1000000 :: Money "JPY")) (makeObligations 10)
+                nf (allocateTransactionPrice (mkMoney' 1000000 :: Money "JPY")) (makeObligations 10)
             , bench "allocate 50 obligations" $
-                nf (allocateTransactionPrice (mkMoney 1000000 :: Money "JPY")) (makeObligations 50)
+                nf (allocateTransactionPrice (mkMoney' 1000000 :: Money "JPY")) (makeObligations 50)
             ]
         , bgroup
             "IAM / User rehydrate"
