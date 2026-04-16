@@ -58,7 +58,8 @@ common lib-deps
         persistent-sqlite >= 2.13 && < 3,
         acid-state >= 0.16 && < 1,
         safecopy >= 0.10 && < 1,
-        containers
+        containers,
+        stm
 
 -- ────────────────────────────────────────────────────────────────────────────
 -- Internal library (src の唯一のオーナー)

@@ -33,7 +33,7 @@ import Control.Monad.State (get, put)
 import Data.Acid (Query, Update, makeAcidic)
 import Data.Map.Strict (Map)
 import Data.Map.Strict qualified as Map
-import Data.SafeCopy (SafeCopy, base, deriveSafeCopy)
+import Data.SafeCopy (base, deriveSafeCopy)
 import Data.Text (Text)
 import Data.Text qualified as T
 import Data.Typeable (Typeable)
@@ -129,20 +129,33 @@ getLastPermissionSeq = irmLastPermissionSeq <$> ask
 applyUserEvent :: Int -> Text -> Text -> Update IamReadModel ()
 applyUserEvent seq' eventType payload = do
     model <- get
-    let users' = applyToUsersRaw (irmUsers model) eventType payload
-    put model {irmUsers = users', irmLastUserSeq = seq'}
+    -- 順序チェック: 期待するシーケンス番号と一致する場合のみ適用（冪等性保証）
+    let expected = irmLastUserSeq model + 1
+    if seq' /= expected
+        then pure () -- 重複または順序違いは無視
+        else do
+            let users' = applyToUsersRaw (irmUsers model) eventType payload
+            put model {irmUsers = users', irmLastUserSeq = seq'}
 
 applyRoleEvent :: Int -> Text -> Text -> Update IamReadModel ()
 applyRoleEvent seq' eventType payload = do
     model <- get
-    let roles' = applyToRolesRaw (irmRoles model) eventType payload
-    put model {irmRoles = roles', irmLastRoleSeq = seq'}
+    let expected = irmLastRoleSeq model + 1
+    if seq' /= expected
+        then pure ()
+        else do
+            let roles' = applyToRolesRaw (irmRoles model) eventType payload
+            put model {irmRoles = roles', irmLastRoleSeq = seq'}
 
 applyPermissionEvent :: Int -> Text -> Text -> Update IamReadModel ()
 applyPermissionEvent seq' eventType payload = do
     model <- get
-    let perms' = applyToPermissionsRaw (irmPermissions model) eventType payload
-    put model {irmPermissions = perms', irmLastPermissionSeq = seq'}
+    let expected = irmLastPermissionSeq model + 1
+    if seq' /= expected
+        then pure ()
+        else do
+            let perms' = applyToPermissionsRaw (irmPermissions model) eventType payload
+            put model {irmPermissions = perms', irmLastPermissionSeq = seq'}
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- イベント適用ロジック（純粋関数・シリアライズ済みテキストから直接適用）

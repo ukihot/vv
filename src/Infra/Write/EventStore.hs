@@ -1,6 +1,9 @@
 {- | SQLite イベントストア
 persistent ORM を使って IAM イベントを append-only で永続化する。
 CQRS: load（rehydrate 用）と append のみ。検索系は一切持たない。
+
+append 後は ProjectionQueue にイベントを投入し、
+Projector スレッドが非同期で acid-state の Read モデルを更新する。
 -}
 module Infra.Write.EventStore (
     appendUserEvent,
@@ -12,6 +15,8 @@ module Infra.Write.EventStore (
     runDb,
 ) where
 
+import Control.Concurrent.STM (atomically)
+import Control.Concurrent.STM.TBQueue (writeTBQueue)
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import Data.Text (Text)
 import Data.Time (getCurrentTime)
@@ -30,6 +35,7 @@ import Domain.IAM.Role.Events (RoleEventPayload)
 import Domain.IAM.Role.ValueObjects.RoleId (RoleId, unRoleId)
 import Domain.IAM.User.Events (UserEventPayload)
 import Domain.IAM.User.ValueObjects.UserId (UserId, unUserId)
+import Infra.Write.Projection (ProjectionEvent (..), ProjectionQueue)
 import Infra.Write.Schema
 import Infra.Write.Serialise (
     decodePermissionEvent,
@@ -51,11 +57,12 @@ runDb pool action = liftIO $ runSqlPool action pool
 appendUserEvent ::
     MonadIO m =>
     ConnectionPool ->
+    Maybe ProjectionQueue -> -- Nothing = 同期モード（テスト用）
     UserId ->
-    Int -> -- 現在のバージョン（楽観ロック）
+    Int ->
     UserEventPayload ->
     m (Either Text ())
-appendUserEvent pool uid version payload = do
+appendUserEvent pool mQueue uid version payload = do
     now <- liftIO getCurrentTime
     let (eventType, encoded) = encodeUserEvent payload
     runDb pool $
@@ -67,6 +74,13 @@ appendUserEvent pool uid version payload = do
                 , userEventPayload = encoded
                 , userEventRecordedAt = now
                 }
+    -- SQLite 書き込み完了後にキューへ通知（非同期 Projection）
+    liftIO $ case mQueue of
+        Nothing -> pure ()
+        Just q ->
+            atomically $
+                writeTBQueue q $
+                    UserEventAppended version eventType encoded
     pure $ Right ()
 
 loadUserEvents ::
@@ -87,11 +101,12 @@ loadUserEvents pool uid = do
 appendRoleEvent ::
     MonadIO m =>
     ConnectionPool ->
+    Maybe ProjectionQueue ->
     RoleId ->
     Int ->
     RoleEventPayload ->
     m (Either Text ())
-appendRoleEvent pool rid version payload = do
+appendRoleEvent pool mQueue rid version payload = do
     now <- liftIO getCurrentTime
     let (eventType, encoded) = encodeRoleEvent payload
     runDb pool $
@@ -103,6 +118,12 @@ appendRoleEvent pool rid version payload = do
                 , roleEventPayload = encoded
                 , roleEventRecordedAt = now
                 }
+    liftIO $ case mQueue of
+        Nothing -> pure ()
+        Just q ->
+            atomically $
+                writeTBQueue q $
+                    RoleEventAppended version eventType encoded
     pure $ Right ()
 
 loadRoleEvents ::
@@ -123,11 +144,12 @@ loadRoleEvents pool rid = do
 appendPermissionEvent ::
     MonadIO m =>
     ConnectionPool ->
+    Maybe ProjectionQueue ->
     PermissionId ->
     Int ->
     PermissionEventPayload ->
     m (Either Text ())
-appendPermissionEvent pool pid version payload = do
+appendPermissionEvent pool mQueue pid version payload = do
     now <- liftIO getCurrentTime
     let (eventType, encoded) = encodePermissionEvent payload
     runDb pool $
@@ -139,6 +161,12 @@ appendPermissionEvent pool pid version payload = do
                 , permissionEventPayload = encoded
                 , permissionEventRecordedAt = now
                 }
+    liftIO $ case mQueue of
+        Nothing -> pure ()
+        Just q ->
+            atomically $
+                writeTBQueue q $
+                    PermissionEventAppended version eventType encoded
     pure $ Right ()
 
 loadPermissionEvents ::

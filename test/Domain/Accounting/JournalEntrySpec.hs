@@ -8,7 +8,6 @@ import Domain.Accounting.JournalEntry (
     JournalEntry (..),
     JournalError (..),
     JournalLine (..),
-    mkJournalEntryId,
     recordEntry,
     validateBalance,
  )

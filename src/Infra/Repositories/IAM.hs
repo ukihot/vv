@@ -36,6 +36,7 @@ import Domain.IAM.User.Errors (DomainError (..))
 import Domain.IAM.User.Repository (UserHandle (..))
 import Infra.Read.IAM (IamReadModel)
 import Infra.Write.EventStore qualified as ES
+import Infra.Write.Projection (ProjectionQueue)
 import Unsafe.Coerce (unsafeCoerce)
 
 -- ─────────────────────────────────────────────────────────────────────────────
@@ -45,6 +46,7 @@ import Unsafe.Coerce (unsafeCoerce)
 data IamRepoEnv = IamRepoEnv
     { envPool :: ConnectionPool
     , envAcidState :: AcidState IamReadModel
+    , envProjectionQueue :: Maybe ProjectionQueue
     }
 
 -- ─────────────────────────────────────────────────────────────────────────────
@@ -68,7 +70,7 @@ mkUserHandle env =
         , appendUserEvent = \uid payload -> do
             events <- liftIO $ ES.loadUserEvents (envPool env) uid
             let nextVer = length events
-            result <- liftIO $ ES.appendUserEvent (envPool env) uid nextVer payload
+            result <- liftIO $ ES.appendUserEvent (envPool env) (envProjectionQueue env) uid nextVer payload
             pure $ either (Left . RepositoryError . show) Right result
         }
 
@@ -90,7 +92,7 @@ mkRoleHandle env =
         , appendRoleEvent = \rid payload -> do
             events <- liftIO $ ES.loadRoleEvents (envPool env) rid
             let nextVer = length events
-            result <- liftIO $ ES.appendRoleEvent (envPool env) rid nextVer payload
+            result <- liftIO $ ES.appendRoleEvent (envPool env) (envProjectionQueue env) rid nextVer payload
             pure $ either (Left . RoleErr.RepositoryError . show) Right result
         }
 
@@ -112,6 +114,7 @@ mkPermissionHandle env =
         , appendPermissionEvent = \pid payload -> do
             events <- liftIO $ ES.loadPermissionEvents (envPool env) pid
             let nextVer = length events
-            result <- liftIO $ ES.appendPermissionEvent (envPool env) pid nextVer payload
+            result <-
+                liftIO $ ES.appendPermissionEvent (envPool env) (envProjectionQueue env) pid nextVer payload
             pure $ either (Left . PermErr.RepositoryError . show) Right result
         }
