@@ -111,6 +111,6 @@ toUserResponse uid profile state =
         , userResponseEmail = unEmail (profileEmail profile)
         , userResponseStatus = userStateToText state
         , userResponseRoles = []
-        , userResponseCreatedAt = undefined -- TODO: 実際の値
+        , userResponseCreatedAt = read "2026-04-16 00:00:00 UTC" -- TODO: 実際の値
         , userResponseUpdatedAt = Nothing
         }

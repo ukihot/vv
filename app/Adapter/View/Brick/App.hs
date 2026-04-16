@@ -22,9 +22,9 @@ Controllerに生データを渡す。
   1-6     : タブ直接選択
   Enter   : 選択/実行
 -}
-module Adapter.View.Brick.App (runBrickApp) where
+module Adapter.View.Brick.App (runTuiApp) where
 
-import Adapter.Controller.IAM (handleActivateUser)
+import Adapter.Controller.IAM (handleActivateUser, handleRegisterUser)
 import Adapter.Env (mkEnv, runAppM)
 import Adapter.View.Brick.Navigation (
     getBreadcrumbs,
@@ -92,8 +92,8 @@ import Graphics.Vty qualified as V
 -- Entry Point
 -- ─────────────────────────────────────────────────────────────────────────────
 
-runBrickApp :: IO ()
-runBrickApp = do
+runTuiApp :: IO ()
+runTuiApp = do
     -- 共有状態（ログ）を初期化
     logsVar <- newTVarIO ["[INFO] Application started. Press 'h' for help."]
 
@@ -105,7 +105,11 @@ runBrickApp = do
                 { uiEnv = env
                 , uiLogs = logsVar
                 , uiNavigation = initialNavigation
-                , uiUserIdEditor = emptyEditor
+                , uiUserIdEditor = emptyEditor UserIdField
+                , uiUserNameEditor = emptyEditor UserNameField
+                , uiUserEmailEditor = emptyEditor UserEmailField
+                , uiUserRoleEditor = emptyEditor UserRoleField
+                , uiCurrentFocus = UserNameField -- 初期フォーカス
                 , uiShowHelp = False
                 , uiNavSelectedIndex = 0
                 }
@@ -129,65 +133,89 @@ handleEvent ev = do
                 V.EvKey (V.KChar 'h') [] -> do
                     Control.Monad.State.put st {uiShowHelp = not (uiShowHelp st)}
 
-                -- ナビゲーション表示/非表示
-                V.EvKey (V.KChar 'n') [] -> do
-                    let nav' = toggleNavigation (uiNavigation st)
-                    Control.Monad.State.put st {uiNavigation = nav', uiNavSelectedIndex = 0}
+                -- 画面固有のイベント処理を最優先（Tab/Shift+Tabを含む）
+                _ -> do
+                    let currentScreen = navCurrentScreen (uiNavigation st)
+                    handled <- case currentScreen of
+                        ScreenUserActivate -> handleUserActivateEventWithResult vtyEv st
+                        ScreenUserRegister -> handleUserRegisterEventWithResult vtyEv st
+                        _ -> pure False
 
-                -- ナビゲーションメニュー内での移動（j: 下へ）
-                V.EvKey (V.KChar 'j') [] | navShowNavigation (uiNavigation st) -> do
-                    let currentTab = navCurrentTab (uiNavigation st)
-                        screens = getScreensByTab currentTab
-                        maxIndex = length screens - 1
-                        newIndex = min maxIndex (uiNavSelectedIndex st + 1)
-                    Control.Monad.State.put st {uiNavSelectedIndex = newIndex}
-
-                -- ナビゲーションメニュー内での移動（k: 上へ）
-                V.EvKey (V.KChar 'k') [] | navShowNavigation (uiNavigation st) -> do
-                    let newIndex = max 0 (uiNavSelectedIndex st - 1)
-                    Control.Monad.State.put st {uiNavSelectedIndex = newIndex}
-
-                -- ナビゲーションメニューから画面起動（Space）
-                V.EvKey (V.KChar ' ') [] | navShowNavigation (uiNavigation st) -> do
-                    let currentTab = navCurrentTab (uiNavigation st)
-                        screens = getScreensByTab currentTab
-                        selectedIndex = uiNavSelectedIndex st
-                    if selectedIndex < length screens
-                        then do
-                            let selectedScreen = screenId (screens !! selectedIndex)
-                                nav' = pushScreen selectedScreen (uiNavigation st)
-                            Control.Monad.State.put st {uiNavigation = nav'}
+                    -- 画面固有で処理されなかった場合のみグローバル処理
+                    if not handled
+                        then handleGlobalEvent vtyEv st
                         else pure ()
-
-                -- 戻る
-                V.EvKey V.KEsc [] -> do
-                    let nav' = popScreen (uiNavigation st)
-                    Control.Monad.State.put st {uiNavigation = nav', uiNavSelectedIndex = 0}
-
-                -- タブ切り替え（次へ）
-                V.EvKey (V.KChar '\t') [] -> do
-                    let currentTab = navCurrentTab (uiNavigation st)
-                        nextTab = cycleTab currentTab
-                        nav' = switchTab nextTab (uiNavigation st)
-                    Control.Monad.State.put st {uiNavigation = nav', uiNavSelectedIndex = 0}
-
-                -- タブ切り替え（前へ）
-                V.EvKey V.KBackTab [] -> do
-                    let currentTab = navCurrentTab (uiNavigation st)
-                        prevTab = cycleTabReverse currentTab
-                        nav' = switchTab prevTab (uiNavigation st)
-                    Control.Monad.State.put st {uiNavigation = nav', uiNavSelectedIndex = 0}
-
-                -- タブ直接選択（1-6）
-                V.EvKey (V.KChar '1') [] -> switchToTab TabIAM st
-                V.EvKey (V.KChar '2') [] -> switchToTab TabAccounting st
-                V.EvKey (V.KChar '3') [] -> switchToTab TabIFRS st
-                V.EvKey (V.KChar '4') [] -> switchToTab TabOps st
-                V.EvKey (V.KChar '5') [] -> switchToTab TabAudit st
-                V.EvKey (V.KChar '6') [] -> switchToTab TabOrg st
-                -- 画面固有のイベント処理
-                _ -> handleScreenEvent vtyEv st
         _ -> pure ()
+
+-- グローバルイベント処理（画面固有で処理されなかった場合）
+handleGlobalEvent :: V.Event -> UiState -> EventM Name UiState ()
+handleGlobalEvent vtyEv st = case vtyEv of
+    -- ナビゲーション表示/非表示
+    V.EvKey (V.KChar 'n') [] -> do
+        let nav' = toggleNavigation (uiNavigation st)
+        Control.Monad.State.put st {uiNavigation = nav', uiNavSelectedIndex = 0}
+
+    -- ナビゲーションメニュー内での移動（j: 下へ）
+    V.EvKey (V.KChar 'j') [] | navShowNavigation (uiNavigation st) -> do
+        let currentTab = navCurrentTab (uiNavigation st)
+            screens = getScreensByTab currentTab
+            maxIndex = length screens - 1
+            newIndex = min maxIndex (uiNavSelectedIndex st + 1)
+        Control.Monad.State.put st {uiNavSelectedIndex = newIndex}
+
+    -- ナビゲーションメニュー内での移動（k: 上へ）
+    V.EvKey (V.KChar 'k') [] | navShowNavigation (uiNavigation st) -> do
+        let newIndex = max 0 (uiNavSelectedIndex st - 1)
+        Control.Monad.State.put st {uiNavSelectedIndex = newIndex}
+
+    -- ナビゲーションメニューから画面起動（Space）
+    V.EvKey (V.KChar ' ') [] | navShowNavigation (uiNavigation st) -> do
+        let currentTab = navCurrentTab (uiNavigation st)
+            screens = getScreensByTab currentTab
+            selectedIndex = uiNavSelectedIndex st
+        if selectedIndex < length screens
+            then do
+                let selectedScreen = screenId (screens !! selectedIndex)
+                    nav' = pushScreen selectedScreen (uiNavigation st)
+                    -- 画面遷移時にフォーカスをリセット
+                    newFocus = case selectedScreen of
+                        ScreenUserRegister -> UserNameField
+                        ScreenUserActivate -> UserIdField
+                        _ -> UserNameField
+                Control.Monad.State.put
+                    st
+                        { uiNavigation = nav'
+                        , uiCurrentFocus = newFocus
+                        }
+            else pure ()
+
+    -- 戻る
+    V.EvKey V.KEsc [] -> do
+        let nav' = popScreen (uiNavigation st)
+        Control.Monad.State.put st {uiNavigation = nav', uiNavSelectedIndex = 0}
+
+    -- タブ切り替え（次へ）- フォーム画面以外でのみ有効
+    V.EvKey (V.KChar '\t') [] -> do
+        let currentTab = navCurrentTab (uiNavigation st)
+            nextTab = cycleTab currentTab
+            nav' = switchTab nextTab (uiNavigation st)
+        Control.Monad.State.put st {uiNavigation = nav', uiNavSelectedIndex = 0}
+
+    -- タブ切り替え（前へ）- フォーム画面以外でのみ有効
+    V.EvKey V.KBackTab [] -> do
+        let currentTab = navCurrentTab (uiNavigation st)
+            prevTab = cycleTabReverse currentTab
+            nav' = switchTab prevTab (uiNavigation st)
+        Control.Monad.State.put st {uiNavigation = nav', uiNavSelectedIndex = 0}
+
+    -- タブ直接選択（1-6）
+    V.EvKey (V.KChar '1') [] -> switchToTab TabIAM st
+    V.EvKey (V.KChar '2') [] -> switchToTab TabAccounting st
+    V.EvKey (V.KChar '3') [] -> switchToTab TabIFRS st
+    V.EvKey (V.KChar '4') [] -> switchToTab TabOps st
+    V.EvKey (V.KChar '5') [] -> switchToTab TabAudit st
+    V.EvKey (V.KChar '6') [] -> switchToTab TabOrg st
+    _ -> pure ()
 
 -- タブへ直接切り替え
 switchToTab :: DomainTab -> UiState -> EventM Name UiState ()
@@ -213,44 +241,148 @@ cycleTabReverse TabOps = TabIFRS
 cycleTabReverse TabAudit = TabOps
 cycleTabReverse TabOrg = TabAudit
 
--- 画面固有のイベント処理
+-- 画面固有のイベント処理（後方互換性のため残す）
 handleScreenEvent :: V.Event -> UiState -> EventM Name UiState ()
 handleScreenEvent vtyEv st = do
     let currentScreen = navCurrentScreen (uiNavigation st)
     case currentScreen of
-        ScreenUserActivate -> handleUserActivateEvent vtyEv st
+        ScreenUserActivate -> do
+            _ <- handleUserActivateEventWithResult vtyEv st
+            pure ()
+        ScreenUserRegister -> do
+            _ <- handleUserRegisterEventWithResult vtyEv st
+            pure ()
         _ -> pure ()
 
--- UserActivate画面のイベント処理
-handleUserActivateEvent :: V.Event -> UiState -> EventM Name UiState ()
-handleUserActivateEvent vtyEv st = case vtyEv of
+-- 画面固有のイベント処理（処理したかどうかを返す）
+handleUserActivateEventWithResult :: V.Event -> UiState -> EventM Name UiState Bool
+handleUserActivateEventWithResult vtyEv st = case vtyEv of
     V.EvKey V.KEnter [] -> do
         let userId = T.strip (T.unlines (getEditContents (uiUserIdEditor st)))
         if T.null userId
             then do
                 liftIO $ atomically $ modifyTVar' (uiLogs st) (<> ["[ERROR] User ID is required."])
-                Control.Monad.State.put st {uiUserIdEditor = emptyEditor}
+                Control.Monad.State.put
+                    st
+                        { uiUserIdEditor = emptyEditor UserIdField
+                        , uiCurrentFocus = UserIdField
+                        }
             else do
                 liftIO $ runAppM (uiEnv st) (handleActivateUser userId)
-                Control.Monad.State.put st {uiUserIdEditor = emptyEditor}
+                Control.Monad.State.put
+                    st
+                        { uiUserIdEditor = emptyEditor UserIdField
+                        , uiCurrentFocus = UserIdField
+                        }
+        pure True -- 処理した
     ev -> do
         -- エディタへの入力を処理（文字入力、削除、カーソル移動など）
         case ev of
-            V.EvKey (V.KChar c) [] ->
+            V.EvKey (V.KChar c) [] -> do
                 Control.Monad.State.put st {uiUserIdEditor = applyEdit (Z.insertChar c) (uiUserIdEditor st)}
-            V.EvKey V.KBS [] ->
+                pure True
+            V.EvKey V.KBS [] -> do
                 Control.Monad.State.put st {uiUserIdEditor = applyEdit Z.deletePrevChar (uiUserIdEditor st)}
-            V.EvKey V.KDel [] ->
+                pure True
+            V.EvKey V.KDel [] -> do
                 Control.Monad.State.put st {uiUserIdEditor = applyEdit Z.deleteChar (uiUserIdEditor st)}
-            V.EvKey V.KLeft [] ->
+                pure True
+            V.EvKey V.KLeft [] -> do
                 Control.Monad.State.put st {uiUserIdEditor = applyEdit Z.moveLeft (uiUserIdEditor st)}
-            V.EvKey V.KRight [] ->
+                pure True
+            V.EvKey V.KRight [] -> do
                 Control.Monad.State.put st {uiUserIdEditor = applyEdit Z.moveRight (uiUserIdEditor st)}
-            V.EvKey V.KHome [] ->
+                pure True
+            V.EvKey V.KHome [] -> do
                 Control.Monad.State.put st {uiUserIdEditor = applyEdit Z.gotoBOL (uiUserIdEditor st)}
-            V.EvKey V.KEnd [] ->
+                pure True
+            V.EvKey V.KEnd [] -> do
                 Control.Monad.State.put st {uiUserIdEditor = applyEdit Z.gotoEOL (uiUserIdEditor st)}
-            _ -> pure ()
+                pure True
+            _ -> pure False -- 処理しなかった
+
+-- UserRegister画面のイベント処理（処理したかどうかを返す）
+handleUserRegisterEventWithResult :: V.Event -> UiState -> EventM Name UiState Bool
+handleUserRegisterEventWithResult vtyEv st = case vtyEv of
+    V.EvKey V.KEnter [] -> do
+        let name = T.strip (T.unlines (getEditContents (uiUserNameEditor st)))
+            email = T.strip (T.unlines (getEditContents (uiUserEmailEditor st)))
+            role = T.strip (T.unlines (getEditContents (uiUserRoleEditor st)))
+        if T.null name || T.null email || T.null role
+            then do
+                liftIO $ atomically $ modifyTVar' (uiLogs st) (<> ["[ERROR] All fields are required."])
+            else do
+                liftIO $ runAppM (uiEnv st) (handleRegisterUser name email role)
+                -- フォームをクリア
+                Control.Monad.State.put
+                    st
+                        { uiUserNameEditor = emptyEditor UserNameField
+                        , uiUserEmailEditor = emptyEditor UserEmailField
+                        , uiUserRoleEditor = emptyEditor UserRoleField
+                        , uiCurrentFocus = UserNameField -- フォーカスをリセット
+                        }
+        pure True -- 処理した
+
+    -- Tab: 次のフィールドへ（フォーム画面でのみ有効）
+    V.EvKey (V.KChar '\t') [] -> do
+        let nextFocus = getNextFocus (uiCurrentFocus st)
+        Control.Monad.State.put st {uiCurrentFocus = nextFocus}
+        pure True -- 処理した
+
+    -- Shift+Tab: 前のフィールドへ（フォーム画面でのみ有効）
+    V.EvKey V.KBackTab [] -> do
+        let prevFocus = getPrevFocus (uiCurrentFocus st)
+        Control.Monad.State.put st {uiCurrentFocus = prevFocus}
+        pure True -- 処理した
+
+    -- フォーカスされたフィールドのみに入力を送る
+    ev -> do
+        let currentFocus = uiCurrentFocus st
+        case ev of
+            V.EvKey (V.KChar c) [] -> do
+                Control.Monad.State.put $ applyToFocusedEditor (Z.insertChar c) currentFocus st
+                pure True
+            V.EvKey V.KBS [] -> do
+                Control.Monad.State.put $ applyToFocusedEditor Z.deletePrevChar currentFocus st
+                pure True
+            V.EvKey V.KDel [] -> do
+                Control.Monad.State.put $ applyToFocusedEditor Z.deleteChar currentFocus st
+                pure True
+            V.EvKey V.KLeft [] -> do
+                Control.Monad.State.put $ applyToFocusedEditor Z.moveLeft currentFocus st
+                pure True
+            V.EvKey V.KRight [] -> do
+                Control.Monad.State.put $ applyToFocusedEditor Z.moveRight currentFocus st
+                pure True
+            V.EvKey V.KHome [] -> do
+                Control.Monad.State.put $ applyToFocusedEditor Z.gotoBOL currentFocus st
+                pure True
+            V.EvKey V.KEnd [] -> do
+                Control.Monad.State.put $ applyToFocusedEditor Z.gotoEOL currentFocus st
+                pure True
+            _ -> pure False -- 処理しなかった
+
+-- フォーカス管理ヘルパー関数
+getNextFocus :: Name -> Name
+getNextFocus UserNameField = UserEmailField
+getNextFocus UserEmailField = UserRoleField
+getNextFocus UserRoleField = UserNameField
+getNextFocus _ = UserNameField
+
+getPrevFocus :: Name -> Name
+getPrevFocus UserNameField = UserRoleField
+getPrevFocus UserEmailField = UserNameField
+getPrevFocus UserRoleField = UserEmailField
+getPrevFocus _ = UserNameField
+
+-- フォーカスされたエディタにのみ操作を適用
+applyToFocusedEditor :: (Z.TextZipper Text -> Z.TextZipper Text) -> Name -> UiState -> UiState
+applyToFocusedEditor editOp focus st = case focus of
+    UserNameField -> st {uiUserNameEditor = applyEdit editOp (uiUserNameEditor st)}
+    UserEmailField -> st {uiUserEmailEditor = applyEdit editOp (uiUserEmailEditor st)}
+    UserRoleField -> st {uiUserRoleEditor = applyEdit editOp (uiUserRoleEditor st)}
+    UserIdField -> st {uiUserIdEditor = applyEdit editOp (uiUserIdEditor st)}
+    _ -> st
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- Brick App Definition
@@ -341,7 +473,18 @@ renderHelpScreen =
                 , txt ""
                 , withAttr (attrName "title") $ txt "Screen Actions"
                 , txt ""
-                , renderKeyMapHelp "Enter" "Execute/Select"
+                , renderKeyMapHelp "Enter" "Execute/Register/Select"
+                , renderKeyMapHelp "Tab" "Next field (in forms)"
+                , renderKeyMapHelp "Shift+Tab" "Previous field (in forms)"
+                , txt ""
+                , withAttr (attrName "title") $ txt "User Registration Form"
+                , txt ""
+                , renderKeyMapHelp "Tab" "Move to next field"
+                , renderKeyMapHelp "Shift+Tab" "Move to previous field"
+                , renderKeyMapHelp "Enter" "Register user"
+                , renderKeyMapHelp "Backspace" "Delete character"
+                , renderKeyMapHelp "Delete" "Delete character forward"
+                , renderKeyMapHelp "Home/End" "Move to start/end of field"
                 , txt ""
                 , withAttr (attrName "hint") $ txt "Press 'h' to close this help"
                 ]
@@ -352,8 +495,8 @@ renderMainContent st =
     let currentScreen = navCurrentScreen (uiNavigation st)
      in renderScreen currentScreen st
 
-emptyEditor :: Editor Text Name
-emptyEditor = editorText UserIdField (Just 1) ""
+emptyEditor :: Name -> Editor Text Name
+emptyEditor name = editorText name (Just 1) ""
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- Attributes

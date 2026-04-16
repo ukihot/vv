@@ -8,10 +8,14 @@ module Adapter.Presenter.IAM (
     presentActivateUserSuccess,
     presentActivateUserFailure,
     presentActivateUserProgress,
+    presentRegisterUserSuccess,
+    presentRegisterUserFailure,
+    presentRegisterUserProgress,
 )
 where
 
 import Adapter.Env (AppM, Env (..))
+import App.DTO.Response.IAM (UserResponse (..))
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Reader (ask)
 import Data.Text (Text)
@@ -22,6 +26,23 @@ import Domain.IAM.User.ValueObjects.UserState (UserState (Active))
 -- ─────────────────────────────────────────────────────────────────────────────
 -- Presenter関数: Output Portの具体実装
 -- ─────────────────────────────────────────────────────────────────────────────
+
+presentRegisterUserSuccess :: UserResponse -> AppM ()
+presentRegisterUserSuccess response = do
+    env <- ask
+    -- UserResponse → 表示用メッセージに変換（Presenter層の責務）
+    let message = "User registered: " <> userResponseId response <> " (" <> userResponseName response <> ")"
+    liftIO $ envPresentProgress env message
+
+presentRegisterUserFailure :: Text -> AppM ()
+presentRegisterUserFailure msg = do
+    env <- ask
+    liftIO $ envPresentProgress env ("[ERROR] " <> msg)
+
+presentRegisterUserProgress :: Text -> AppM ()
+presentRegisterUserProgress msg = do
+    env <- ask
+    liftIO $ envPresentProgress env msg
 
 presentActivateUserSuccess :: User 'Active -> AppM ()
 presentActivateUserSuccess user = do

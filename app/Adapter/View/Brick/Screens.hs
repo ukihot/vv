@@ -46,7 +46,8 @@ renderScreen :: Screen -> UiState -> Widget Name
 renderScreen ScreenHome = renderHomeScreen
 renderScreen ScreenUserActivate = renderUserActivateScreen
 renderScreen ScreenUserList = renderPlaceholderScreen "User List" "ユーザー一覧画面（未実装）"
-renderScreen ScreenUserCreate = renderPlaceholderScreen "Create User" "ユーザー登録画面（未実装）"
+renderScreen ScreenUserCreate = renderPlaceholderScreen "Create User" "ユーザー作成画面（未実装）"
+renderScreen ScreenUserRegister = renderUserRegisterScreen
 renderScreen ScreenRoleList = renderPlaceholderScreen "Role List" "ロール一覧画面（未実装）"
 renderScreen ScreenRoleCreate = renderPlaceholderScreen "Create Role" "ロール作成画面（未実装）"
 renderScreen ScreenPermissionList = renderPlaceholderScreen "Permission List" "権限一覧画面（未実装）"
@@ -101,6 +102,25 @@ renderUserActivateScreen st =
             [ renderTextInput "User ID" (uiUserIdEditor st) True
             , padTop (Pad 1) $
                 renderPrimaryButton "Activate" "Enter"
+            ]
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- User Register Screen (ユーザ登録画面)
+-- ─────────────────────────────────────────────────────────────────────────────
+
+renderUserRegisterScreen :: UiState -> Widget Name
+renderUserRegisterScreen st =
+    renderCard (Just "User Registration") $
+        vBox
+            [ renderTextInput "Name" (uiUserNameEditor st) (uiCurrentFocus st == UserNameField)
+            , renderSpacer 1
+            , renderTextInput "Email" (uiUserEmailEditor st) (uiCurrentFocus st == UserEmailField)
+            , renderSpacer 1
+            , renderTextInput "Role" (uiUserRoleEditor st) (uiCurrentFocus st == UserRoleField)
+            , padTop (Pad 2) $
+                renderPrimaryButton "Register User" "Enter"
+            , renderSpacer 1
+            , withAttr (attrName "hint") $ txt "Tab/Shift+Tab: Navigate fields, Enter: Register"
             ]
 
 -- ─────────────────────────────────────────────────────────────────────────────

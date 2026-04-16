@@ -59,7 +59,8 @@ common lib-deps
         acid-state >= 0.16 && < 1,
         safecopy >= 0.10 && < 1,
         containers,
-        stm
+        stm,
+        uuid >= 1.3 && < 2
 
 -- ────────────────────────────────────────────────────────────────────────────
 -- Internal library (src の唯一のオーナー)
@@ -384,14 +385,12 @@ executable vv
         vty >= 6.1 && < 7,
         text-zipper >= 0.13 && < 1,
         stm,
-        -- prettyprinter >= 1.7 && < 2,
-        -- prettyprinter-ansi-terminal >= 1.1 && < 2,
-        -- cassava >= 0.5 && < 1,
-        -- effectful,
-        text,
         text,
         mtl,
-        containers
+        containers,
+        uuid >= 1.3 && < 2,
+        acid-state >= 0.16 && < 1,
+        persistent-sqlite >= 2.13 && < 3
     ghc-options:
         -threaded
         -rtsopts

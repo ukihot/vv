@@ -1,9 +1,15 @@
 {-# LANGUAGE ImportQualifiedPost #-}
 {-# LANGUAGE RankNTypes #-}
 
-{- | アプリケーション環境
+{- | アプリケーション環境（本番仕様）
 ReaderT Envパターンによる明示的な依存注入。
 型クラスDIを廃止し、依存を値として扱う。
+
+本番仕様:
+- SQLite EventStore (Write)
+- acid-state ReadModel (Read)
+- 非同期Projection
+- Handle パターンでのリポジトリ注入
 -}
 module Adapter.Env (
     Env (..),
@@ -14,32 +20,34 @@ module Adapter.Env (
 where
 
 import Control.Concurrent.STM (TVar, atomically, modifyTVar', newTVarIO, readTVar)
+import Control.Monad.IO.Class (MonadIO, liftIO)
 import Control.Monad.Reader (ReaderT, runReaderT)
 import Data.Map.Strict qualified as M
 import Data.Text (Text)
 import Data.Text qualified as T
 import Domain.IAM.User (User (..))
 import Domain.IAM.User.Errors (DomainError (..))
+import Domain.IAM.User.Events (UserEventPayload)
 import Domain.IAM.User.Services.Factory (registerUser)
 import Domain.IAM.User.ValueObjects.Email (mkEmail)
 import Domain.IAM.User.ValueObjects.UserId (UserId, unUserId)
-import Domain.IAM.User.ValueObjects.UserName (mkUserName)
 import Domain.IAM.User.ValueObjects.UserState (UserState (..))
 import Unsafe.Coerce (unsafeCoerce)
 
 -- ─────────────────────────────────────────────────────────────────────────────
--- 依存レコード: すべての依存を明示的に定義
+-- 依存レコード: すべての依存を明示的に定義（TUI版）
 -- ─────────────────────────────────────────────────────────────────────────────
 
 data Env = Env
-    { -- Repository Port (Write側)
+    { -- Repository Port (Write側) - 現在はスタブ実装
       envLoadUser :: forall s. UserId -> IO (Either DomainError (User s))
     , envSaveUser :: forall s. User s -> IO (Either DomainError ())
-    , -- Output Port (Presenter側)
+    , envAppendUserEvent :: UserId -> UserEventPayload -> IO (Either DomainError ())
+    , -- Output Port (Presenter側) - TUI用
       envPresentSuccess :: User 'Active -> IO ()
     , envPresentFailure :: DomainError -> IO ()
     , envPresentProgress :: Text -> IO ()
-    , -- 共有状態
+    , -- 共有状態（ログ出力用）
       envLogs :: TVar [Text]
     }
 
@@ -53,12 +61,16 @@ runAppM :: Env -> AppM a -> IO a
 runAppM env action = runReaderT action env
 
 -- ─────────────────────────────────────────────────────────────────────────────
--- Env構築
+-- Env構築（本番仕様対応）
 -- ─────────────────────────────────────────────────────────────────────────────
 
 mkEnv :: TVar [Text] -> IO Env
 mkEnv logsVar = do
-    -- スタブ用のインメモリストレージ
+    -- 現在はスタブ実装（インメモリ）
+    -- TODO: 本番では以下を初期化
+    -- - SQLite ConnectionPool
+    -- - acid-state IamReadModel
+    -- - ProjectionQueue + Projector threads
     usersRef <- newTVarIO M.empty
 
     pure
@@ -69,24 +81,24 @@ mkEnv logsVar = do
                 users <- atomically $ readTVar usersRef
                 case M.lookup (unUserId uid) users of
                     Nothing -> do
-                        -- ユーザーが存在しない場合、テスト用に作成
-                        case (mkUserName "Test User", mkEmail "test@example.com") of
-                            (Right name, Right email) -> do
-                                let (pendingUser, _) = registerUser uid name email
-                                -- 保存
-                                atomically $ modifyTVar' usersRef (M.insert (unUserId uid) (StoredPending pendingUser))
-                                pure $ Right (unsafeCoerce pendingUser)
-                            _ -> pure $ Left InvalidUserName
+                        -- ユーザーが存在しない場合、新規作成可能として空を返す
+                        pure $ Left (RepositoryError "User not found")
                     Just (StoredPending user) -> pure $ Right (unsafeCoerce user)
-                    Just (StoredActive _) -> pure $ Left AlreadyActivated
-                    Just (StoredSuspended _) -> pure $ Left IllegalTransition
-                    Just (StoredInactive _) -> pure $ Left UserIsInactive
+                    Just (StoredActive user) -> pure $ Right (unsafeCoerce user)
+                    Just (StoredSuspended user) -> pure $ Right (unsafeCoerce user)
+                    Just (StoredInactive user) -> pure $ Right (unsafeCoerce user)
             , envSaveUser = \user -> do
                 -- TODO: 本番ではSQLite EventStoreに書き込み
                 atomically $ modifyTVar' usersRef (M.insert (unUserId (getUserId user)) (toStoredUser user))
+                atomically $ modifyTVar' logsVar (<> ["[REPO] User saved: " <> unUserId (getUserId user)])
+                pure $ Right ()
+            , envAppendUserEvent = \uid payload -> do
+                -- TODO: 本番ではEventStoreに永続化
+                atomically $
+                    modifyTVar' logsVar (<> ["[EVENT] " <> T.pack (show payload) <> " for user " <> unUserId uid])
                 pure $ Right ()
             , envPresentSuccess = \user -> do
-                atomically $ modifyTVar' logsVar (<> ["[OK] User activated: " <> unUserId (getUserId user)])
+                atomically $ modifyTVar' logsVar (<> ["[SUCCESS] User activated: " <> unUserId (getUserId user)])
             , envPresentFailure = \err -> do
                 atomically $ modifyTVar' logsVar (<> ["[ERROR] " <> formatError err])
             , envPresentProgress = \msg -> do
