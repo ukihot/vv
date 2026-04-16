@@ -8,7 +8,7 @@ IFRS準拠の複式簿記会計エンジン。Event Sourcing / CQRS + DDD で構
 - **型安全な財務金額** — 通貨タグ付き `Money (currency :: Symbol)` により異通貨混算をコンパイル時に排除
 - **GADT 状態機械** — 集約の状態遷移（`FiscalPeriod 'Open → 'Locked`、`FinancialAsset 'Stage1 → 'Stage2` 等）を型で制約し、不正遷移をコンパイルエラーにする
 - **Event Sourcing** — イベントが唯一の事実。`rehydrate` で任意時点の状態を再現可能
-- **ローカル完結** — Write: SQLite / Read: LMDB。サーバ・コンテナ不要
+- **ローカル完結** — Write: SQLite / Read: acid-state（インメモリ）。サーバ・コンテナ不要
 
 ## ドメイン構成
 
