@@ -28,7 +28,6 @@ import Brick (
     padBottom,
     padLeft,
     padTop,
-    str,
     txt,
     vBox,
     withAttr,

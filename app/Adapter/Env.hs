@@ -14,20 +14,17 @@ module Adapter.Env (
 where
 
 import Control.Concurrent.STM (TVar, atomically, modifyTVar', newTVarIO, readTVar)
-import Control.Monad.IO.Class (MonadIO, liftIO)
 import Control.Monad.Reader (ReaderT, runReaderT)
 import Data.Map.Strict qualified as M
 import Data.Text (Text)
 import Data.Text qualified as T
 import Domain.IAM.User (User (..))
-import Domain.IAM.User.Entities.Profile (UserProfile (..))
 import Domain.IAM.User.Errors (DomainError (..))
 import Domain.IAM.User.Services.Factory (registerUser)
 import Domain.IAM.User.ValueObjects.Email (mkEmail)
-import Domain.IAM.User.ValueObjects.UserId (UserId, mkUserId, unUserId)
+import Domain.IAM.User.ValueObjects.UserId (UserId, unUserId)
 import Domain.IAM.User.ValueObjects.UserName (mkUserName)
 import Domain.IAM.User.ValueObjects.UserState (UserState (..))
-import Domain.IAM.User.ValueObjects.Version (initialVersion)
 import Unsafe.Coerce (unsafeCoerce)
 
 -- ─────────────────────────────────────────────────────────────────────────────

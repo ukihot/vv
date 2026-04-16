@@ -25,7 +25,7 @@ Controllerに生データを渡す。
 module Adapter.View.Brick.App (runBrickApp) where
 
 import Adapter.Controller.IAM (handleActivateUser)
-import Adapter.Env (Env, mkEnv, runAppM)
+import Adapter.Env (mkEnv, runAppM)
 import Adapter.View.Brick.Navigation (
     getBreadcrumbs,
     initialNavigation,
@@ -46,11 +46,9 @@ import Adapter.View.Brick.Types (
     screenId,
  )
 import Adapter.View.Brick.Widgets (
-    renderBackButton,
     renderBreadcrumbs,
     renderHeader,
     renderKeyMapHelp,
-    renderLogPanel,
     renderNavigationMenu,
     renderStatusBar,
     renderTabBar,
@@ -58,14 +56,11 @@ import Adapter.View.Brick.Widgets (
 import Brick (
     App (..),
     AttrMap,
-    AttrName,
     BrickEvent (VtyEvent),
     EventM,
-    Padding (Max, Pad),
     Widget,
     attrMap,
     attrName,
-    bg,
     defaultMain,
     fg,
     hBox,
@@ -73,25 +68,19 @@ import Brick (
     halt,
     on,
     padAll,
-    padLeft,
-    padRight,
     showFirstCursor,
     txt,
     vBox,
-    vLimit,
     withAttr,
-    (<+>),
  )
 import Brick.Widgets.Border qualified as Border
-import Brick.Widgets.Border.Style qualified as BorderStyle
 import Brick.Widgets.Edit (
     Editor,
     applyEdit,
     editorText,
     getEditContents,
-    handleEditorEvent,
  )
-import Control.Concurrent.STM (TVar, atomically, modifyTVar', newTVarIO)
+import Control.Concurrent.STM (atomically, modifyTVar', newTVarIO)
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.State qualified
 import Data.Text (Text)

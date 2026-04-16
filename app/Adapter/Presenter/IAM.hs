@@ -15,10 +15,8 @@ import Adapter.Env (AppM, Env (..))
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Reader (ask)
 import Data.Text (Text)
-import Data.Text qualified as T
-import Domain.IAM.User (User, getUserId)
+import Domain.IAM.User (User)
 import Domain.IAM.User.Errors (DomainError (..))
-import Domain.IAM.User.ValueObjects.UserId (unUserId)
 import Domain.IAM.User.ValueObjects.UserState (UserState (Active))
 
 -- ─────────────────────────────────────────────────────────────────────────────

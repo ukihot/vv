@@ -22,7 +22,6 @@ import Brick (
     attrName,
     padLeft,
     padRight,
-    str,
     txt,
     withAttr,
  )

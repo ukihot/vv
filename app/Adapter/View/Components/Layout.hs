@@ -26,11 +26,8 @@ import Brick (
     hBox,
     hLimit,
     padAll,
-    padBottom,
     padLeft,
-    padRight,
     padTop,
-    str,
     txt,
     vBox,
     vLimit,
@@ -86,7 +83,7 @@ renderSection title content =
 
 -- | スペーサー（垂直方向の余白）
 renderSpacer :: Int -> Widget n
-renderSpacer n = vLimit n $ str ""
+renderSpacer n = vLimit n $ txt ""
 
 -- | 区切り線
 renderDivider :: Widget n

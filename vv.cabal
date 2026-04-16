@@ -49,20 +49,10 @@ common common-options
 common lib-deps
     build-depends:
         base >= 4.17 && < 5,
-        sqlite-simple,
-        direct-sqlite,
         text,
-        bytestring,
         time,
-        containers,
-        aeson,
-        uuid,
-        safe-money,
-        Decimal,
-        effectful-core,
         mtl,
-        transformers,
-        exceptions
+        transformers
 
 -- ────────────────────────────────────────────────────────────────────────────
 -- Internal library (src の唯一のオーナー)
@@ -384,16 +374,16 @@ executable vv
     build-depends:
         base,
         vv:vv-internal,
-        optparse-applicative >= 0.18 && < 1,
         brick >= 2.3 && < 3,
         vty >= 6.1 && < 7,
         text-zipper >= 0.13 && < 1,
         stm,
-        prettyprinter >= 1.7 && < 2,
-        prettyprinter-ansi-terminal >= 1.1 && < 2,
-        cassava >= 0.5 && < 1,
+        -- prettyprinter >= 1.7 && < 2,
+        -- prettyprinter-ansi-terminal >= 1.1 && < 2,
+        -- cassava >= 0.5 && < 1,
+        -- effectful,
         text,
-        effectful,
+        text,
         mtl,
         containers
     ghc-options:

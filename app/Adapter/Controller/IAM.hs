@@ -42,8 +42,6 @@ import Domain.IAM.User.ValueObjects.UserState (UserState (..))
 -}
 handleActivateUser :: Text -> AppM ()
 handleActivateUser rawUserId = do
-    env <- ask
-
     -- 進捗報告
     presentActivateUserProgress "Starting user activation..."
 

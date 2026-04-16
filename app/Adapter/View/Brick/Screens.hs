@@ -36,7 +36,6 @@ import Brick (
     vBox,
     withAttr,
  )
-import Brick.Widgets.Edit (renderEditor)
 import Data.Text qualified as T
 
 -- ─────────────────────────────────────────────────────────────────────────────

@@ -25,11 +25,6 @@ import Adapter.Env (Env)
 import Brick.Widgets.Edit (Editor)
 import Control.Concurrent.STM (TVar)
 import Data.Text (Text)
-import Data.Text qualified as T
-
--- ─────────────────────────────────────────────────────────────────────────────
--- Widget Name
--- ─────────────────────────────────────────────────────────────────────────────
 
 data Name
     = UserIdField
