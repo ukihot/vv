@@ -883,3 +883,203 @@ main = do
   -- searchByName queryPort "Pacho" >>= mapM_ (print . toResponse)
   -- Write の Domain 型には触れない。Read は Projection → 中間レコード → 内部 DTO → 外部 DTO。
 ```
+
+---
+
+## GHC 警告ポリシー
+
+本プロジェクトでは `-Wall` に加えて以下のフラグを全ターゲットに適用し、警告をゼロに保つ。
+
+```cabal
+ghc-options:
+    -Wall
+    -Wcompat
+    -Widentities
+    -Wincomplete-record-updates
+    -Wincomplete-uni-patterns
+    -Wmissing-deriving-strategies
+    -Wredundant-constraints
+    -Wunused-packages
+```
+
+警告はエラーと同等に扱う。ビルドが通っても警告が残る状態はコードレビューで差し戻す。
+
+---
+
+### deriving strategy を必ず明示する（`-Wmissing-deriving-strategies`）
+
+`deriving (Show, Eq)` のように strategy を省略すると GHC が警告を出す。
+strategy を明示することで、将来 `DeriveAnyClass` を有効にしたときの意図しない挙動を防ぐ。
+
+| 対象 | strategy | 理由 |
+|------|----------|------|
+| 通常の `data` / `newtype` | `stock` | GHC 組み込みの導出。最も安全。 |
+| `newtype` で内部型の instance を引き継ぐ場合 | `newtype` | ゼロコストで内部型の実装を再利用する。 |
+| 型クラスのデフォルト実装を使う場合 | `anyclass` | `Generic` 経由の `ToJSON` 等。明示しないと `stock` と混同する。 |
+| GADT の standalone deriving | `stock` | `deriving stock instance Show (User s)` のように書く。 |
+
+```haskell
+-- NG
+data Foo = Foo deriving (Show, Eq)
+deriving instance Show (User s)
+
+-- OK
+data Foo = Foo deriving stock (Show, Eq)
+deriving stock instance Show (User s)
+```
+
+---
+
+### 未使用 import を残さない（`-Wunused-imports`）
+
+import は使うものだけを列挙する。不要になったら即削除する。
+
+```haskell
+-- NG: initialVersion を使っていないのに import している
+import Domain.Ops.Budget.ValueObjects.Version (Version, initialVersion)
+
+-- OK
+import Domain.Ops.Budget.ValueObjects.Version (Version)
+```
+
+`initialVersion` は集約の初期化時にのみ必要で、集約モジュール自体が内部で使う。
+呼び出し側が直接参照しない場合は import しない。
+
+---
+
+### 冗長制約を書かない（`-Wredundant-constraints`）
+
+型クラスのスーパークラス制約は重複して書かない。
+`UserRepository m` は `class Monad m => UserRepository m` と定義されているため、
+`Monad m` を制約に追加するのは冗長である。
+
+```haskell
+-- NG
+executeActivateUser ::
+    (Monad m, UserRepository m, ActivateUserOutputPort m) =>
+    ActivateUserRequest -> m ()
+
+-- OK
+executeActivateUser ::
+    (UserRepository m, ActivateUserOutputPort m) =>
+    ActivateUserRequest -> m ()
+```
+
+---
+
+### name shadowing を避ける（`-Wname-shadowing`）
+
+`lines`・`log`・`words` など Prelude の関数と同名のパラメータは使わない。
+
+```haskell
+-- NG: lines が Prelude.lines を隠す
+recordEntry eid date lines kind = ...
+
+-- OK
+recordEntry eid date journalLines kind = ...
+```
+
+---
+
+### エラーの表示責務はドメイン層に置く
+
+アプリケーション層でエラーを文字列に変換するのは責務違反。
+エラーの表示形式はドメインエラー定義と同じファイルに `domainErrorMessage` として置く。
+
+```haskell
+-- NG: アプリケーション層でエラーを翻訳する
+domainErrorToText :: DomainError -> Text
+domainErrorToText InvalidUserId = "Invalid user ID"
+...
+
+-- OK: ドメイン層に置く
+-- Domain.IAM.User.Errors
+domainErrorMessage :: DomainError -> Text
+domainErrorMessage InvalidUserId = "Invalid user ID"
+...
+```
+
+---
+
+### Either のピラミッドは ExceptT でフラットにする
+
+`m (Either e a)` のネストが続く場合は `ExceptT` を使う。
+ハッピーパスだけを `do` ブロックに書き、エラーハンドリングは `runExceptT` の結果を受け取る一箇所に集約する。
+
+```haskell
+-- NG: Either のピラミッド
+case mkUserId rawId of
+    Left err -> presentFailure err
+    Right userId -> do
+        result <- loadUser userId
+        case result of
+            Left err -> presentFailure err
+            Right user -> ...
+
+-- OK: ExceptT でフラット
+pipeline :: UserRepository m => ExceptT DomainError m UserResponse
+pipeline = do
+    userId  <- ExceptT $ pure (mkUserId rawId)
+    user    <- ExceptT $ loadUser userId
+    ExceptT $ saveUser user
+    pure $ toResponse user
+```
+
+`ExceptT (..)` のコンストラクタを直接使うことで `m (Either e a)` をそのまま包める。
+`pure` で純粋な `Either` を持ち上げてから渡す。
+
+---
+
+### ユースケースはファサードパターンで構成する
+
+一つのユースケースファイルに複数のユースケースを詰め込まない。
+実装は機能単位のファイルに分割し、`IAM.hs` のようなファサードモジュールが re-export のみを担う。
+呼び出し側は `App.UseCase.IAM` だけを import すれば済み、内部の分割構造を意識しない。
+
+```
+src/App/UseCase/
+├── IAM.hs                 ← ファサード（re-export のみ）
+└── IAM/
+    ├── Internal.hs        ← ユースケース間の共通ヘルパー（外部非公開）
+    ├── ActivateUser.hs
+    ├── DeactivateUser.hs
+    └── ...
+```
+
+```haskell
+-- IAM.hs（ファサード）
+module App.UseCase.IAM (
+    module App.UseCase.IAM.ActivateUser,
+    module App.UseCase.IAM.DeactivateUser,
+    ...
+) where
+
+import App.UseCase.IAM.ActivateUser
+import App.UseCase.IAM.DeactivateUser
+...
+```
+
+---
+
+### 未使用パッケージを cabal に残さない（`-Wunused-packages`）
+
+`lib-deps` や `build-depends` には実際に `import` しているパッケージだけを列挙する。
+インフラ層がスタブの間は、そのパッケージへの依存も追加しない。
+インフラ層の実装が進んだタイミングで必要なパッケージを追加する。
+
+```cabal
+-- NG: src 配下で一切使われていないパッケージが並んでいる
+common lib-deps
+    build-depends:
+        base, text, time, mtl, transformers,
+        sqlite-simple, aeson, uuid, ...  -- インフラ未実装なのに列挙
+
+-- OK: 実際に import されているものだけ
+common lib-deps
+    build-depends:
+        base >= 4.17 && < 5,
+        text,
+        time,
+        mtl,
+        transformers
+```
