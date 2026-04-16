@@ -13,7 +13,7 @@ import App.UseCase.IAM.Internal (IAMEnv (..), UserAppM, liftUserDomain, runUserA
 import Control.Monad.Except (liftEither)
 import Control.Monad.Reader (ask)
 import Domain.IAM.User (deactivateUser, getUserId, getUserProfile, getUserState)
-import Domain.IAM.User.Errors (DomainError, domainErrorMessage)
+import Domain.IAM.User.Errors (domainErrorMessage)
 import Domain.IAM.User.ValueObjects.UserId (mkUserId)
 
 executeDeactivateUser ::

@@ -14,7 +14,7 @@ where
 import Data.Text (Text)
 import Data.Time (Day)
 import Domain.IFRS.Provision.ValueObjects.ProvisionId
-import Domain.IFRS.Provision.ValueObjects.Version (Version, initialVersion)
+import Domain.IFRS.Provision.ValueObjects.Version (Version)
 import Domain.Shared (Money)
 import GHC.TypeLits (Symbol)
 

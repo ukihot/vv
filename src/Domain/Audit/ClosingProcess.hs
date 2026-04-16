@@ -62,13 +62,13 @@ data ClosingProcess (s :: ClosingState) where
         Version ->
         ClosingProcess 'Finalized
 
-deriving instance Show (ClosingProcess s)
-deriving instance Eq (ClosingProcess s)
+deriving stock instance Show (ClosingProcess s)
+deriving stock instance Eq (ClosingProcess s)
 
 data SomeClosingProcess where
     SomeCP :: ClosingProcess s -> SomeClosingProcess
 
-deriving instance Show SomeClosingProcess
+deriving stock instance Show SomeClosingProcess
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 状態遷移

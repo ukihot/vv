@@ -16,7 +16,7 @@ import Data.Text (Text)
 import Data.Time (Day)
 import Domain.IFRS.Impairment.ValueObjects.CguId
 import Domain.IFRS.Impairment.ValueObjects.ImpairmentTestId
-import Domain.IFRS.Impairment.ValueObjects.Version (Version, initialVersion)
+import Domain.IFRS.Impairment.ValueObjects.Version (Version)
 import Domain.Shared (Money)
 import GHC.TypeLits (Symbol)
 

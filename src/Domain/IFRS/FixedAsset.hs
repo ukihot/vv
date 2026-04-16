@@ -15,12 +15,11 @@ module Domain.IFRS.FixedAsset (
 )
 where
 
-import Data.Text (Text)
 import Data.Time (Day)
 import Domain.Accounting.ChartOfAccounts.ValueObjects.AccountCode (AccountCode)
 import Domain.IFRS.FixedAsset.ValueObjects.ComponentId
 import Domain.IFRS.FixedAsset.ValueObjects.FixedAssetId
-import Domain.IFRS.FixedAsset.ValueObjects.Version (Version, initialVersion)
+import Domain.IFRS.FixedAsset.ValueObjects.Version (Version)
 import Domain.IFRS.Impairment.ValueObjects.CguId (CguId)
 import Domain.Shared (Money)
 import GHC.TypeLits (Symbol)

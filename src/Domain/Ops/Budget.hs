@@ -12,7 +12,7 @@ where
 
 import Domain.Accounting.ChartOfAccounts.ValueObjects.AccountCode (AccountCode)
 import Domain.Ops.Budget.ValueObjects.BudgetId
-import Domain.Ops.Budget.ValueObjects.Version (Version, initialVersion)
+import Domain.Ops.Budget.ValueObjects.Version (Version)
 import Domain.Shared (FiscalYearMonth, Money)
 import GHC.TypeLits (Symbol)
 

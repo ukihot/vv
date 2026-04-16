@@ -17,14 +17,14 @@ recognizeRevenue ::
     Day ->
     RevenueJudgmentLog currency ->
     Either RevenueError (RevenueRecognitionResult currency)
-recognizeRevenue po date log
+recognizeRevenue po date judgmentLog
     | poPattern po /= AtPointInTime = Left CannotRecognizeOverTimeObligationAtPoint
     | otherwise =
         Right
             RevenueRecognitionResult
-                { rrrContractId = rjlContractId log
+                { rrrContractId = rjlContractId judgmentLog
                 , rrrObligationId = poId po
                 , rrrRecognizedAmt = poAllocatedPrice po
                 , rrrRecognizedAt = date
-                , rrrJudgmentLog = log
+                , rrrJudgmentLog = judgmentLog
                 }

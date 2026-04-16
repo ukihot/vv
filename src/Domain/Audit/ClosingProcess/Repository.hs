@@ -3,7 +3,7 @@ module Domain.Audit.ClosingProcess.Repository (
 )
 where
 
-import Domain.Audit.ClosingProcess (ClosingProcess, SomeClosingProcess)
+import Domain.Audit.ClosingProcess (SomeClosingProcess)
 import Domain.Audit.ClosingProcess.ValueObjects.ClosingProcessId (ClosingProcessId)
 import Domain.Shared (FiscalYearMonth)
 

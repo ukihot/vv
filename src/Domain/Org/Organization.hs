@@ -60,13 +60,13 @@ data Organization (s :: OrganizationState) where
         Version ->
         Organization 'Inactive
 
-deriving instance Show (Organization s)
-deriving instance Eq (Organization s)
+deriving stock instance Show (Organization s)
+deriving stock instance Eq (Organization s)
 
 data SomeOrganization where
     SomeOrg :: Organization s -> SomeOrganization
 
-deriving instance Show SomeOrganization
+deriving stock instance Show SomeOrganization
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 状態遷移

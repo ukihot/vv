@@ -14,7 +14,7 @@ where
 import Data.Time (Day)
 import Domain.Ops.TaxConfiguration.ValueObjects.TaxConfigId
 import Domain.Ops.TaxConfiguration.ValueObjects.TaxType
-import Domain.Ops.TaxConfiguration.ValueObjects.Version (Version, initialVersion)
+import Domain.Ops.TaxConfiguration.ValueObjects.Version (Version)
 
 data TaxConfiguration = TaxConfiguration
     { taxConfigId :: TaxConfigId

@@ -16,7 +16,7 @@ import Data.Text (Text)
 import Domain.Ops.BankAccount.ValueObjects.AccountNumber
 import Domain.Ops.BankAccount.ValueObjects.BankAccountId
 import Domain.Ops.BankAccount.ValueObjects.BankCode
-import Domain.Ops.BankAccount.ValueObjects.Version (Version, initialVersion)
+import Domain.Ops.BankAccount.ValueObjects.Version (Version)
 import Domain.Shared (Money)
 import GHC.TypeLits (Symbol)
 

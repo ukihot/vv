@@ -35,13 +35,13 @@ data FiscalPeriod (s :: PeriodState) where
     FPOpen :: FiscalPeriodId -> FiscalYearMonth -> Version -> FiscalPeriod 'Open
     FPLocked :: FiscalPeriodId -> FiscalYearMonth -> Version -> FiscalPeriod 'Locked
 
-deriving instance Show (FiscalPeriod s)
-deriving instance Eq (FiscalPeriod s)
+deriving stock instance Show (FiscalPeriod s)
+deriving stock instance Eq (FiscalPeriod s)
 
 data SomeFiscalPeriod where
     SomeFP :: FiscalPeriod s -> SomeFiscalPeriod
 
-deriving instance Show SomeFiscalPeriod
+deriving stock instance Show SomeFiscalPeriod
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 状態遷移

@@ -3,7 +3,7 @@ module Domain.Accounting.FiscalPeriod.Repository (
 )
 where
 
-import Domain.Accounting.FiscalPeriod (FiscalPeriod, SomeFiscalPeriod)
+import Domain.Accounting.FiscalPeriod (SomeFiscalPeriod)
 import Domain.Accounting.FiscalPeriod.ValueObjects.FiscalPeriodId (FiscalPeriodId)
 import Domain.Shared (FiscalYearMonth)
 

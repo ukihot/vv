@@ -13,7 +13,7 @@ where
 
 import Data.Text (Text)
 import Domain.IFRS.Inventory.ValueObjects.InventoryId
-import Domain.IFRS.Inventory.ValueObjects.Version (Version, initialVersion)
+import Domain.IFRS.Inventory.ValueObjects.Version (Version)
 import Domain.Shared (Money)
 import GHC.TypeLits (Symbol)
 

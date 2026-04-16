@@ -3,7 +3,7 @@ module Domain.Ops.ApprovalWorkflow.Repository (
 )
 where
 
-import Domain.Ops.ApprovalWorkflow (ApprovalWorkflow, SomeApprovalWorkflow)
+import Domain.Ops.ApprovalWorkflow (SomeApprovalWorkflow)
 import Domain.Ops.ApprovalWorkflow.ValueObjects.ApprovalWorkflowId (ApprovalWorkflowId)
 
 class Monad m => ApprovalWorkflowRepository m where

@@ -5,7 +5,6 @@ import App.UseCase.IAM.Internal (IAMEnv (..))
 
 -- | ログインユースケース（認証基盤は別途実装予定）
 executeLogin ::
-    Monad m =>
     IAMEnv m ->
     LoginRequest ->
     m ()

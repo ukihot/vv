@@ -17,7 +17,7 @@ import Data.Time (Day)
 import Domain.Ops.BankAccount.ValueObjects.BankAccountId (BankAccountId)
 import Domain.Ops.BankStatement.Entities.BankTransaction
 import Domain.Ops.BankStatement.ValueObjects.BankStatementId
-import Domain.Ops.BankStatement.ValueObjects.Version (Version, initialVersion)
+import Domain.Ops.BankStatement.ValueObjects.Version (Version)
 import GHC.TypeLits (Symbol)
 
 data BankStatement (currency :: Symbol) = BankStatement

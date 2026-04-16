@@ -24,7 +24,7 @@ module App.UseCase.IAM.Internal (
 
 import App.DTO.Response.IAM (UserResponse (..))
 import Control.Monad.Except (ExceptT, runExceptT, throwError)
-import Control.Monad.Reader (ReaderT, ask, runReaderT)
+import Control.Monad.Reader (ReaderT, runReaderT)
 import Control.Monad.Trans.Class (lift)
 import Data.Text (Text)
 import Domain.IAM.Permission (Permission)

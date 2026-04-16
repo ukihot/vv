@@ -66,15 +66,15 @@ recordEntry ::
     Maybe Text ->
     Maybe JournalEntryId ->
     Either JournalError (JournalEntry currency)
-recordEntry eid date lines kind risk memo evRef priorRef =
-    case validateBalance lines of
+recordEntry eid date journalLines kind risk memo evRef priorRef =
+    case validateBalance journalLines of
         Left err -> Left err
         Right _ ->
             Right
                 JournalEntry
                     { entryId = eid
                     , entryDate = date
-                    , entryLines = lines
+                    , entryLines = journalLines
                     , entryKind = kind
                     , entryRisk = risk
                     , entryMemo = memo

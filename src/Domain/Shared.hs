@@ -11,7 +11,6 @@ module Domain.Shared (
     negateMoney,
     zeroMoney,
     scaleMoney,
-    unMoney,
 
     -- * 通貨コード (ISO 4217)
     CurrencyCode (..),

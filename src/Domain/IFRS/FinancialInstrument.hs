@@ -88,13 +88,13 @@ data FinancialAsset (s :: EclStage) (currency :: Symbol) where
         Version ->
         FinancialAsset 'Stage3 currency
 
-deriving instance Show (FinancialAsset s currency)
-deriving instance Eq (FinancialAsset s currency)
+deriving stock instance Show (FinancialAsset s currency)
+deriving stock instance Eq (FinancialAsset s currency)
 
 data SomeFinancialAsset currency where
     SomeFA :: FinancialAsset s currency -> SomeFinancialAsset currency
 
-deriving instance Show (SomeFinancialAsset currency)
+deriving stock instance Show (SomeFinancialAsset currency)
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- ゲッター

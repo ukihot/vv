@@ -15,7 +15,7 @@ where
 import Data.Text (Text)
 import Data.Time (Day)
 import Domain.IFRS.FairValue.ValueObjects.FairValueMeasurementId
-import Domain.IFRS.FairValue.ValueObjects.Version (Version, initialVersion)
+import Domain.IFRS.FairValue.ValueObjects.Version (Version)
 import Domain.Shared (Money)
 import GHC.TypeLits (Symbol)
 

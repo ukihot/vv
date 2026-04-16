@@ -63,13 +63,13 @@ data ApprovalWorkflow (s :: ApprovalState) where
         Version ->
         ApprovalWorkflow 'Rejected
 
-deriving instance Show (ApprovalWorkflow s)
-deriving instance Eq (ApprovalWorkflow s)
+deriving stock instance Show (ApprovalWorkflow s)
+deriving stock instance Eq (ApprovalWorkflow s)
 
 data SomeApprovalWorkflow where
     SomeAW :: ApprovalWorkflow s -> SomeApprovalWorkflow
 
-deriving instance Show SomeApprovalWorkflow
+deriving stock instance Show SomeApprovalWorkflow
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 状態遷移

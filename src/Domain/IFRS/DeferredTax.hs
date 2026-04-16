@@ -14,7 +14,7 @@ where
 import Data.Text (Text)
 import Domain.Accounting.ChartOfAccounts.ValueObjects.AccountCode (AccountCode)
 import Domain.IFRS.DeferredTax.ValueObjects.DeferredTaxItemId
-import Domain.IFRS.DeferredTax.ValueObjects.Version (Version, initialVersion)
+import Domain.IFRS.DeferredTax.ValueObjects.Version (Version)
 import Domain.Shared (FiscalYearMonth, Money)
 import GHC.TypeLits (Symbol)
 

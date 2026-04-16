@@ -58,14 +58,14 @@ data User (s :: UserState) where
     UserS :: UserId -> UserProfile -> [RoleId] -> Version -> User 'Suspended
     UserI :: UserId -> UserProfile -> [RoleId] -> Version -> User 'Inactive
 
-deriving instance Show (User s)
-deriving instance Eq (User s)
+deriving stock instance Show (User s)
+deriving stock instance Eq (User s)
 
 -- | 存在型: Application 層でのみ使用する (#20)
 data SomeUser where
     SomeUser :: User s -> SomeUser
 
-deriving instance Show SomeUser
+deriving stock instance Show SomeUser
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- ゲッター
