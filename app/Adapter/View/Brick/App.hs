@@ -51,7 +51,6 @@ import Adapter.View.Brick.Widgets (
     renderKeyBinding,
     renderKeyMapHelp,
     renderNavigationMenu,
-    renderStatusBar,
     renderTabBar,
  )
 import Adapter.View.Components.LogViewer (
@@ -60,22 +59,23 @@ import Adapter.View.Components.LogViewer (
     LogViewerState (..),
     initialLogViewerState,
  )
-import App.DTO.Response.IAM (UserListResponse (..))
 import Brick (
     App (..),
     AttrMap,
     AttrName,
-    BrickEvent (VtyEvent),
+    BrickEvent (AppEvent, VtyEvent),
     EventM,
     Padding (Pad),
     Widget,
     attrMap,
     attrName,
+    customMain,
     defaultMain,
     fg,
     hBox,
     hLimit,
     halt,
+    invalidateCache,
     on,
     padAll,
     padLeft,
@@ -84,7 +84,6 @@ import Brick (
     str,
     txt,
     vBox,
-    vLimit,
     withAttr,
  )
 import Brick.Widgets.Border qualified as Border
@@ -95,7 +94,7 @@ import Brick.Widgets.Edit (
     getEditContents,
  )
 import Control.Concurrent.STM (atomically, modifyTVar', newTVarIO, readTVar)
-import Control.Monad (void)
+import Control.Monad (void, when)
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.State qualified
 import Data.Text (Text)
@@ -105,13 +104,20 @@ import Data.Time (UTCTime, getCurrentTime)
 import Graphics.Vty qualified as V
 
 -- ─────────────────────────────────────────────────────────────────────────────
+-- カスタムイベント型
+-- ─────────────────────────────────────────────────────────────────────────────
+
+data CustomEvent = LogUpdated
+    deriving (Eq, Show)
+
+-- ─────────────────────────────────────────────────────────────────────────────
 -- Entry Point
 -- ─────────────────────────────────────────────────────────────────────────────
 
 runTuiApp :: IO ()
 runTuiApp = do
-    -- 共有状態（ログ）を初期化
-    logsVar <- newTVarIO ["[INFO] Application started. Press 'h' for help."]
+    -- 共有状態（ログ）を初期化（プレフィックスなしで）
+    logsVar <- newTVarIO ["Application started. Press 'h' for help."]
 
     -- 依存環境を構築
     env <- mkEnv logsVar
@@ -143,9 +149,6 @@ handleEvent ev = do
     st <- Control.Monad.State.get
     case ev of
         VtyEvent vtyEv -> do
-            -- ログビューワーを更新（キー入力時に）
-            updateLogViewer st
-
             case vtyEv of
                 -- 終了
                 V.EvKey (V.KChar 'q') [] -> halt
@@ -165,6 +168,13 @@ handleEvent ev = do
                     if not handled
                         then handleGlobalEvent vtyEv st
                         else pure ()
+
+            -- すべてのイベント処理後にログビューワーを更新
+            st' <- Control.Monad.State.get
+            updateLogViewer st'
+            -- 強制的に状態を再取得して再設定
+            st'' <- Control.Monad.State.get
+            Control.Monad.State.put st''
         _ -> pure ()
 
 -- グローバルイベント処理（画面固有で処理されなかった場合）
@@ -208,12 +218,17 @@ handleGlobalEvent vtyEv st = case vtyEv of
                     if selectedScreen == ScreenUserList
                         then do
                             -- ログをクリア（画面遷移時）
-                            liftIO $ atomically $ modifyTVar' (uiLogs st) (const ["[INFO] Loading user list..."])
+                            liftIO $ atomically $ modifyTVar' (uiLogs st) (const ["Loading user list..."])
                             userListResp <- liftIO $ runAppM (uiEnv st) (handleListUsers Nothing 0 100)
-                            pure st {uiUserList = Just userListResp}
+                            -- ユーザーリスト読み込み後に強制的にログビューワーを更新
+                            let newState = st {uiUserList = Just userListResp}
+                            updateLogViewer newState
+                            Control.Monad.State.get
                         else do
                             -- 他の画面遷移時もログをクリア
-                            liftIO $ atomically $ modifyTVar' (uiLogs st) (const ["[INFO] Screen changed"])
+                            liftIO $ atomically $ modifyTVar' (uiLogs st) (const ["Screen changed"])
+                            -- 画面変更後に強制的にログビューワーを更新
+                            updateLogViewer st
                             pure st
 
                 Control.Monad.State.put
@@ -251,9 +266,15 @@ handleGlobalEvent vtyEv st = case vtyEv of
     V.EvKey (V.KChar '6') [] -> switchToTab TabOrg st
     -- ユーザー一覧画面でのリフレッシュ（r）
     V.EvKey (V.KChar 'r') [] | navCurrentScreen (uiNavigation st) == ScreenUserList -> do
-        liftIO $ atomically $ modifyTVar' (uiLogs st) (const ["[INFO] Refreshing user list..."])
+        liftIO $ atomically $ modifyTVar' (uiLogs st) (const ["Refreshing user list..."])
         userListResp <- liftIO $ runAppM (uiEnv st) (handleListUsers Nothing 0 100)
-        Control.Monad.State.put st {uiUserList = Just userListResp}
+        let newState = st {uiUserList = Just userListResp}
+        Control.Monad.State.put newState
+        -- リフレッシュ後に強制的にログビューワーを更新
+        st' <- Control.Monad.State.get
+        updateLogViewer st'
+        -- UIの再描画を強制
+        invalidateCache
     _ -> pure ()
 
 -- タブへ直接切り替え
@@ -280,19 +301,6 @@ cycleTabReverse TabOps = TabIFRS
 cycleTabReverse TabAudit = TabOps
 cycleTabReverse TabOrg = TabAudit
 
--- 画面固有のイベント処理（後方互換性のため残す）
-handleScreenEvent :: V.Event -> UiState -> EventM Name UiState ()
-handleScreenEvent vtyEv st = do
-    let currentScreen = navCurrentScreen (uiNavigation st)
-    case currentScreen of
-        ScreenUserActivate -> do
-            _ <- handleUserActivateEventWithResult vtyEv st
-            pure ()
-        ScreenUserRegister -> do
-            _ <- handleUserRegisterEventWithResult vtyEv st
-            pure ()
-        _ -> pure ()
-
 -- 画面固有のイベント処理（処理したかどうかを返す）
 handleUserActivateEventWithResult :: V.Event -> UiState -> EventM Name UiState Bool
 handleUserActivateEventWithResult vtyEv st = case vtyEv of
@@ -300,19 +308,31 @@ handleUserActivateEventWithResult vtyEv st = case vtyEv of
         let userId = T.strip (T.unlines (getEditContents (uiUserIdEditor st)))
         if T.null userId
             then do
-                liftIO $ atomically $ modifyTVar' (uiLogs st) (<> ["[ERROR] User ID is required."])
+                liftIO $ atomically $ modifyTVar' (uiLogs st) (<> ["User ID is required."])
+                -- 強制的にログビューワーを更新
+                st' <- Control.Monad.State.get
+                updateLogViewer st'
+                st'' <- Control.Monad.State.get
                 Control.Monad.State.put
-                    st
+                    st''
                         { uiUserIdEditor = emptyEditor UserIdField
                         , uiCurrentFocus = UserIdField
                         }
+                -- UIの再描画を強制
+                invalidateCache
             else do
                 liftIO $ runAppM (uiEnv st) (handleActivateUser userId)
+                -- ユーザー有効化後に強制的にログビューワーを更新
+                st' <- Control.Monad.State.get
+                updateLogViewer st'
+                st'' <- Control.Monad.State.get
                 Control.Monad.State.put
-                    st
+                    st''
                         { uiUserIdEditor = emptyEditor UserIdField
                         , uiCurrentFocus = UserIdField
                         }
+                -- UIの再描画を強制
+                invalidateCache
         pure True -- 処理した
     ev -> do
         -- エディタへの入力を処理（文字入力、削除、カーソル移動など）
@@ -349,17 +369,33 @@ handleUserRegisterEventWithResult vtyEv st = case vtyEv of
             role = T.strip (T.unlines (getEditContents (uiUserRoleEditor st)))
         if T.null name || T.null email || T.null role
             then do
-                liftIO $ atomically $ modifyTVar' (uiLogs st) (<> ["[ERROR] All fields are required."])
+                liftIO $ atomically $ modifyTVar' (uiLogs st) (<> ["All fields are required."])
+                -- 強制的にログビューワーを更新
+                st' <- Control.Monad.State.get
+                updateLogViewer st'
+                st'' <- Control.Monad.State.get
+                Control.Monad.State.put st''
+                -- UIの再描画を強制
+                invalidateCache
             else do
                 liftIO $ runAppM (uiEnv st) (handleRegisterUser name email role)
+
+                -- ユーザー登録後に強制的にログビューワーを更新
+                st' <- Control.Monad.State.get
+                updateLogViewer st'
+
                 -- フォームをクリア
+                st'' <- Control.Monad.State.get
                 Control.Monad.State.put
-                    st
+                    st''
                         { uiUserNameEditor = emptyEditor UserNameField
                         , uiUserEmailEditor = emptyEditor UserEmailField
                         , uiUserRoleEditor = emptyEditor UserRoleField
                         , uiCurrentFocus = UserNameField -- フォーカスをリセット
                         }
+
+                -- UIの再描画を強制
+                invalidateCache
         pure True -- 処理した
 
     -- Tab: 次のフィールドへ（フォーム画面でのみ有効）
@@ -433,7 +469,10 @@ brickApp =
         { appDraw = drawUi
         , appChooseCursor = showFirstCursor
         , appHandleEvent = handleEvent
-        , appStartEvent = pure ()
+        , appStartEvent = do
+            -- アプリケーション開始時に初期ログを処理
+            st <- Control.Monad.State.get
+            updateLogViewer st
         , appAttrMap = const theMap
         }
 
@@ -564,10 +603,11 @@ renderStatusBarWithLogs st canGoBack =
 -- コンパクトログビューワー（ステータスバー用）
 renderCompactLogViewer :: LogViewerState -> Widget Name
 renderCompactLogViewer state =
-    hBox $ -- 横並びに変更
-        case reverse $ lvCompletedLogs state of
-            [] -> [withAttr (attrName "hint") $ txt "Ready"]
-            (latest : _) -> [renderInlineLogEntry latest]
+    let logCount = length (lvCompletedLogs state)
+     in withAttr (attrName "logInfo") $ txt $ "Logs: " <> T.pack (show logCount)
+
+-- unsafePerformIOのimportを削除
+-- import System.IO.Unsafe (unsafePerformIO)
 
 -- インライン表示用のログエントリ
 renderInlineLogEntry :: LogEntry -> Widget Name
@@ -605,16 +645,21 @@ updateLogViewer :: UiState -> EventM Name UiState ()
 updateLogViewer st = do
     -- 新しいログをチェックしてログビューワーに追加
     logs <- liftIO $ atomically $ readTVar (uiLogs st)
-    currentTime <- liftIO getCurrentTime
 
-    -- 新しいログをLogEntryに変換して直接完了リストに追加（タイプライター効果なし）
-    let newEntries = map (textToLogEntry currentTime) logs
-        updatedLogViewer = foldr addLogEntryDirect (uiLogViewer st) newEntries
+    -- 新しいログをチェックしてログビューワーに追加
+    when (not (null logs)) $ do
+        currentTime <- liftIO getCurrentTime
+        -- 新しいログをLogEntryに変換して直接完了リストに追加（タイプライター効果なし）
+        let newEntries = map (textToLogEntry currentTime) logs
+            updatedLogViewer = foldr addLogEntryDirect (uiLogViewer st) newEntries
 
-    -- ログをクリア（処理済みなので）
-    liftIO $ atomically $ modifyTVar' (uiLogs st) (const [])
+        -- ログをクリア（処理済みなので）
+        liftIO $ atomically $ modifyTVar' (uiLogs st) (const [])
 
-    Control.Monad.State.put st {uiLogViewer = updatedLogViewer}
+        Control.Monad.State.put st {uiLogViewer = updatedLogViewer}
+
+        -- UIの再描画を強制
+        invalidateCache
     where
         -- ログを直接完了リストに追加（タイプライター効果をスキップ）
         addLogEntryDirect :: LogEntry -> LogViewerState -> LogViewerState
@@ -624,10 +669,12 @@ updateLogViewer st = do
 
 textToLogEntry :: UTCTime -> Text -> LogEntry
 textToLogEntry timestamp logText
-    | "[ERROR]" `T.isInfixOf` logText = LogEntry LogError logText timestamp
-    | "[WARN]" `T.isInfixOf` logText = LogEntry LogWarning logText timestamp
-    | "[SUCCESS]" `T.isInfixOf` logText = LogEntry LogSuccess logText timestamp
-    | "[DEBUG]" `T.isInfixOf` logText = LogEntry LogDebug logText timestamp
+    | "error" `T.isInfixOf` T.toLower logText || "required" `T.isInfixOf` T.toLower logText =
+        LogEntry LogError logText timestamp
+    | "warn" `T.isInfixOf` T.toLower logText = LogEntry LogWarning logText timestamp
+    | "success" `T.isInfixOf` T.toLower logText || "activated" `T.isInfixOf` T.toLower logText =
+        LogEntry LogSuccess logText timestamp
+    | "debug" `T.isInfixOf` T.toLower logText = LogEntry LogDebug logText timestamp
     | otherwise = LogEntry LogInfo logText timestamp
 
 -- ─────────────────────────────────────────────────────────────────────────────

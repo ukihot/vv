@@ -1,4 +1,5 @@
 {-# LANGUAGE ImportQualifiedPost #-}
+{-# LANGUAGE InstanceSigs #-}
 
 {- | IAM Presenter
 App.Ports.Output の具体実装。
@@ -16,12 +17,31 @@ where
 
 import Adapter.Env (AppM, Env (..))
 import App.DTO.Response.IAM (UserResponse (..))
+import App.Ports.Output.IAM (RegisterUserOutputPort)
+import App.Ports.Output.IAM qualified as OutputPort
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Reader (ask)
 import Data.Text (Text)
 import Domain.IAM.User (User)
 import Domain.IAM.User.Errors (DomainError (..))
 import Domain.IAM.User.ValueObjects.UserState (UserState (Active))
+
+-- ─────────────────────────────────────────────────────────────────────────────
+-- OutputPort インスタンス実装
+-- ─────────────────────────────────────────────────────────────────────────────
+
+instance RegisterUserOutputPort AppM where
+    presentRegisterUserSuccess :: UserResponse -> AppM ()
+    presentRegisterUserSuccess response = do
+        env <- ask
+        -- UserResponse → 表示用メッセージに変換（Presenter層の責務）
+        let message = "User registered: " <> userResponseId response <> " (" <> userResponseName response <> ")"
+        liftIO $ envPresentProgress env message
+
+    presentRegisterUserFailure :: Text -> AppM ()
+    presentRegisterUserFailure msg = do
+        env <- ask
+        liftIO $ envPresentProgress env msg
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- Presenter関数: Output Portの具体実装

@@ -13,13 +13,14 @@ module Adapter.Controller.IAM (
 where
 
 import Adapter.Env (AppM, Env (..), runAppM)
-import Adapter.Presenter.IAM (presentRegisterUserFailure, presentRegisterUserSuccess)
+import Adapter.Presenter.IAM qualified as Presenter
 import Adapter.Presenter.Query (
     presentListUsersProgress,
     presentListUsersSuccess,
  )
 import App.DTO.Request (ActivateUserRequest (..), RegisterUserRequest (..))
 import App.DTO.Response.IAM (UserListResponse)
+import App.Ports.Output.IAM (RegisterUserOutputPort)
 import App.Ports.Query.IAM (ListUsersRequest (..))
 import App.UseCase.IAM.Internal qualified
 import App.UseCase.IAM.ListUsers (ListUsersEnv (..), executeListUsers)
@@ -100,9 +101,9 @@ mkIAMEnv env =
             Left _ -> error "Invalid system user ID" -- TODO: 認証コンテキストから取得
         , App.UseCase.IAM.Internal.envPresentSuccess = \response ->
             -- UseCase層からPresenterを直接呼び出し（IO monadで実行）
-            runAppM env $ presentRegisterUserSuccess response
+            runAppM env $ Presenter.presentRegisterUserSuccess response
         , App.UseCase.IAM.Internal.envPresentFailure = \msg ->
-            runAppM env $ presentRegisterUserFailure msg
+            runAppM env $ Presenter.presentRegisterUserFailure msg
         }
 
 -- ─────────────────────────────────────────────────────────────────────────────
