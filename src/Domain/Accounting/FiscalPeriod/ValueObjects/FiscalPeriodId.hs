@@ -1,6 +1,7 @@
 module Domain.Accounting.FiscalPeriod.ValueObjects.FiscalPeriodId (
-    FiscalPeriodId (..),
+    FiscalPeriodId,
     mkFiscalPeriodId,
+    unFiscalPeriodId,
 )
 where
 
@@ -13,5 +14,7 @@ newtype FiscalPeriodId = FiscalPeriodId {unFiscalPeriodId :: Text}
 
 mkFiscalPeriodId :: Text -> Either PeriodError FiscalPeriodId
 mkFiscalPeriodId t
-    | T.null t = Left InvalidPeriodId
-    | otherwise = Right (FiscalPeriodId t)
+    | T.null normalized = Left InvalidPeriodId
+    | otherwise = Right (FiscalPeriodId normalized)
+    where
+        normalized = T.strip t

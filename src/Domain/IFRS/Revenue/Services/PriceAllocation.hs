@@ -3,7 +3,11 @@ module Domain.IFRS.Revenue.Services.PriceAllocation (
 )
 where
 
-import Domain.IFRS.Revenue.Entities.PerformanceObligation (PerformanceObligation (..))
+import Domain.IFRS.Revenue.Entities.PerformanceObligation (
+    PerformanceObligation,
+    poStandalonePrice,
+    withAllocatedPrice,
+ )
 import Domain.IFRS.Revenue.Errors (RevenueError (..))
 import Domain.Shared (Money, scaleMoney, toRationalMoney)
 
@@ -12,10 +16,11 @@ allocateTransactionPrice ::
     [PerformanceObligation currency] ->
     Either RevenueError [PerformanceObligation currency]
 allocateTransactionPrice txPrice pos
+    | any ((<= 0) . toRationalMoney . poStandalonePrice) pos = Left NonPositiveStandalonePrice
     | totalSSP == 0 = Left ZeroStandalonePrice
-    | otherwise = Right (map allocate pos)
+    | otherwise = traverse allocate pos
     where
         totalSSP = toRationalMoney (sum (map poStandalonePrice pos))
         allocate po =
             let ratio = toRationalMoney (poStandalonePrice po) / totalSSP
-             in po {poAllocatedPrice = scaleMoney ratio txPrice}
+             in withAllocatedPrice (scaleMoney ratio txPrice) po

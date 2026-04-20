@@ -1,17 +1,21 @@
 module Domain.IFRS.RevenueSpec (tests) where
 
+import Data.Text (Text)
 import Data.Time (fromGregorian)
 import Domain.IFRS.Revenue (
     AllocationMethod (..),
-    PerformanceObligation (..),
-    PerformanceObligationId (..),
+    PerformanceObligation,
+    PerformanceObligationId,
     RevenueError (..),
     RevenueJudgmentLog (..),
     RevenueRecognitionResult (..),
     SatisfactionPattern (..),
     allocateTransactionPrice,
-    mkContractId,
+    mkPerformanceObligation,
+    mkPerformanceObligationId,
+    poAllocatedPrice,
     recognizeRevenue,
+    unPerformanceObligationId,
  )
 import Domain.Shared (Money, mkMoney', toRationalMoney, zeroMoney)
 import Hedgehog (Property, forAll, property, (===))
@@ -21,7 +25,6 @@ import Money qualified
 import Support.Accounting.Fixtures (
     sampleContractId,
     samplePoId,
-    shouldRight,
  )
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.HUnit (Assertion, assertEqual, assertFailure, testCase)
@@ -32,36 +35,41 @@ tests =
     testGroup
         "Revenue (IFRS 15)"
         [ testGroup
-            "ContractId"
-            [ testCase "有効なIDは成功" case_validContractId
+            "PerformanceObligationId"
+            [ testCase "blank obligation id is rejected" case_blankPoIdFails
+            , testCase "obligation id is normalized" case_poIdIsTrimmed
             ]
         , testGroup
-            "allocateTransactionPrice §4.3.2"
-            [ testCase "2履行義務への独立販売価格比率配分" case_allocateTwoObligations
-            , testCase "独立販売価格合計ゼロはエラー" case_zeroSspFails
-            , testCase "配分後合計 = 取引価格" case_allocationSumsToTransactionPrice
+            "PerformanceObligation"
+            [ testCase "positive SSP succeeds" case_positiveSspSucceeds
+            , testCase "zero SSP is rejected" case_zeroSspFails
+            , testCase "negative SSP is rejected" case_negativeSspFails
             ]
         , testGroup
-            "recognizeRevenue §4.3.1 Step5"
-            [ testCase "一時点認識の履行義務は収益計上できる" case_recognizeAtPoint
-            , testCase "期間認識の履行義務は一時点認識できない" case_cannotRecognizeOverTimeAtPoint
+            "allocateTransactionPrice"
+            [ testCase "allocates transaction price by relative SSP" case_allocateTwoObligations
+            , testCase "allocated total equals transaction price" case_allocationSumsToTransactionPrice
+            , testCase "empty obligations are rejected" case_emptyObligationsFail
+            ]
+        , testGroup
+            "recognizeRevenue"
+            [ testCase "at-point obligation can be recognized" case_recognizeAtPoint
+            , testCase
+                "over-time obligation cannot be recognized at a point in time"
+                case_cannotRecognizeOverTimeAtPoint
             ]
         , testGroup
             "Properties"
-            [ testProperty "配分後の各履行義務の合計は取引価格に等しい" prop_allocationPreservesTotal
+            [ testProperty "allocated amounts preserve the transaction price total" prop_allocationPreservesTotal
             ]
         ]
 
--- ─────────────────────────────────────────────────────────────────────────────
--- フィクスチャ
--- ─────────────────────────────────────────────────────────────────────────────
-
 sampleLog :: IO (RevenueJudgmentLog "JPY")
 sampleLog = do
-    cid <- sampleContractId
+    contractId <- sampleContractId
     pure
         RevenueJudgmentLog
-            { rjlContractId = cid
+            { rjlContractId = contractId
             , rjlStep1ContractExists = True
             , rjlStep2ObligationBasis = "ライセンスと保守は別個の財・サービス"
             , rjlStep3AllocationMethod = RelativeStandalonePrice
@@ -71,97 +79,116 @@ sampleLog = do
             }
 
 makePO ::
-    PerformanceObligationId -> SatisfactionPattern -> Money "JPY" -> PerformanceObligation "JPY"
-makePO pid pat ssp =
-    PerformanceObligation
-        { poId = pid
-        , poDescription = "テスト履行義務"
-        , poPattern = pat
-        , poProgressMethod = Nothing
-        , poStandalonePrice = ssp
-        , poAllocatedPrice = zeroMoney
-        }
+    PerformanceObligationId ->
+    SatisfactionPattern ->
+    Money "JPY" ->
+    PerformanceObligation "JPY"
+makePO obligationId pattern_ standalonePrice =
+    case mkPerformanceObligation obligationId "テスト履行義務" pattern_ Nothing standalonePrice of
+        Left err -> error ("invalid performance obligation fixture: " <> show err)
+        Right value -> value
 
--- ─────────────────────────────────────────────────────────────────────────────
--- HUnit ケース
--- ─────────────────────────────────────────────────────────────────────────────
+case_blankPoIdFails :: Assertion
+case_blankPoIdFails =
+    assertEqual "blank po id" (Left InvalidPerformanceObligationId) (mkPerformanceObligationId "   ")
 
-case_validContractId :: Assertion
-case_validContractId = do
-    cid <- sampleContractId
-    pure ()
+case_poIdIsTrimmed :: Assertion
+case_poIdIsTrimmed =
+    case mkPerformanceObligationId " PO-001 " of
+        Left err -> assertFailure ("unexpected error: " <> show err)
+        Right obligationId -> assertEqual "trimmed po id" "PO-001" (unPerformanceObligationId obligationId)
+
+case_positiveSspSucceeds :: Assertion
+case_positiveSspSucceeds =
+    case mkPerformanceObligation samplePoId "正のSSP" AtPointInTime Nothing (mkMoney' 100000 :: Money "JPY") of
+        Left err -> assertFailure ("unexpected error: " <> show err)
+        Right _ -> pure ()
+
+case_zeroSspFails :: Assertion
+case_zeroSspFails =
+    assertEqual
+        "zero SSP"
+        (Left NonPositiveStandalonePrice)
+        (mkPerformanceObligation samplePoId "ゼロSSP" AtPointInTime Nothing (zeroMoney :: Money "JPY"))
+
+case_negativeSspFails :: Assertion
+case_negativeSspFails =
+    assertEqual
+        "negative SSP"
+        (Left NonPositiveStandalonePrice)
+        (mkPerformanceObligation samplePoId "負のSSP" AtPointInTime Nothing (mkMoney' (-1) :: Money "JPY"))
 
 case_allocateTwoObligations :: Assertion
 case_allocateTwoObligations = do
-    -- ライセンス SSP=600,000 / 保守 SSP=400,000 → 合計1,000,000
-    -- 取引価格 900,000 → ライセンス 540,000 / 保守 360,000
-    let po1 = makePO (PerformanceObligationId "PO-LIC") AtPointInTime (mkMoney' 600000)
-        po2 = makePO (PerformanceObligationId "PO-MNT") AtPointInTime (mkMoney' 400000)
+    let po1 = makePO (mkPoId "PO-LIC") AtPointInTime (mkMoney' 600000)
+        po2 = makePO (mkPoId "PO-MNT") AtPointInTime (mkMoney' 400000)
         txPrice = mkMoney' 900000 :: Money "JPY"
     case allocateTransactionPrice txPrice [po1, po2] of
-        Left e -> assertFailure ("予期しないエラー: " <> show e)
-        Right pos -> do
-            assertEqual "配分数" 2 (length pos)
-            assertEqual "ライセンス配分額" (mkMoney' 540000) (poAllocatedPrice (head pos))
-            assertEqual "保守配分額" (mkMoney' 360000) (poAllocatedPrice (pos !! 1))
-
-case_zeroSspFails :: Assertion
-case_zeroSspFails = do
-    let po = makePO samplePoId AtPointInTime zeroMoney
-    case allocateTransactionPrice (mkMoney' 100000 :: Money "JPY") [po] of
-        Left ZeroStandalonePrice -> pure ()
-        other -> assertFailure ("期待: ZeroStandalonePrice, 実際: " <> show other)
+        Left err -> assertFailure ("unexpected error: " <> show err)
+        Right [licensePo, maintenancePo] -> do
+            assertEqual "allocation count" 2 (length [licensePo, maintenancePo])
+            assertEqual "license allocation" (mkMoney' 540000) (poAllocatedPrice licensePo)
+            assertEqual "maintenance allocation" (mkMoney' 360000) (poAllocatedPrice maintenancePo)
+        Right other -> assertFailure ("expected 2 obligations, got: " <> show (length other))
 
 case_allocationSumsToTransactionPrice :: Assertion
 case_allocationSumsToTransactionPrice = do
-    let po1 = makePO (PerformanceObligationId "PO-A") AtPointInTime (mkMoney' 300000)
-        po2 = makePO (PerformanceObligationId "PO-B") AtPointInTime (mkMoney' 700000)
+    let po1 = makePO (mkPoId "PO-A") AtPointInTime (mkMoney' 300000)
+        po2 = makePO (mkPoId "PO-B") AtPointInTime (mkMoney' 700000)
         txPrice = mkMoney' 1000000 :: Money "JPY"
     case allocateTransactionPrice txPrice [po1, po2] of
-        Left e -> assertFailure ("予期しないエラー: " <> show e)
-        Right pos ->
-            let total = Money.dense' (sum (map (toRationalMoney . poAllocatedPrice) pos))
-             in assertEqual "配分合計 = 取引価格" txPrice total
+        Left err -> assertFailure ("unexpected error: " <> show err)
+        Right obligations ->
+            let total = Money.dense' (sum (map (toRationalMoney . poAllocatedPrice) obligations))
+             in assertEqual "allocation total" txPrice total
+
+case_emptyObligationsFail :: Assertion
+case_emptyObligationsFail =
+    assertEqual
+        "empty obligations"
+        (Left ZeroStandalonePrice)
+        (allocateTransactionPrice (mkMoney' 100000 :: Money "JPY") [])
 
 case_recognizeAtPoint :: Assertion
 case_recognizeAtPoint = do
-    log <- sampleLog
-    let po =
-            (makePO samplePoId AtPointInTime (mkMoney' 500000))
-                { poAllocatedPrice = mkMoney' 500000
-                }
-        date = fromGregorian 2026 3 31
-    case recognizeRevenue po date log of
-        Left e -> assertFailure ("予期しないエラー: " <> show e)
-        Right r -> assertEqual "認識額" (mkMoney' 500000) (rrrRecognizedAmt r)
+    judgmentLog <- sampleLog
+    let po = makePO samplePoId AtPointInTime (mkMoney' 500000)
+        recognitionDate = fromGregorian 2026 3 31
+    case allocateTransactionPrice (mkMoney' 500000 :: Money "JPY") [po] of
+        Left err -> assertFailure ("unexpected error: " <> show err)
+        Right [allocatedPo] -> case recognizeRevenue allocatedPo recognitionDate judgmentLog of
+            Left err -> assertFailure ("unexpected error: " <> show err)
+            Right result -> assertEqual "recognized amount" (mkMoney' 500000) (rrrRecognizedAmt result)
+        Right other -> assertFailure ("expected 1 obligation, got: " <> show (length other))
 
 case_cannotRecognizeOverTimeAtPoint :: Assertion
 case_cannotRecognizeOverTimeAtPoint = do
-    log <- sampleLog
-    let po =
-            (makePO samplePoId OverTime (mkMoney' 500000))
-                { poAllocatedPrice = mkMoney' 500000
-                }
-        date = fromGregorian 2026 3 31
-    case recognizeRevenue po date log of
-        Left CannotRecognizeOverTimeObligationAtPoint -> pure ()
-        other -> assertFailure ("期待: CannotRecognizeOverTimeObligationAtPoint, 実際: " <> show other)
+    judgmentLog <- sampleLog
+    let po = makePO samplePoId OverTime (mkMoney' 500000)
+        recognitionDate = fromGregorian 2026 3 31
+    case allocateTransactionPrice (mkMoney' 500000 :: Money "JPY") [po] of
+        Left err -> assertFailure ("unexpected error: " <> show err)
+        Right [allocatedPo] -> case recognizeRevenue allocatedPo recognitionDate judgmentLog of
+            Left CannotRecognizeOverTimeObligationAtPoint -> pure ()
+            other -> assertFailure ("expected CannotRecognizeOverTimeObligationAtPoint, got: " <> show other)
+        Right other -> assertFailure ("expected 1 obligation, got: " <> show (length other))
 
--- ─────────────────────────────────────────────────────────────────────────────
--- Hedgehog プロパティ
--- ─────────────────────────────────────────────────────────────────────────────
-
--- | 配分後の各履行義務の合計は取引価格に等しい（有理数精度で厳密）
 prop_allocationPreservesTotal :: Property
 prop_allocationPreservesTotal = property $ do
-    ssp1 <- forAll $ Gen.integral (Range.linear 1 1000000)
-    ssp2 <- forAll $ Gen.integral (Range.linear 1 1000000)
-    tx <- forAll $ Gen.integral (Range.linear 1 2000000)
-    let po1 = makePO (PerformanceObligationId "A") AtPointInTime (mkMoney' (fromIntegral ssp1))
-        po2 = makePO (PerformanceObligationId "B") AtPointInTime (mkMoney' (fromIntegral ssp2))
+    ssp1 <- forAll $ Gen.integral (Range.linear 1 1000000 :: Range.Range Int)
+    ssp2 <- forAll $ Gen.integral (Range.linear 1 1000000 :: Range.Range Int)
+    tx <- forAll $ Gen.integral (Range.linear 1 2000000 :: Range.Range Int)
+    let po1 = makePO (mkPoId "A") AtPointInTime (mkMoney' (fromIntegral ssp1))
+        po2 = makePO (mkPoId "B") AtPointInTime (mkMoney' (fromIntegral ssp2))
         txPrice = mkMoney' (fromIntegral tx) :: Money "JPY"
     case allocateTransactionPrice txPrice [po1, po2] of
-        Left _ -> pure () -- ZeroSsp 等は skip
-        Right pos ->
-            let total = sum (map (toRationalMoney . poAllocatedPrice) pos)
+        Left _ -> pure ()
+        Right obligations ->
+            let total = sum (map (toRationalMoney . poAllocatedPrice) obligations)
              in total === toRationalMoney txPrice
+
+mkPoId :: Text -> PerformanceObligationId
+mkPoId raw =
+    case mkPerformanceObligationId raw of
+        Left err -> error ("invalid po id fixture: " <> show err)
+        Right value -> value

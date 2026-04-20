@@ -3,11 +3,13 @@ module Domain.IFRS.LeaseSpec (tests) where
 import Data.Time (fromGregorian)
 import Domain.IFRS.Lease (
     Lease (..),
+    LeaseError (..),
     applyLeasePayment,
     computePeriodDepreciation,
     computePeriodInterest,
     mkLeaseId,
     recordLease,
+    unLeaseId,
  )
 import Domain.Shared (Money, initialVersion, mkMoney', nextVersion, toRationalMoney)
 import Hedgehog (Property, forAll, property, (===))
@@ -15,7 +17,7 @@ import Hedgehog.Gen qualified as Gen
 import Hedgehog.Range qualified as Range
 import Support.Accounting.Fixtures (sampleLeaseId)
 import Test.Tasty (TestTree, testGroup)
-import Test.Tasty.HUnit (Assertion, assertEqual, testCase)
+import Test.Tasty.HUnit (Assertion, assertEqual, assertFailure, testCase)
 import Test.Tasty.Hedgehog (testProperty)
 
 tests :: TestTree
@@ -23,6 +25,11 @@ tests =
     testGroup
         "Lease (IFRS 16)"
         [ testGroup
+            "mkLeaseId"
+            [ testCase "blank lease id is rejected" case_blankLeaseIdFails
+            , testCase "lease id is normalized" case_leaseIdIsTrimmed
+            ]
+        , testGroup
             "recordLease"
             [ testCase "初度認識: 使用権資産 = リース負債" case_initialRecognitionRouEqLiability
             , testCase "初度認識: 初期バージョン" case_initialVersion
@@ -59,6 +66,16 @@ sampleLease = do
 -- ─────────────────────────────────────────────────────────────────────────────
 -- HUnit ケース
 -- ─────────────────────────────────────────────────────────────────────────────
+
+case_blankLeaseIdFails :: Assertion
+case_blankLeaseIdFails =
+    assertEqual "blank lease id" (Left InvalidLeaseId) (mkLeaseId "   ")
+
+case_leaseIdIsTrimmed :: Assertion
+case_leaseIdIsTrimmed =
+    case mkLeaseId " LS-2026-001 " of
+        Left err -> assertFailure ("unexpected error: " <> show err)
+        Right leaseId -> assertEqual "trimmed lease id" "LS-2026-001" (unLeaseId leaseId)
 
 case_initialRecognitionRouEqLiability :: Assertion
 case_initialRecognitionRouEqLiability = do

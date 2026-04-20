@@ -1,6 +1,7 @@
 module Domain.IFRS.FinancialInstrument.ValueObjects.FinancialAssetId (
-    FinancialAssetId (..),
+    FinancialAssetId,
     mkFinancialAssetId,
+    unFinancialAssetId,
 )
 where
 
@@ -13,5 +14,7 @@ newtype FinancialAssetId = FinancialAssetId {unFinancialAssetId :: Text}
 
 mkFinancialAssetId :: Text -> Either FinancialInstrumentError FinancialAssetId
 mkFinancialAssetId t
-    | T.null t = Left InvalidAssetId
-    | otherwise = Right (FinancialAssetId t)
+    | T.null normalized = Left InvalidAssetId
+    | otherwise = Right (FinancialAssetId normalized)
+    where
+        normalized = T.strip t

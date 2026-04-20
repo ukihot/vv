@@ -2,11 +2,14 @@ module Domain.Accounting.ExchangeRateSpec (tests) where
 
 import Data.Time (fromGregorian)
 import Domain.Accounting.ExchangeRate (
-    ExchangeRate (..),
+    ExchangeRate,
     ExchangeRateError (..),
-    RateKind (..),
-    mkExchangeRate,
-    translateMoney,
+    RateKind (ClosingRate),
+    mkAverageRate,
+    mkClosingRate,
+    translateByAverage,
+    translateMonetary,
+    translateNonMonetaryHistorical,
  )
 import Domain.Shared (Money, mkMoney', toRationalMoney)
 import Hedgehog (Property, forAll, property, (===))
@@ -26,89 +29,115 @@ tests =
     testGroup
         "ExchangeRate"
         [ testGroup
-            "mkExchangeRate"
-            [ testCase "正のレートは成功" case_positiveRateSucceeds
-            , testCase "ゼロレートはエラー" case_zeroRateFails
-            , testCase "負のレートはエラー" case_negativeRateFails
+            "Constructors"
+            [ testCase "positive rate succeeds" case_positiveRateSucceeds
+            , testCase "zero rate fails" case_zeroRateFails
+            , testCase "negative rate fails" case_negativeRateFails
+            , testCase "blank source fails" case_blankSourceFails
             ]
         , testGroup
-            "translateMoney §4.7.10.3"
-            [ testCase "期末日レートで貨幣性項目を換算" case_translateMonetary
-            , testCase "取引日レートで非貨幣性項目を換算" case_translateNonMonetary
+            "IAS 21 translations"
+            [ testCase "closing rate translates monetary items" case_translateMonetary
+            , testCase "historical rate translates non-monetary items" case_translateNonMonetary
+            , testCase "average rate translates periodic flows" case_translateByAverageRate
+            , testCase
+                "type-level rate kind prevents historical-rate use in monetary translation"
+                case_rateKindTypeSafety
             ]
         , testGroup
             "Properties"
-            [ testProperty "正のレートは常に成功" prop_positiveRateAlwaysSucceeds
-            , testProperty "換算後金額 = 原通貨金額 × レート" prop_translationIsLinear
+            [ testProperty "positive rate always succeeds" prop_positiveRateAlwaysSucceeds
+            , testProperty "monetary translation is linear" prop_translationIsLinear
             ]
         ]
 
 case_positiveRateSucceeds :: Assertion
 case_positiveRateSucceeds = do
-    let result = mkExchangeRate 150 ClosingRate (fromGregorian 2026 3 31) "BOJ"
+    let result = mkClosingRate 150 (fromGregorian 2026 3 31) "BOJ"
     case result of
-        Left e -> assertFailure ("予期しないエラー: " <> show e)
+        Left err -> assertFailure ("unexpected error: " <> show err)
         Right _ -> pure ()
 
 case_zeroRateFails :: Assertion
 case_zeroRateFails =
     assertEqual
-        "ゼロレートはエラー"
+        "zero rate"
         (Left NonPositiveRate)
-        ( mkExchangeRate 0 ClosingRate (fromGregorian 2026 3 31) "BOJ" ::
-            Either ExchangeRateError (ExchangeRate "USD" "JPY")
+        ( mkClosingRate 0 (fromGregorian 2026 3 31) "BOJ" ::
+            Either ExchangeRateError (ExchangeRate 'ClosingRate "USD" "JPY")
         )
 
 case_negativeRateFails :: Assertion
 case_negativeRateFails =
     assertEqual
-        "負レートはエラー"
+        "negative rate"
         (Left NonPositiveRate)
-        ( mkExchangeRate (-1) ClosingRate (fromGregorian 2026 3 31) "BOJ" ::
-            Either ExchangeRateError (ExchangeRate "USD" "JPY")
+        ( mkClosingRate (-1) (fromGregorian 2026 3 31) "BOJ" ::
+            Either ExchangeRateError (ExchangeRate 'ClosingRate "USD" "JPY")
         )
 
--- | 貨幣性項目: USD 1,000 × 期末日レート 150 = JPY 150,000
+case_blankSourceFails :: Assertion
+case_blankSourceFails =
+    assertEqual
+        "blank source"
+        (Left MissingRateSource)
+        ( mkClosingRate 150 (fromGregorian 2026 3 31) "   " ::
+            Either ExchangeRateError (ExchangeRate 'ClosingRate "USD" "JPY")
+        )
+
 case_translateMonetary :: Assertion
 case_translateMonetary = do
     rate <- sampleUsdJpyClosingRate
     let usd = mkMoney' 1000 :: Money "USD"
-        jpy = translateMoney rate usd
-    assertEqual "換算結果" (mkMoney' 150000 :: Money "JPY") jpy
+        jpy = translateMonetary rate usd
+    assertEqual "translated monetary amount" (mkMoney' 150000 :: Money "JPY") jpy
 
--- | 非貨幣性項目: USD 1,000 × 取引日レート 145 = JPY 145,000
 case_translateNonMonetary :: Assertion
 case_translateNonMonetary = do
     rate <- sampleUsdJpyHistoricalRate
     let usd = mkMoney' 1000 :: Money "USD"
-        jpy = translateMoney rate usd
-    assertEqual "換算結果" (mkMoney' 145000 :: Money "JPY") jpy
+        jpy = translateNonMonetaryHistorical rate usd
+    assertEqual "translated non-monetary amount" (mkMoney' 145000 :: Money "JPY") jpy
+
+case_translateByAverageRate :: Assertion
+case_translateByAverageRate = do
+    rate <- case mkAverageRate 148 (fromGregorian 2026 3 31) "BOJ" of
+        Left err -> assertFailure ("unexpected error: " <> show err)
+        Right value -> pure value
+    let usd = mkMoney' 1000 :: Money "USD"
+        jpy = translateByAverage rate usd
+    assertEqual "translated average-rate amount" (mkMoney' 148000 :: Money "JPY") jpy
+
+case_rateKindTypeSafety :: Assertion
+case_rateKindTypeSafety =
+    -- The following does not typecheck, which is the point of the API:
+    -- translateMonetary historicalRate amount
+    pure ()
 
 prop_positiveRateAlwaysSucceeds :: Property
 prop_positiveRateAlwaysSucceeds = property $ do
-    r <- forAll $ Gen.realFrac_ (Range.linearFrac 0.0001 10000 :: Range.Range Double)
+    rate <- forAll $ Gen.realFrac_ (Range.linearFrac 0.0001 10000 :: Range.Range Double)
     let result =
-            mkExchangeRate (toRational r) ClosingRate (fromGregorian 2026 3 31) "TEST" ::
-                Either ExchangeRateError (ExchangeRate "USD" "JPY")
+            mkClosingRate (toRational rate) (fromGregorian 2026 3 31) "TEST" ::
+                Either ExchangeRateError (ExchangeRate 'ClosingRate "USD" "JPY")
     case result of
         Right _ -> pure ()
-        Left e -> fail ("正のレートが失敗: " <> show e)
+        Left err -> fail ("positive rate failed: " <> show err)
 
--- | 換算の線形性: translate(r, a + b) = translate(r, a) + translate(r, b)
 prop_translationIsLinear :: Property
 prop_translationIsLinear = property $ do
     a <- forAll $ Gen.integral (Range.linear 1 100000 :: Range.Range Int)
     b <- forAll $ Gen.integral (Range.linear 1 100000 :: Range.Range Int)
-    let rate =
-            ExchangeRate
-                { rateValue = 150
-                , rateKind = ClosingRate
-                , rateDate = fromGregorian 2026 3 31
-                , rateSource = "TEST"
-                }
+    let rate = case mkClosingRate 150 (fromGregorian 2026 3 31) "TEST" of
+            Left err -> error ("invalid exchange rate fixture: " <> show err)
+            Right value -> value
         ma = mkMoney' (fromIntegral a) :: Money "USD"
         mb = mkMoney' (fromIntegral b) :: Money "USD"
         mab = mkMoney' (fromIntegral (a + b)) :: Money "USD"
-        lhs = translateMoney rate mab
-        rhs = M.dense' (toRationalMoney (translateMoney rate ma) + toRationalMoney (translateMoney rate mb))
+        lhs = translateMonetary rate mab
+        rhs =
+            M.dense'
+                ( toRationalMoney (translateMonetary rate ma)
+                    + toRationalMoney (translateMonetary rate mb)
+                )
     toRationalMoney lhs === toRationalMoney rhs

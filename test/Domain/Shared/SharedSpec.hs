@@ -10,7 +10,6 @@ import Domain.Shared (
     negateMoney,
     scaleMoney,
     subMoney,
-    toRationalMoney,
     zeroMoney,
  )
 import Hedgehog (Gen, Property, forAll, property, (===))
@@ -23,7 +22,7 @@ import Test.Tasty.Hedgehog (testProperty)
 tests :: TestTree
 tests =
     testGroup
-        "Domain.Shared – Money"
+        "Domain.Shared - Money"
         [ testGroup
             "Semigroup (<>)"
             [ testCase "JPY 100 <> JPY 200 = JPY 300" case_semigroupAdd

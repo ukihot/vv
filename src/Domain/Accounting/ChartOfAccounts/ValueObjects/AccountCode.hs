@@ -1,8 +1,9 @@
 {-# LANGUAGE ImportQualifiedPost #-}
 
 module Domain.Accounting.ChartOfAccounts.ValueObjects.AccountCode (
-    AccountCode (..),
+    AccountCode,
     mkAccountCode,
+    unAccountCode,
 )
 where
 
@@ -15,5 +16,7 @@ newtype AccountCode = AccountCode {unAccountCode :: Text}
 
 mkAccountCode :: Text -> Either ChartError AccountCode
 mkAccountCode t
-    | T.null t = Left EmptyAccountCode
-    | otherwise = Right (AccountCode t)
+    | T.null normalized = Left EmptyAccountCode
+    | otherwise = Right (AccountCode normalized)
+    where
+        normalized = T.strip t

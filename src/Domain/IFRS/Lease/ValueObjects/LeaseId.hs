@@ -1,6 +1,7 @@
 module Domain.IFRS.Lease.ValueObjects.LeaseId (
-    LeaseId (..),
+    LeaseId,
     mkLeaseId,
+    unLeaseId,
 )
 where
 
@@ -13,5 +14,7 @@ newtype LeaseId = LeaseId {unLeaseId :: Text}
 
 mkLeaseId :: Text -> Either LeaseError LeaseId
 mkLeaseId t
-    | T.null t = Left InvalidLeaseId
-    | otherwise = Right (LeaseId t)
+    | T.null normalized = Left InvalidLeaseId
+    | otherwise = Right (LeaseId normalized)
+    where
+        normalized = T.strip t

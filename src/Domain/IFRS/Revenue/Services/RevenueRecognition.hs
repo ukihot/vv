@@ -5,8 +5,11 @@ where
 
 import Data.Time (Day)
 import Domain.IFRS.Revenue.Entities.PerformanceObligation (
-    PerformanceObligation (..),
+    PerformanceObligation,
     SatisfactionPattern (..),
+    poAllocatedPrice,
+    poId,
+    poPattern,
  )
 import Domain.IFRS.Revenue.Entities.RevenueJudgmentLog (RevenueJudgmentLog (..))
 import Domain.IFRS.Revenue.Entities.RevenueRecognitionResult (RevenueRecognitionResult (..))

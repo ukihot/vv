@@ -7,8 +7,9 @@ module Domain.IFRS.Lease (
     Lease (..),
 
     -- * 値オブジェクト
-    LeaseId (..),
+    LeaseId,
     mkLeaseId,
+    unLeaseId,
 
     -- * エラー
     LeaseError (..),
@@ -25,7 +26,7 @@ where
 
 import Data.Time (Day)
 import Domain.IFRS.Lease.Errors (LeaseError (..))
-import Domain.IFRS.Lease.ValueObjects.LeaseId (LeaseId (..), mkLeaseId)
+import Domain.IFRS.Lease.ValueObjects.LeaseId (LeaseId, mkLeaseId, unLeaseId)
 import Domain.IFRS.Lease.ValueObjects.Version (Version, initialVersion, nextVersion)
 import Domain.Shared (Money, scaleMoney, subMoney, zeroMoney)
 import GHC.TypeLits (Symbol)

@@ -21,8 +21,10 @@ module Domain.Shared (
     CurrencyCode (..),
 
     -- * 会計期間
-    FiscalYearMonth (..),
+    FiscalYearMonth,
     fiscalYearMonth,
+    fymYear,
+    fymMonth,
 
     -- * 仕訳行為区分 (§2.1.1)
     JournalEntryKind (..),
@@ -41,7 +43,6 @@ module Domain.Shared (
 where
 
 import Data.Text (Text)
-import GHC.Generics (Generic)
 import GHC.TypeLits (Symbol)
 import Money qualified
 
@@ -108,7 +109,7 @@ newtype CurrencyCode = CurrencyCode {unCurrencyCode :: Text}
 -- | 年月で表現する会計期間単位。
 data FiscalYearMonth = FiscalYearMonth
     { fymYear :: Int
-    , fymMonth :: Int -- 1–12
+    , fymMonth :: Int -- 1-12
     }
     deriving stock (Show, Eq, Ord)
 

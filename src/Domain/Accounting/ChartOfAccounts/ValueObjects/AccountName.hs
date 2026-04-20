@@ -1,6 +1,7 @@
 module Domain.Accounting.ChartOfAccounts.ValueObjects.AccountName (
-    AccountName (..),
+    AccountName,
     mkAccountName,
+    unAccountName,
 )
 where
 
@@ -13,5 +14,7 @@ newtype AccountName = AccountName {unAccountName :: Text}
 
 mkAccountName :: Text -> Either ChartError AccountName
 mkAccountName t
-    | T.null t = Left EmptyAccountName
-    | otherwise = Right (AccountName t)
+    | T.null normalized = Left EmptyAccountName
+    | otherwise = Right (AccountName normalized)
+    where
+        normalized = T.strip t

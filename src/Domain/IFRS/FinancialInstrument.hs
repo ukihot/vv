@@ -9,13 +9,22 @@ module Domain.IFRS.FinancialInstrument (
     SomeFinancialAsset (..),
 
     -- * 値オブジェクト
-    FinancialAssetId (..),
+    FinancialAssetId,
     mkFinancialAssetId,
+    unFinancialAssetId,
 
     -- * ECL パラメータ
-    EclParameters (..),
+    EclParameters,
     EconomicScenario (..),
-    ScenarioWeight (..),
+    ScenarioWeight,
+    mkScenarioWeight,
+    unWeight,
+    mkEclParameters,
+    pd12Month,
+    pdLifetime,
+    lgd,
+    discountFactor,
+    scenarioWeights,
 
     -- * エラー
     FinancialInstrumentError (..),
@@ -46,16 +55,25 @@ where
 
 import Domain.IFRS.FinancialInstrument.Entities.EclJudgmentLog (EclJudgmentLog (..))
 import Domain.IFRS.FinancialInstrument.Entities.EclParameters (
-    EclParameters (..),
+    EclParameters,
     EconomicScenario (..),
-    ScenarioWeight (..),
+    ScenarioWeight,
+    discountFactor,
+    lgd,
+    mkEclParameters,
+    mkScenarioWeight,
+    pd12Month,
+    pdLifetime,
+    scenarioWeights,
+    unWeight,
  )
 import Domain.IFRS.FinancialInstrument.Errors (FinancialInstrumentError (..))
 import Domain.IFRS.FinancialInstrument.Services.EclCalculation (classifyStage, computeEcl)
 import Domain.IFRS.FinancialInstrument.ValueObjects.EclStage (EclStage (..))
 import Domain.IFRS.FinancialInstrument.ValueObjects.FinancialAssetId (
-    FinancialAssetId (..),
+    FinancialAssetId,
     mkFinancialAssetId,
+    unFinancialAssetId,
  )
 import Domain.IFRS.FinancialInstrument.ValueObjects.Version (Version, initialVersion, nextVersion)
 import Domain.Shared (Money, zeroMoney)

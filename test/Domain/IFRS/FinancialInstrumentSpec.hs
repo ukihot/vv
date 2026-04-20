@@ -2,8 +2,9 @@ module Domain.IFRS.FinancialInstrumentSpec (tests) where
 
 import Domain.IFRS.FinancialInstrument (
     EclJudgmentLog (..),
-    EclParameters (..),
+    EclParameters,
     EclStage (..),
+    EconomicScenario (..),
     FinancialInstrumentError (..),
     SomeFinancialAsset (..),
     classifyStage,
@@ -11,8 +12,12 @@ import Domain.IFRS.FinancialInstrument (
     faEclAllowance,
     faStage,
     faVersion,
+    mkEclParameters,
+    mkFinancialAssetId,
+    mkScenarioWeight,
     promoteToStage2,
     recordFinancialAsset,
+    unFinancialAssetId,
     updateEclStage,
  )
 import Domain.Shared (
@@ -40,33 +45,47 @@ tests =
     testGroup
         "FinancialInstrument (IFRS 9)"
         [ testGroup
-            "classifyStage §4.7.6"
-            [ testCase "期日経過0日・格付正常 → Stage1" case_stage1Normal
-            , testCase "期日経過31日 → Stage2" case_stage2Overdue31
-            , testCase "格付著しく低下 → Stage2" case_stage2RatingDeteriorated
-            , testCase "期日経過91日 → Stage3" case_stage3Overdue91
-            , testCase "法的倒産 → Stage3" case_stage3LegalDefault
+            "classifyStage"
+            [ testCase "0 days overdue with sound credit remains Stage1" case_stage1Normal
+            , testCase "31 days overdue moves to Stage2" case_stage2Overdue31
+            , testCase "rating deterioration moves to Stage2" case_stage2RatingDeteriorated
+            , testCase "91 days overdue moves to Stage3" case_stage3Overdue91
+            , testCase "legal default moves to Stage3" case_stage3LegalDefault
             ]
         , testGroup
-            "computeEcl §4.7.7"
-            [ testCase "Stage1: ECL = EAD × PD(12M) × LGD" case_eclStage1
-            , testCase "Stage2: ECL = EAD × PD(Lifetime) × LGD × DF" case_eclStage2
-            , testCase "Stage3: Stage2と同じ算式（信用調整済み実効金利継続）" case_eclStage3
-            , testCase "LGD > 1 はエラー" case_invalidLgd
+            "mkEclParameters"
+            [ testCase "LGD > 1 is rejected" case_invalidLgd
+            , testCase "PD > 1 is rejected" case_invalidPd
+            , testCase "discount factor outside (0, 1] is rejected" case_invalidDiscountFactor
+            , testCase "scenario weights must sum to 1" case_invalidScenarioWeights
+            ]
+        , testGroup
+            "FinancialAssetId"
+            [ testCase "blank asset id is rejected" case_blankAssetIdFails
+            , testCase "asset id is normalized" case_assetIdIsTrimmed
+            ]
+        , testGroup
+            "computeEcl"
+            [ testCase "Stage1 ECL = EAD x PD12M x LGD" case_eclStage1
+            , testCase "Stage2 ECL = EAD x lifetime PD x LGD x DF" case_eclStage2
+            , testCase "Stage3 uses the Stage2 formula" case_eclStage3
+            , testCase "negative EAD is rejected" case_negativeEad
             ]
         , testGroup
             "recordFinancialAsset"
-            [ testCase "初度認識: Stage1・ECLゼロ・初期バージョン" case_recordInitial
+            [ testCase "initial recognition starts at Stage1 with zero ECL and initial version" case_recordInitial
             ]
         , testGroup
-            "updateEclStage (GADT)"
-            [ testCase "Stage移動でバージョンが進む" case_updateStageVersionBumps
-            , testCase "Stage1→Stage2への移動 (promoteToStage2)" case_stage1To2
-            , testCase "Stage2→Stage3への移動 (promoteToStage3)" case_stage2To3
+            "updateEclStage"
+            [ testCase "stage movement bumps the version" case_updateStageVersionBumps
+            , testCase "promoteToStage2 moves Stage1 to Stage2" case_stage1To2
+            , testCase "updateEclStage moves Stage2 to Stage3" case_stage2To3
             ]
         , testGroup
             "Properties"
-            [ testProperty "Stage1 ECL ≤ Stage2 ECL (同一EAD・パラメータ)" prop_stage1EclLeStage2Ecl
+            [ testProperty
+                "Stage1 ECL is not greater than Stage2 ECL for identical inputs"
+                prop_stage1EclLeStage2Ecl
             ]
         ]
 
@@ -91,78 +110,146 @@ case_stage3Overdue91 = assertEqual "Stage3" Stage3 (classifyStage 91 False False
 case_stage3LegalDefault :: Assertion
 case_stage3LegalDefault = assertEqual "Stage3" Stage3 (classifyStage 0 False True)
 
--- Stage1: ECL = 1,000,000 × 0.01 × 0.45 = 4,500
+case_invalidLgd :: Assertion
+case_invalidLgd =
+    assertEqual
+        "invalid lgd"
+        (Left InvalidLgd)
+        ( mkValidatedParams
+            0.01
+            0.05
+            1.5
+            0.95
+            [(0.6, BaseScenario), (0.2, OptimisticScenario), (0.2, PessimisticScenario)]
+        )
+
+case_invalidPd :: Assertion
+case_invalidPd =
+    assertEqual
+        "invalid pd"
+        (Left InvalidPd)
+        ( mkValidatedParams
+            1.2
+            0.05
+            0.45
+            0.95
+            [(0.6, BaseScenario), (0.2, OptimisticScenario), (0.2, PessimisticScenario)]
+        )
+
+case_invalidDiscountFactor :: Assertion
+case_invalidDiscountFactor =
+    assertEqual
+        "invalid discount factor"
+        (Left InvalidDiscountFactor)
+        ( mkValidatedParams
+            0.01
+            0.05
+            0.45
+            1.2
+            [(0.6, BaseScenario), (0.2, OptimisticScenario), (0.2, PessimisticScenario)]
+        )
+
+case_invalidScenarioWeights :: Assertion
+case_invalidScenarioWeights =
+    assertEqual
+        "invalid scenario weights"
+        (Left InvalidScenarioWeights)
+        (mkValidatedParams 0.01 0.05 0.45 0.95 [(0.7, BaseScenario), (0.2, OptimisticScenario)])
+
+case_blankAssetIdFails :: Assertion
+case_blankAssetIdFails =
+    assertEqual "blank asset id" (Left InvalidAssetId) (mkFinancialAssetId "   ")
+
+case_assetIdIsTrimmed :: Assertion
+case_assetIdIsTrimmed =
+    case mkFinancialAssetId " FA-2026-001 " of
+        Left err -> assertFailure ("unexpected error: " <> show err)
+        Right fid -> assertEqual "trimmed asset id" "FA-2026-001" (unFinancialAssetId fid)
+
 case_eclStage1 :: Assertion
 case_eclStage1 = do
     let ead = mkMoney' 1000000 :: Money "JPY"
         expected = mkMoney' 4500 :: Money "JPY"
     case computeEcl Stage1 ead sampleEclParams of
-        Left e -> assertFailure ("予期しないエラー: " <> show e)
-        Right r -> assertEqual "Stage1 ECL" expected r
+        Left err -> assertFailure ("unexpected error: " <> show err)
+        Right value -> assertEqual "Stage1 ECL" expected value
 
--- Stage2: ECL = 1,000,000 × 0.05 × 0.45 × 0.95 = 21,375
 case_eclStage2 :: Assertion
 case_eclStage2 = do
     let ead = mkMoney' 1000000 :: Money "JPY"
         expected = mkMoney' 21375 :: Money "JPY"
     case computeEcl Stage2 ead sampleEclParams of
-        Left e -> assertFailure ("予期しないエラー: " <> show e)
-        Right r -> assertEqual "Stage2 ECL" expected r
+        Left err -> assertFailure ("unexpected error: " <> show err)
+        Right value -> assertEqual "Stage2 ECL" expected value
 
 case_eclStage3 :: Assertion
 case_eclStage3 = do
     let ead = mkMoney' 1000000 :: Money "JPY"
     case (computeEcl Stage2 ead sampleEclParams, computeEcl Stage3 ead sampleEclParams) of
-        (Right s2, Right s3) -> assertEqual "Stage3 = Stage2 算式" s2 s3
-        other -> assertFailure ("予期しないエラー: " <> show other)
+        (Right stage2Ecl, Right stage3Ecl) -> assertEqual "Stage3 formula" stage2Ecl stage3Ecl
+        other -> assertFailure ("unexpected error: " <> show other)
 
-case_invalidLgd :: Assertion
-case_invalidLgd = do
-    let ead = mkMoney' 1000000 :: Money "JPY"
-        params = sampleEclParams {lgd = 1.5}
-    case computeEcl Stage1 ead params of
-        Left InvalidLgd -> pure ()
-        other -> assertFailure ("期待: InvalidLgd, 実際: " <> show other)
+case_negativeEad :: Assertion
+case_negativeEad = do
+    let ead = mkMoney' (-1000000) :: Money "JPY"
+    case computeEcl Stage1 ead sampleEclParams of
+        Left NegativeEad -> pure ()
+        other -> assertFailure ("expected NegativeEad, got: " <> show other)
 
 case_recordInitial :: Assertion
 case_recordInitial = do
     fid <- sampleFinancialAssetId
-    let fa = recordFinancialAsset fid (mkMoney' 500000 :: Money "JPY") 0.05
-    assertEqual "初期ステージ" Stage1 (faStage fa)
-    assertEqual "初期ECL" zeroMoney (faEclAllowance fa)
-    assertEqual "初期バージョン" initialVersion (faVersion fa)
+    let asset = recordFinancialAsset fid (mkMoney' 500000 :: Money "JPY") 0.05
+    assertEqual "initial stage" Stage1 (faStage asset)
+    assertEqual "initial ecl" zeroMoney (faEclAllowance asset)
+    assertEqual "initial version" initialVersion (faVersion asset)
 
 case_updateStageVersionBumps :: Assertion
 case_updateStageVersionBumps = do
     fid <- sampleFinancialAssetId
-    let fa = recordFinancialAsset fid (mkMoney' 500000 :: Money "JPY") 0.05
+    let asset = recordFinancialAsset fid (mkMoney' 500000 :: Money "JPY") 0.05
         newEcl = mkMoney' 21375 :: Money "JPY"
-        (sfa', _) = updateEclStage (SomeFA fa) Stage2 newEcl
-    assertEqual "バージョンが進む" (nextVersion initialVersion) (someFaVersion sfa')
+        (asset', _) = updateEclStage (SomeFA asset) Stage2 newEcl
+    assertEqual "version bump" (nextVersion initialVersion) (someFaVersion asset')
 
 case_stage1To2 :: Assertion
 case_stage1To2 = do
     fid <- sampleFinancialAssetId
-    let fa = recordFinancialAsset fid (mkMoney' 500000 :: Money "JPY") 0.05
+    let asset = recordFinancialAsset fid (mkMoney' 500000 :: Money "JPY") 0.05
         newEcl = mkMoney' 21375 :: Money "JPY"
-        (fa', log') = promoteToStage2 fa newEcl
-    assertEqual "新ステージ" Stage2 (faStage fa')
-    assertEqual "ログ: 旧ステージ" Stage1 (ejlPreviousStage log')
-    assertEqual "ログ: 新ステージ" Stage2 (ejlNewStage log')
+        (asset', log') = promoteToStage2 asset newEcl
+    assertEqual "new stage" Stage2 (faStage asset')
+    assertEqual "previous stage in log" Stage1 (ejlPreviousStage log')
+    assertEqual "new stage in log" Stage2 (ejlNewStage log')
 
 case_stage2To3 :: Assertion
 case_stage2To3 = do
     fid <- sampleFinancialAssetId
-    let fa0 = recordFinancialAsset fid (mkMoney' 500000 :: Money "JPY") 0.05
-        (fa1, _) = promoteToStage2 fa0 (mkMoney' 21375)
-        (sfa2, _) = updateEclStage (SomeFA fa1) Stage3 (mkMoney' 21375)
-    assertEqual "Stage3へ移動" Stage3 (someFaStage sfa2)
+    let asset0 = recordFinancialAsset fid (mkMoney' 500000 :: Money "JPY") 0.05
+        (asset1, _) = promoteToStage2 asset0 (mkMoney' 21375)
+        (asset2, _) = updateEclStage (SomeFA asset1) Stage3 (mkMoney' 21375)
+    assertEqual "Stage3" Stage3 (someFaStage asset2)
 
 prop_stage1EclLeStage2Ecl :: Property
 prop_stage1EclLeStage2Ecl = property $ do
     ead <- forAll $ Gen.integral (Range.linear 1 10000000 :: Range.Range Int)
     let eadMoney = mkMoney' (fromIntegral ead) :: Money "JPY"
     case (computeEcl Stage1 eadMoney sampleEclParams, computeEcl Stage2 eadMoney sampleEclParams) of
-        (Right s1, Right s2) ->
-            (toRationalMoney s1 <= toRationalMoney s2) === True
+        (Right stage1Ecl, Right stage2Ecl) ->
+            (toRationalMoney stage1Ecl <= toRationalMoney stage2Ecl) === True
         _ -> pure ()
+
+mkValidatedParams ::
+    Rational ->
+    Rational ->
+    Rational ->
+    Rational ->
+    [(Rational, EconomicScenario)] ->
+    Either FinancialInstrumentError EclParameters
+mkValidatedParams pd12 pdLife lossGivenDefault df weights = do
+    validatedWeights <- traverse mkWeight weights
+    mkEclParameters pd12 pdLife lossGivenDefault df validatedWeights
+    where
+        mkWeight (weight, scenario) = do
+            validatedWeight <- mkScenarioWeight weight
+            pure (scenario, validatedWeight)

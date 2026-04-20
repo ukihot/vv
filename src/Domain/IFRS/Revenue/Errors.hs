@@ -5,7 +5,10 @@ where
 
 data RevenueError
     = InvalidContractId
+    | InvalidPerformanceObligationId
     | ZeroStandalonePrice
+    | NonPositiveStandalonePrice
+    | NegativeAllocatedPrice
     | CannotRecognizeOverTimeObligationAtPoint
     | ResidualApproachRequirementsNotMet
     deriving stock (Show, Eq)

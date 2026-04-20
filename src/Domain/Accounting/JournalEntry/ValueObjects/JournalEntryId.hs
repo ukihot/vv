@@ -1,6 +1,7 @@
 module Domain.Accounting.JournalEntry.ValueObjects.JournalEntryId (
-    JournalEntryId (..),
+    JournalEntryId,
     mkJournalEntryId,
+    unJournalEntryId,
 )
 where
 
@@ -13,5 +14,7 @@ newtype JournalEntryId = JournalEntryId {unJournalEntryId :: Text}
 
 mkJournalEntryId :: Text -> Either JournalError JournalEntryId
 mkJournalEntryId t
-    | T.null t = Left InvalidEntryId
-    | otherwise = Right (JournalEntryId t)
+    | T.null normalized = Left InvalidEntryId
+    | otherwise = Right (JournalEntryId normalized)
+    where
+        normalized = T.strip t

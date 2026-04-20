@@ -1,19 +1,19 @@
--- | Accounting / IFRS テスト用フィクスチャ
+-- | Accounting / IFRS test fixtures
 module Support.Accounting.Fixtures (
-    -- * 勘定科目
+    -- * Chart of accounts
     sampleCashAccount,
     sampleArAccount,
     sampleRevenueAccount,
 
-    -- * 会計期間
+    -- * Fiscal period
     sampleFiscalYearMonth,
     sampleFiscalPeriodId,
 
-    -- * 為替レート
+    -- * Exchange rates
     sampleUsdJpyClosingRate,
     sampleUsdJpyHistoricalRate,
 
-    -- * 仕訳
+    -- * Journal entry
     sampleJournalEntryId,
     sampleDebitLine,
     sampleCreditLine,
@@ -29,7 +29,7 @@ module Support.Accounting.Fixtures (
     -- * IFRS 16
     sampleLeaseId,
 
-    -- * ヘルパー
+    -- * Helpers
     shouldRight,
 )
 where
@@ -45,44 +45,39 @@ import Domain.Accounting.ChartOfAccounts (
     mkAccountName,
  )
 import Domain.Accounting.ExchangeRate (
-    ExchangeRate (..),
-    RateKind (..),
-    mkExchangeRate,
+    ExchangeRate,
+    RateKind (ClosingRate, HistoricalRate),
+    mkClosingRate,
+    mkHistoricalRate,
  )
-import Domain.Accounting.FiscalPeriod (FiscalPeriodId (..), mkFiscalPeriodId)
+import Domain.Accounting.FiscalPeriod (FiscalPeriodId, mkFiscalPeriodId)
 import Domain.Accounting.JournalEntry (
     DrCr (..),
-    JournalEntryId (..),
+    JournalEntryId,
     JournalLine (..),
     mkJournalEntryId,
  )
 import Domain.IFRS.FinancialInstrument (
-    EclParameters (..),
+    EclParameters,
     EconomicScenario (..),
-    FinancialAssetId (..),
-    ScenarioWeight (..),
+    FinancialAssetId,
+    mkEclParameters,
     mkFinancialAssetId,
+    mkScenarioWeight,
  )
-import Domain.IFRS.Lease (LeaseId (..), mkLeaseId)
+import Domain.IFRS.Lease (LeaseId, mkLeaseId)
 import Domain.IFRS.Revenue (
-    ContractId (..),
-    PerformanceObligationId (..),
+    ContractId,
+    PerformanceObligationId,
     mkContractId,
+    mkPerformanceObligationId,
  )
-import Domain.Shared (FiscalYearMonth (..), mkMoney')
+import Domain.Shared (FiscalYearMonth, fiscalYearMonth, mkMoney')
 import Test.Tasty.HUnit (assertFailure)
 
--- ─────────────────────────────────────────────────────────────────────────────
--- ヘルパー
--- ─────────────────────────────────────────────────────────────────────────────
-
 shouldRight :: Show e => String -> Either e a -> IO a
-shouldRight _ (Right v) = pure v
-shouldRight label (Left e) = assertFailure (label <> ": " <> show e)
-
--- ─────────────────────────────────────────────────────────────────────────────
--- 勘定科目
--- ─────────────────────────────────────────────────────────────────────────────
+shouldRight _ (Right value) = pure value
+shouldRight label (Left err) = assertFailure (label <> ": " <> show err)
 
 sampleCashAccount :: IO Account
 sampleCashAccount = do
@@ -126,40 +121,31 @@ sampleRevenueAccount = do
             , accountCNC = NotApplicable
             }
 
--- ─────────────────────────────────────────────────────────────────────────────
--- 会計期間
--- ─────────────────────────────────────────────────────────────────────────────
-
 sampleFiscalYearMonth :: FiscalYearMonth
-sampleFiscalYearMonth = FiscalYearMonth 2026 3
+sampleFiscalYearMonth =
+    case fiscalYearMonth 2026 3 of
+        Left err -> error ("invalid fiscal year month fixture: " <> show err)
+        Right value -> value
 
 sampleFiscalPeriodId :: IO FiscalPeriodId
 sampleFiscalPeriodId = shouldRight "period id" (mkFiscalPeriodId "2026-03")
 
--- ─────────────────────────────────────────────────────────────────────────────
--- 為替レート
--- ─────────────────────────────────────────────────────────────────────────────
-
-sampleUsdJpyClosingRate :: IO (ExchangeRate "USD" "JPY")
+sampleUsdJpyClosingRate :: IO (ExchangeRate 'ClosingRate "USD" "JPY")
 sampleUsdJpyClosingRate =
-    shouldRight "usd/jpy cr" $
-        mkExchangeRate 150 ClosingRate (fromGregorian 2026 3 31) "BOJ"
+    shouldRight "usd/jpy closing rate" $
+        mkClosingRate 150 (fromGregorian 2026 3 31) "BOJ"
 
-sampleUsdJpyHistoricalRate :: IO (ExchangeRate "USD" "JPY")
+sampleUsdJpyHistoricalRate :: IO (ExchangeRate 'HistoricalRate "USD" "JPY")
 sampleUsdJpyHistoricalRate =
-    shouldRight "usd/jpy hr" $
-        mkExchangeRate 145 HistoricalRate (fromGregorian 2026 1 15) "BOJ"
-
--- ─────────────────────────────────────────────────────────────────────────────
--- 仕訳
--- ─────────────────────────────────────────────────────────────────────────────
+    shouldRight "usd/jpy historical rate" $
+        mkHistoricalRate 145 (fromGregorian 2026 1 15) "BOJ"
 
 sampleJournalEntryId :: IO JournalEntryId
 sampleJournalEntryId = shouldRight "entry id" (mkJournalEntryId "JE-2026-001")
 
 sampleDebitLine :: IO (JournalLine "JPY")
 sampleDebitLine = do
-    code <- shouldRight "dr code" (mkAccountCode "1100")
+    code <- shouldRight "debit code" (mkAccountCode "1100")
     pure
         JournalLine
             { lineAccount = code
@@ -169,7 +155,7 @@ sampleDebitLine = do
 
 sampleCreditLine :: IO (JournalLine "JPY")
 sampleCreditLine = do
-    code <- shouldRight "cr code" (mkAccountCode "4000")
+    code <- shouldRight "credit code" (mkAccountCode "4000")
     pure
         JournalLine
             { lineAccount = code
@@ -177,40 +163,35 @@ sampleCreditLine = do
             , lineAmount = mkMoney' 100000
             }
 
--- ─────────────────────────────────────────────────────────────────────────────
--- IFRS 15
--- ─────────────────────────────────────────────────────────────────────────────
-
 sampleContractId :: IO ContractId
 sampleContractId = shouldRight "contract id" (mkContractId "CTR-2026-001")
 
 samplePoId :: PerformanceObligationId
-samplePoId = PerformanceObligationId "PO-001"
-
--- ─────────────────────────────────────────────────────────────────────────────
--- IFRS 9
--- ─────────────────────────────────────────────────────────────────────────────
+samplePoId =
+    case mkPerformanceObligationId "PO-001" of
+        Left err -> error ("invalid performance obligation id fixture: " <> show err)
+        Right value -> value
 
 sampleFinancialAssetId :: IO FinancialAssetId
-sampleFinancialAssetId = shouldRight "fa id" (mkFinancialAssetId "FA-2026-001")
+sampleFinancialAssetId = shouldRight "financial asset id" (mkFinancialAssetId "FA-2026-001")
 
 sampleEclParams :: EclParameters
 sampleEclParams =
-    EclParameters
-        { pd12Month = 0.01 -- 1%
-        , pdLifetime = 0.05 -- 5%
-        , lgd = 0.45 -- 45%
-        , discountFactor = 0.95
-        , scenarioWeights =
-            [ (BaseScenario, ScenarioWeight 0.6)
-            , (OptimisticScenario, ScenarioWeight 0.2)
-            , (PessimisticScenario, ScenarioWeight 0.2)
-            ]
-        }
-
--- ─────────────────────────────────────────────────────────────────────────────
--- IFRS 16
--- ─────────────────────────────────────────────────────────────────────────────
+    case do
+        baseWeight <- mkScenarioWeight 0.6
+        optimisticWeight <- mkScenarioWeight 0.2
+        pessimisticWeight <- mkScenarioWeight 0.2
+        mkEclParameters
+            0.01
+            0.05
+            0.45
+            0.95
+            [ (BaseScenario, baseWeight)
+            , (OptimisticScenario, optimisticWeight)
+            , (PessimisticScenario, pessimisticWeight)
+            ] of
+        Left err -> error ("invalid ecl parameter fixture: " <> show err)
+        Right value -> value
 
 sampleLeaseId :: IO LeaseId
 sampleLeaseId = shouldRight "lease id" (mkLeaseId "LS-2026-001")

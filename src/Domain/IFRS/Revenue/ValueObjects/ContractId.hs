@@ -1,6 +1,7 @@
 module Domain.IFRS.Revenue.ValueObjects.ContractId (
-    ContractId (..),
+    ContractId,
     mkContractId,
+    unContractId,
 )
 where
 
@@ -13,5 +14,7 @@ newtype ContractId = ContractId {unContractId :: Text}
 
 mkContractId :: Text -> Either RevenueError ContractId
 mkContractId t
-    | T.null t = Left InvalidContractId
-    | otherwise = Right (ContractId t)
+    | T.null normalized = Left InvalidContractId
+    | otherwise = Right (ContractId normalized)
+    where
+        normalized = T.strip t
