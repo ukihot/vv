@@ -189,4 +189,4 @@ rehydrate :: [UserEventPayload] -> Either DomainError SomeUser
 rehydrate [] = Left IllegalTransition
 rehydrate (e : es) = do
     s0 <- applyEvent Nothing e
-    foldM (\s ev -> applyEvent (Just s) ev) s0 es
+    foldM (applyEvent . Just) s0 es

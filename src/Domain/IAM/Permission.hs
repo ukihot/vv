@@ -86,4 +86,4 @@ rehydratePermission :: [PermissionEventPayload] -> Either DomainError SomePermis
 rehydratePermission [] = Left IllegalTransition
 rehydratePermission (e : es) = do
     s0 <- applyPermissionEvent Nothing e
-    foldM (\s ev -> applyPermissionEvent (Just s) ev) s0 es
+    foldM (applyPermissionEvent . Just) s0 es

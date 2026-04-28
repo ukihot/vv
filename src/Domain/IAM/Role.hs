@@ -22,7 +22,7 @@ import Domain.IAM.Role.Entities.Profile (RoleProfile (..), addPermission, remove
 import Domain.IAM.Role.Errors (DomainError (..))
 import Domain.IAM.Role.Events (RoleEventPayload (..))
 import Domain.IAM.Role.ValueObjects.RoleId (RoleId)
-import Domain.IAM.Role.ValueObjects.RoleName (RoleName)
+import Domain.IAM.Role.ValueObjects.RoleName ()
 import Domain.IAM.Role.ValueObjects.RoleState (RoleState (..))
 import Domain.IAM.Role.ValueObjects.Version (Version, initialVersion, nextVersion)
 import Domain.IAM.User.ValueObjects.UserId (UserId)
@@ -107,4 +107,4 @@ rehydrateRole :: [RoleEventPayload] -> Either DomainError SomeRole
 rehydrateRole [] = Left IllegalTransition
 rehydrateRole (e : es) = do
     s0 <- applyRoleEvent Nothing e
-    foldM (\s ev -> applyRoleEvent (Just s) ev) s0 es
+    foldM (applyRoleEvent . Just) s0 es
