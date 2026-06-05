@@ -5,6 +5,8 @@ import Domain.Accounting.Spec qualified as Accounting
 import Domain.IAM.Spec qualified as IAM
 import Domain.IFRS.Spec qualified as IFRS
 import Domain.Shared.SharedSpec qualified as Shared
+import Features.IAM.UserActivateSpec qualified as FeatureUserActivate
+import Features.IAM.UserRegisterSpec qualified as FeatureUserRegister
 import GHC.IO.Encoding (setLocaleEncoding, utf8)
 import System.IO (hSetEncoding, stderr, stdout)
 import Test.Tasty (defaultMain, testGroup)
@@ -20,6 +22,8 @@ main = do
             [ Shared.tests
             , IAM.tests
             , AppIAM.tests
+            , FeatureUserRegister.tests
+            , FeatureUserActivate.tests
             , Accounting.tests
             , IFRS.tests
             ]
